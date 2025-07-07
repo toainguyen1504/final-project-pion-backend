@@ -51,35 +51,39 @@
                         </li>
                     </ul>
                 </li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link fw-semibold">
-                        <i class="nav-icon bi bi-people-fill"></i>
-                        <p>
-                            Quản lý tài khoản
-                            <i class="nav-arrow bi bi-chevron-right"></i>
-                        </p>
-                    </a>
-                    <ul class="nav nav-treeview">
-                        <li class="nav-item">
-                            <a href="/admin/users" class="nav-link">
-                                <i class="nav-icon bi bi-circle"></i>
-                                <p>Người dùng</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="#!" class="nav-link">
-                                <i class="nav-icon bi bi-circle"></i>
-                                <p>Quyền truy cập</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="#!" class="nav-link">
-                                <i class="nav-icon bi bi-circle"></i>
-                                <p>Vai trò</p>
-                            </a>
-                        </li>
-                    </ul>
-                </li>
+
+                @if (Auth::user()?->hasRole('admin'))
+                    <li class="nav-item">
+                        <a href="#" class="nav-link fw-semibold">
+                            <i class="nav-icon bi bi-people-fill"></i>
+                            <p>
+                                Quản lý tài khoản
+                                <i class="nav-arrow bi bi-chevron-right"></i>
+                            </p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a href="/admin/users" class="nav-link">
+                                    <i class="nav-icon bi bi-circle"></i>
+                                    <p>Người dùng</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#!" class="nav-link">
+                                    <i class="nav-icon bi bi-circle"></i>
+                                    <p>Quyền truy cập</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#!" class="nav-link">
+                                    <i class="nav-icon bi bi-circle"></i>
+                                    <p>Vai trò</p>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                @endif
+
                 <li class="nav-item">
                     <a href="#!" class="nav-link fw-semibold">
                         <i class="nav-icon bi bi-chat-dots-fill"></i>
