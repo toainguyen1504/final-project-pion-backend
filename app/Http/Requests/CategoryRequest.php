@@ -36,7 +36,7 @@ class CategoryRequest extends FormRequest
     {
         $modal = $this->routeIs('categories.update') ? 'modalEditCategory' : 'modalAddCategory';
         $redirect = redirect()
-            ->route('categories.index')
+            ->route('admin.categories.index')
             ->withErrors($validator)
             ->withInput()
             ->with('openModal', $modal);

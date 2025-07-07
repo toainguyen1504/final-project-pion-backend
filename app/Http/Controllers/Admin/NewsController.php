@@ -2,32 +2,22 @@
 
 namespace App\Http\Controllers\Admin;
 
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
 use App\Models\News;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Http\Requests\StoreNewsRequest;
 use App\Models\Category;
 use App\Models\NewsContent;
 
 class NewsController extends Controller
 {
-    // public function index(News $news)
-    // {
-    //     $news = News::latest()->paginate(10);
-    //     dd($news); // Dừng lại và hiển thị nội dung của biến $news
-    //     return view('admin.news.index', compact('news'));
-    // }
     public function index()
     {
         $news = News::with('content')->latest()->paginate(10);
         return view('admin.news.index', compact('news')); // Truyền biến $news đến view
     }
-
-    // public function show($id)
-    // {
-    //     $news = News::with(['category', 'user', 'content'])->findOrFail($id);
-    //     return view('admin.news.show', compact('news'));
-    // }
 
     public function create()
     {
@@ -41,24 +31,24 @@ class NewsController extends Controller
             // Tạo bản ghi trong bảng news
             $news = News::create([
                 'title'       => $request->title,
-                'user_id'     => 1,
+                'user_id' => Auth::id(),
                 'category_id' => $request->category_id,
             ]);
 
             // Tạo bản ghi nội dung
             NewsContent::create([
                 'news_id' => $news->id,
-                'user_id'     => 1,
+                'user_id' => Auth::id(),
                 'content_html' => $request->content,
             ]);
 
 
-            return redirect()->route('news.index')->with('success', '🎉 Bài viết đã được xuất bản!');
+            return redirect()->route('admin.news.index')->with('success', '🎉 Bài viết đã được xuất bản!');
         } catch (\Exception $e) {
-            // return back()
-            //     ->with('error', '😢 Có lỗi xảy ra, vui lòng thử lại.')
-            //     ->withInput();
-            dd($e->getMessage()); // ⬅️ In thông báo lỗi
+            return back()
+                ->with('error', '😢 Có lỗi xảy ra, vui lòng thử lại.')
+                ->withInput();
+            // dd($e->getMessage()); // ⬅️ In thông báo lỗi
         }
     }
 
@@ -83,7 +73,7 @@ class NewsController extends Controller
                 'content_html' => $request->content,
             ]);
 
-            return redirect()->route('news.index')->with('success', 'Cập nhật bài viết thành công!');
+            return redirect()->route('admin.news.index')->with('success', 'Cập nhật bài viết thành công!');
         } catch (\Exception $e) {
             return back()->with('error', 'Cập nhật thất bại!')->withInput();
         }

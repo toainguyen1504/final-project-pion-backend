@@ -6,8 +6,7 @@
             <h1 class="mb-0 fs-2">Quản lý bài viết</h1>
         </div>
         <div class="col-md-6 text-end">
-            <a href="{{ route('news.create') }}" class="btn btn-dark" style="width: 30%;">+ Thêm bài viết mới</a>
-
+            <a href="{{ route('admin.news.create') }}" class="btn btn-dark" style="width: 40%;">+ Thêm bài viết mới</a>
         </div>
     </div>
 
@@ -31,7 +30,7 @@
                     <td class="px-3">{{ $post->title }}</td>
                     <td class="px-3">{{ optional($post->category)->name ?? '-' }}</td>
                     <td class="text-center">
-                        {{-- {{ route('news.show', $post->id) }} --}}
+                        {{-- {{ route('admin.news.show', $post->id) }} --}}
                         <button class="btn btn-dark btn-sm w-100" data-bs-toggle="modal" data-bs-target="#modalViewNews"
                             data-content="{{ $post->content?->content_html ?? '[Chưa có nội dung]' }}">
                             Xem
@@ -39,12 +38,12 @@
 
                     </td>
                     <td class="text-center">{{ $post->user->name }}</td>
-                    <td class="text-center">{{ $post->created_at->format('d/m/Y') }}</td>
-                    <td class="text-center">{{ $post->updated_at->format('d/m/Y') }}</td>
+                    <td class="text-center">{{ $post->created_at->format('d/m/Y H:i') }}</td>
+                    <td class="text-center">{{ $post->updated_at->format('d/m/Y H:i') }}</td>
                     <td>
                         <div class="d-flex justify-content-center gap-3">
                             {{-- nút edit --}}
-                            <a href="{{ route('news.edit', $post->id) }}" class="btn btn-warning btn-sm px-3">Sửa</a>
+                            <a href="{{ route('admin.news.edit', $post->id) }}" class="btn btn-warning btn-sm px-3">Sửa</a>
 
                             <!-- Nút Xóa kích hoạt modal -->
                             <button type="button" class="btn btn-danger btn-sm px-3" data-bs-toggle="modal"

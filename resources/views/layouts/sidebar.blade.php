@@ -2,7 +2,7 @@
 {{-- data-bs-theme="dark" --}}
 <aside class="app-sidebar bg-body-secondary shadow">
     <div class="sidebar-brand">
-        <a href="#!" class="brand-link logo-switch">
+        <a href="/admin" class="brand-link logo-switch">
             <img src="{{ asset('adminAssets/img/logo.png') }}" alt="Pion"
                 class="brand-image-xl logo-xl opacity-75 px-2" />
         </a>
@@ -11,7 +11,7 @@
         <nav class="mt-2">
             <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="menu" data-accordion="false">
                 <li class="nav-item">
-                    <a href="#" class="nav-link fw-semibold">
+                    <a href="/admin" class="nav-link fw-semibold">
                         {{-- <i class="nav-icon bi bi-circle-fill"></i> --}}
                         <i class="nav-icon bi bi-house-door-fill"></i>
                         <p>Tổng quan</p>
@@ -19,7 +19,7 @@
                 </li>
 
                 <li class="nav-item">
-                    <a href="/admin/categories/index" class="nav-link fw-semibold">
+                    <a href="/admin/categories" class="nav-link fw-semibold">
                         <i class="nav-icon bi bi-folder-fill"></i>
                         <p>
                             Quản lý danh mục
@@ -38,7 +38,7 @@
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
-                            <a href="/admin/news/index" class="nav-link">
+                            <a href="/admin/news" class="nav-link">
                                 <i class="nav-icon bi bi-circle"></i>
                                 <p>Quản lý</p>
                             </a>
@@ -61,7 +61,7 @@
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
-                            <a href="#!" class="nav-link">
+                            <a href="/admin/users" class="nav-link">
                                 <i class="nav-icon bi bi-circle"></i>
                                 <p>Người dùng</p>
                             </a>

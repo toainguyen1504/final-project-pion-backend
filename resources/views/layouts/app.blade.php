@@ -26,6 +26,10 @@
     {{-- <script src="https://cdn.ckeditor.com/ckeditor5/41.2.0/super-build/ckeditor.js"></script> --}}
     <link rel="stylesheet" href="https://cdn.ckeditor.com/ckeditor5/45.2.0/ckeditor5.css">
 
+
+    {{-- awesome ICON --}}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
     {{-- Custom Bootstrap CSS --}}
     <style>
         button.btn-dark:disabled {

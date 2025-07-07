@@ -11,5 +11,5 @@
         {!! $news->content->content_html ?? '<em>Không có nội dung</em>' !!}
     </div>
 
-    <a href="{{ route('news.index') }}" class="btn btn-secondary mt-3">← Quay về danh sách</a>
+    <a href="{{ route('admin.news.index') }}" class="btn btn-secondary mt-3">← Quay về danh sách</a>
 @endsection

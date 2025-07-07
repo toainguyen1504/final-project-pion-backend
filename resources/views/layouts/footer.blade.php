@@ -6,7 +6,7 @@
        <!--begin::Copyright-->
        <strong>
            Admin&nbsp;
-           <a href="#!" class="text-decoration-none text-danger">PION</a>
+           <a href="/admin" class="text-decoration-none text-danger">PION</a>
        </strong>
        <!--end::Copyright-->
    </footer>

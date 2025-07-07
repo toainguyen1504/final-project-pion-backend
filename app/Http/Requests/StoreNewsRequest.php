@@ -16,7 +16,7 @@ class StoreNewsRequest extends FormRequest
         return [
             'title'       => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
-            'content'     => 'required|string|min:10',
+            'content'     => 'required|string|min:50',
         ];
     }
 
@@ -28,7 +28,7 @@ class StoreNewsRequest extends FormRequest
             'category_id.required' => 'Vui lòng chọn danh mục.',
             'category_id.exists'   => 'Danh mục không hợp lệ.',
             'content.required'     => 'Bạn chưa nhập nội dung bài viết.',
-            'content.min'          => 'Nội dung cần tối thiểu 10 ký tự.',
+            'content.min'          => 'Nội dung bài viết cần dài hơn để đảm bảo đầy đủ thông tin.',
         ];
     }
 }

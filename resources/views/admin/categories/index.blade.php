@@ -6,7 +6,7 @@
             <h1 class="mb-0 fs-2">Quản lý danh mục bài viết</h1>
         </div>
         <div class="col-md-6 text-end">
-            <button class="btn btn-dark" style="width: 30%;" data-bs-toggle="modal" data-bs-target="#modalAddCategory">
+            <button class="btn btn-dark" style="width: 40%;" data-bs-toggle="modal" data-bs-target="#modalAddCategory">
                 + Thêm danh mục
             </button>
         </div>
@@ -27,8 +27,8 @@
                 <tr>
                     <td class="text-center">{{ $index + 1 }}</td>
                     <td class="px-3">{{ $category->name }}</td>
-                    <td class="text-center">{{ $category->created_at->format('d/m/Y') }}</td>
-                    <td class="text-center">{{ $category->updated_at->format('d/m/Y') }}</td>
+                    <td class="text-center">{{ $category->created_at->format('d/m/Y H:i') }}</td>
+                    <td class="text-center">{{ $category->updated_at->format('d/m/Y H:i') }}</td>
                     <td>
                         <div class="d-flex justify-content-center gap-3">
                             <button class="btn btn-warning btn-sm px-3" data-bs-toggle="modal"
@@ -55,7 +55,7 @@
     <div class="modal fade" id="modalAddCategory" tabindex="-1" aria-labelledby="modalAddCategoryLabel" aria-hidden="true">
         <div class="modal-dialog" style="margin-top: 80px;">
             <div class="modal-content">
-                <form action="{{ route('categories.store') }}" method="POST">
+                <form action="{{ route('admin.categories.store') }}" method="POST">
                     @csrf
                     <div class="modal-header">
                         <h5 class="modal-title" id="modalAddCategoryLabel">Thêm danh mục</h5>

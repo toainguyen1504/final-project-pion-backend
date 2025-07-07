@@ -4,19 +4,29 @@
     <div class="container-fluid bg-light py-4">
         <div class="d-flex justify-content-center">
             <div class="bg-white shadow rounded px-5 py-4" style="width: 794px; min-height: 1123px;">
-                <form action="{{ route('news.store') }}" method="POST" enctype="multipart/form-data">
+                <form action="{{ route('admin.news.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
 
-                    <!-- Tiêu đề chính -->
+                    @if ($errors->any())
+                        <div class="alert alert-danger">
+                            <strong>😕 Oops! Có vẻ như bạn đã bỏ sót một vài thông tin quan trọng.</strong>
+                            <ul class="mb-0">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
+
+
+                    <!-- Tiêu đề -->
                     <div class="mb-4">
                         <input type="text" name="title" class="form-control border-0 fs-4 fw-bold"
                             placeholder="Tiêu đề bài viết..." required value="{{ old('title') }}">
-                        @error('title')
-                            <div class="text-danger small mt-1">{{ $message }}</div>
-                        @enderror
-
                     </div>
 
+                    <!-- Danh mục -->
                     <div class="mb-4">
                         <label class="form-label">Danh mục</label>
                         <select name="category_id" class="form-select fs-5" required>
@@ -28,53 +38,43 @@
                                 </option>
                             @endforeach
                         </select>
-                        @error('category_id')
-                            <div class="text-danger small mt-1">{{ $message }}</div>
-                        @enderror
-
                     </div>
 
-                    <!-- Nội dung chi tiết -->
+                    <!-- Nội dung -->
                     <div class="mb-4">
-                        <div class="border rounded" style="min-height: calc(1123px - 200px);  padding: 16px;">
+                        <div class="border rounded" style="min-height: calc(1123px - 200px); padding: 16px;">
                             <textarea name="content" id="editor">{{ old('content') }}</textarea>
                         </div>
-                        @error('content')
-                            <div class="text-danger small mt-1">{{ $message }}</div>
-                        @enderror
                     </div>
 
-                </form>
+                    <!-- Nút nổi -->
+                    <div class="position-fixed" style="bottom: 120px; right: 124px; z-index: 1050;" id="floating-buttons">
+                        <div class="d-flex flex-column gap-5">
+                            <div class="d-flex flex-column gap-3">
+                                <a href="{{ route('admin.news.index') }}" class="btn btn-outline-dark btn-sm rounded-circle"
+                                    data-bs-toggle="tooltip" title="Quay lại trang quản lý tin tức">
+                                    <i class="bi bi-arrow-left"></i>
+                                </a>
 
-                <!-- Nút nổi bên phải -->
-                <div class="position-fixed" style="bottom: 120px; right: 124px; z-index: 1050;" id="floating-buttons">
-                    <div class="d-flex flex-column gap-5">
-                        <div class="d-flex flex-column gap-3">
-                            <a href="{{ route('news.index') }}" class="btn btn-outline-dark btn-sm rounded-circle"
-                                data-bs-toggle="tooltip" title="Quay lại trang quản lý tin tức">
-                                <i class="bi bi-arrow-left"></i>
-                            </a>
+                                <button type="button" class="btn btn-outline-primary btn-sm rounded-circle"
+                                    data-bs-toggle="modal" data-bs-target="#modalPreviewNews"
+                                    title="Xem trước bài viết (chưa lưu)">
+                                    <i class="bi bi-eye"></i>
+                                </button>
 
-                            <button type="button" class="btn btn-outline-primary btn-sm rounded-circle"
-                                data-bs-toggle="modal" data-bs-target="#modalPreviewNews"
-                                title="Xem trước bài viết (chưa lưu)">
-                                <i class="bi bi-eye"></i>
-                            </button>
+                                <button type="submit" class="btn btn-dark btn-sm rounded-circle" data-bs-toggle="tooltip"
+                                    title="Xuất bản bài viết">
+                                    <i class="bi bi-send-check-fill"></i>
+                                </button>
+                            </div>
 
-
-                            <button type="submit" class="btn btn-dark btn-sm rounded-circle" data-bs-toggle="tooltip"
-                                title="Xuất bản bài viết" onclick="document.querySelector('form').submit()">
-                                <i class="bi bi-send-check-fill"></i>
+                            <button type="button" class="btn btn-secondary btn-sm rounded-circle" data-bs-toggle="tooltip"
+                                title="Cuộn lên đầu trang" onclick="window.scrollTo({ top: 0, behavior: 'smooth' });">
+                                <i class="bi bi-chevron-double-up"></i>
                             </button>
                         </div>
-
-                        <!-- Nút scroll to top -->
-                        <button type="button" class="btn btn-secondary btn-sm rounded-circle" data-bs-toggle="tooltip"
-                            title="Cuộn lên đầu trang" onclick="window.scrollTo({ top: 0, behavior: 'smooth' });">
-                            <i class="bi bi-chevron-double-up"></i>
-                        </button>
                     </div>
-                </div>
+                </form>
 
                 <!-- Modal xem trước -->
                 <div class="modal fade" id="modalPreviewNews" tabindex="-1" aria-hidden="true">
@@ -117,7 +117,13 @@
                 editorInstance = editor;
                 console.log('CKEditor đã khởi tạo thành công');
 
-                // Gắn sự kiện preview sau khi editor đã sẵn sàng
+                // Đồng bộ nội dung CKEditor về textarea trước khi submit
+                const form = document.querySelector('form');
+                form.addEventListener('submit', function() {
+                    document.querySelector('#editor').value = editorInstance.getData();
+                });
+
+                // Gắn sự kiện preview
                 const previewBtn = document.querySelector('[data-bs-target="#modalPreviewNews"]');
                 const previewContent = document.getElementById('preview-content');
 
@@ -126,7 +132,7 @@
                         const title = document.querySelector('input[name="title"]').value.trim();
                         const category = document.querySelector('select[name="category_id"]');
                         const categoryName = category.options[category.selectedIndex]?.text || '';
-                        const content = editor.getData();
+                        const content = editorInstance.getData();
 
                         previewContent.innerHTML = `
                             <h2 class="fw-bold mb-3">${title}</h2>

@@ -26,9 +26,9 @@ class CategoryController extends Controller
                 'slug' => Str::slug($request->name)
             ]);
 
-            return redirect()->route('categories.index')->with('success', 'Thêm danh mục thành công!');
+            return redirect()->route('admin.categories.index')->with('success', 'Thêm danh mục thành công!');
         } catch (\Exception $e) {
-            return redirect()->route('categories.index')
+            return redirect()->route('admin.categories.index')
                 ->with('error', 'Thêm danh mục thất bại. Vui lòng thử lại.')
                 ->with('openModal', 'modalAddCategory');
         }
@@ -50,9 +50,9 @@ class CategoryController extends Controller
                 'slug' => Str::slug($request->name)
             ]);
 
-            return redirect()->route('categories.index')->with('success', 'Cập nhật danh mục thành công!');
+            return redirect()->route('admin.categories.index')->with('success', 'Cập nhật danh mục thành công!');
         } catch (\Exception $e) {
-            return redirect()->route('categories.index')
+            return redirect()->route('admin.categories.index')
                 ->with('error', 'Cập nhật danh mục thất bại. Vui lòng thử lại.')
                 ->with('openModal', 'modalEditCategory')
                 ->with('editingId', $id);

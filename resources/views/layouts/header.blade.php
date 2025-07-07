@@ -16,7 +16,9 @@
                     <i class="bi bi-search"></i>
                 </a>
             </li>
-            <li class="nav-item dropdown">
+
+            {{-- Tin nhắn từ form đăng kí --}}
+            {{-- <li class="nav-item dropdown">
                 <a class="nav-link" data-bs-toggle="dropdown" href="#">
                     <i class="bi bi-chat-text"></i>
                     <span class="navbar-badge badge text-bg-danger">3</span>
@@ -44,25 +46,34 @@
                     <div class="dropdown-divider"></div>
                     <a href="#" class="dropdown-item dropdown-footer">Xem tất cả thông báo</a>
                 </div>
-            </li>
+            </li> --}}
+            @php
+                $user = auth()->user();
+                $avatar =
+                    $user && $user->profile_image
+                        ? asset('storage/' . $user->profile_image)
+                        : asset('adminAssets/img/avatar_default.jpg');
+            @endphp
             <li class="nav-item dropdown user-menu">
                 <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
-                    <img src="{{ asset('adminAssets/img/avatar_default.jpg') }}"
-                        class="user-image rounded-circle shadow" alt="User  Image" />
-                    <span class="d-none d-md-inline">Admin Cartoon</span>
+                    <img src="{{ $avatar }}" class="user-image rounded-circle shadow" alt="User Image" />
+                    <span class="d-none d-md-inline">{{ $user->name ?? 'Tài khoản' }}</span>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
                     <li class="user-header text-bg-primary">
-                        <img src="{{ asset('adminAssets/img/avatar_default.jpg') }}" class="rounded-circle shadow"
-                            alt="User Image" />
+                        <img src="{{ $avatar }}" class="rounded-circle shadow" alt="User Image" />
                         <p>
-                            Admin Cartoon - Web Developer
-                            <small>Thành viên từ tháng 1 năm 2025</small>
+                            {{ $user->name ?? 'Tài khoản' }} - {{ $user->role->name ?? 'Không rõ vai trò' }}
+                            <small>Thành viên từ {{ $user->created_at?->format('m/Y') }}</small>
                         </p>
                     </li>
                     <li class="user-footer">
                         <a href="#" class="btn btn-default btn-flat">Thông tin cá nhân</a>
-                        <a href="#" class="btn btn-default btn-flat float-end">Đăng xuất</a>
+
+                        <form action="{{ route('logout') }}" method="POST" class="d-inline float-end">
+                            @csrf
+                            <button type="submit" class="btn btn-default btn-flat">Đăng xuất</button>
+                        </form>
                     </li>
                 </ul>
             </li>
