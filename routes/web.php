@@ -7,6 +7,10 @@ use App\Http\Controllers\Admin\CKEditorController;
 use App\Http\Controllers\ClientController;
 use App\Models\News;
 
+// TEST
+Route::get('/api/news', function () {
+    return News::all();
+});
 
 // CLIENT
 Route::get('/', [ClientController::class, 'index'])->name('index');

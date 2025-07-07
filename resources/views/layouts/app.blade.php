@@ -54,7 +54,17 @@
             transform: scale(1.05);
             transition: 0.2s ease;
         }
+
+        #modal-view-content img,
+        #preview-content img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
     </style>
+
+
 
 </head>
 
