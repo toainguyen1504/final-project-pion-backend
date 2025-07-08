@@ -29,7 +29,7 @@
                     <!-- Danh mục -->
                     <div class="mb-4">
                         <label class="form-label">Danh mục</label>
-                        <select name="category_id" class="form-select fs-5" required>
+                        <select name="category_id" class="form-select fs-6" required>
                             <option value="" disabled selected>Chọn danh mục...</option>
                             @foreach ($categories as $category)
                                 <option value="{{ $category->id }}"
@@ -39,6 +39,7 @@
                             @endforeach
                         </select>
                     </div>
+                    {{-- INTRO : đoạn mô tả (nên có) + img + mô tả ảnh (ảnh thì có hoặc khônng) --}}
 
                     <!-- Nội dung -->
                     <div class="mb-4">
@@ -80,7 +81,7 @@
                 <div class="modal fade" id="modalPreviewNews" tabindex="-1" aria-hidden="true">
                     <div class="modal-dialog modal-xl modal-dialog-scrollable">
                         <div class="modal-content border-0 shadow">
-                            <div class="modal-header border-0">
+                            <div class="modal-header border-0 mx-auto" style="width: 794px;">
                                 <h5 class="modal-title">📄 Xem trước bài viết</h5>
                                 <button type="button" class="btn-close red-close" data-bs-dismiss="modal"
                                     aria-label="Đóng"></button>
@@ -109,6 +110,50 @@
 
         ClassicEditor
             .create(document.querySelector('#editor'), {
+                heading: {
+                    options: [{
+                            model: 'paragraph',
+                            title: 'Đoạn văn',
+                            class: 'ck-heading_paragraph'
+                        },
+                        {
+                            model: 'heading2',
+                            view: 'h2',
+                            title: 'Tiêu đề phụ (H2) - tự động đánh số 1,2,3...',
+                            class: 'ck-heading_heading2'
+                        },
+                        {
+                            model: 'heading3',
+                            view: 'h3',
+                            title: 'Tiêu đề nhỏ (H3) - tự động dạng danh sách đánh dấu (icon)',
+                            class: 'ck-heading_heading3'
+                        }
+
+                    ]
+                },
+                toolbar: [
+                    'heading',
+                    '|',
+                    'bold', 'italic', 'link',
+                    // '|',
+                    // 'bulletedList', 'numberedList',
+                    // '|',
+                    // 'blockQuote', 'insertTable',
+                    '|',
+                    'undo', 'redo'
+                ],
+                removePlugins: ['MediaEmbed'],
+                image: {
+                    styles: ['alignCenter', 'alignLeft', 'alignRight'],
+                    resizeUnit: '%',
+                    toolbar: [
+                        'imageTextAlternative',
+                        '|',
+                        'imageStyle:alignLeft',
+                        'imageStyle:alignCenter',
+                        'imageStyle:alignRight'
+                    ]
+                },
                 ckfinder: {
                     uploadUrl: '{{ route('ckeditor.upload') . '?_token=' . csrf_token() }}'
                 }
@@ -135,10 +180,11 @@
                         const content = editorInstance.getData();
 
                         previewContent.innerHTML = `
-                            <h2 class="fw-bold mb-3">${title}</h2>
+                            <h1 class="fw-bold mb-3">${title}</h1>
                             <div class="text-muted mb-4 fst-italic">Danh mục: ${categoryName}</div>
-                            <div>${content}</div>
+                            <div class="post-content">${content}</div>
                         `;
+
                     });
                 }
             })

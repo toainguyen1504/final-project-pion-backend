@@ -59,15 +59,16 @@
             transition: 0.2s ease;
         }
 
-        #modal-view-content img,
+        /* #modal-view-content img,
         #preview-content img {
             max-width: 100%;
             height: auto;
             display: block;
             margin: 0 auto;
-        }
+        } */
     </style>
 
+    <link rel="stylesheet" href="{{ asset('css/post.css') }}">
 
 
 </head>
