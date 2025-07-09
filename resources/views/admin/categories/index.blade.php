@@ -23,7 +23,7 @@
             </tr>
         </thead>
         <tbody>
-            @foreach ($categories as $index => $category)
+            @forelse ($categories as $index => $category)
                 <tr>
                     <td class="text-center">{{ $index + 1 }}</td>
                     <td class="px-3">{{ $category->name }}</td>
@@ -37,17 +37,21 @@
                                 Sửa
                             </button>
 
-
                             <button type="button" class="btn btn-danger btn-sm text-white px-3" data-bs-toggle="modal"
                                 data-bs-target="#modalConfirmDelete" data-id="{{ $category->id }}">
                                 Xóa
                             </button>
-
                         </div>
                     </td>
                 </tr>
-            @endforeach
-
+            @empty
+                <tr>
+                    <td colspan="5" class="text-center text-muted py-4">
+                        <i class="fas fa-folder-open fa-2x mb-2 d-block"></i>
+                        <span>Chưa có danh mục nào được tạo.</span>
+                    </td>
+                </tr>
+            @endforelse
         </tbody>
     </table>
 
@@ -119,7 +123,8 @@
                     </div>
                     <div class="modal-footer py-2">
                         <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Hủy</button>
-                        <button type="submit" id="btn-update-category" class="btn btn-dark px-4" disabled>Cập nhật</button>
+                        <button type="submit" id="btn-update-category" class="btn btn-dark px-4" disabled>Cập
+                            nhật</button>
                     </div>
                 </form>
             </div>
@@ -187,7 +192,7 @@
             // Gán giá trị ban đầu
             input.value = name;
             originalName = name.trim();
-            form.action = `/admin/categories/${id}`;
+            form.action = `/categories/${id}`;
             submitBtn.disabled = true; // Mặc định disable
 
             // Theo dõi thay đổi
@@ -206,7 +211,7 @@
             const button = event.relatedTarget;
             const id = button.getAttribute('data-id');
             const form = document.getElementById('deleteCategoryForm');
-            form.action = `/admin/categories/${id}`;
+            form.action = `/categories/${id}`;
         });
     </script>
 

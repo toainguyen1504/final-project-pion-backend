@@ -17,7 +17,7 @@ class AdminSeeder extends Seeder
             'email' => 'admin@pion.vn'
         ], [
             'name' => 'Super Admin',
-            'password' => Hash::make('admin123'),
+            'password' => Hash::make('Admin@1123'),
             'role_id' => $adminRole->id
         ]);
     }

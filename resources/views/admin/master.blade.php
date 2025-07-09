@@ -13,7 +13,7 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <p class="text-muted mb-1">Tổng Tin tức</p>
-                                <h3 class="mb-0 font-weight-bold">1,249</h3>
+                                <h3 class="mb-0 font-weight-bold">{{ number_format($totalNews) }}</h3>
                             </div>
                             <div class="bg-primary text-white p-3 rounded-circle">
                                 <i class="fas fa-newspaper fa-lg"></i>
@@ -33,7 +33,7 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <p class="text-muted mb-1">Tổng Danh mục</p>
-                                <h3 class="mb-0 font-weight-bold">56</h3>
+                                <h3 class="mb-0 font-weight-bold">{{ number_format($totalCategories) }}</h3>
                             </div>
                             <div class="bg-success text-white p-3 rounded-circle">
                                 <i class="fas fa-th-large fa-lg"></i>
@@ -47,7 +47,7 @@
             </div>
 
             <!-- Yêu cầu tư vấn mới -->
-            <div class="col-md-3 mb-4">
+            {{-- <div class="col-md-3 mb-4">
                 <div class="card shadow-sm">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
@@ -64,10 +64,10 @@
                         </p>
                     </div>
                 </div>
-            </div>
+            </div> --}}
 
             <!-- Tổng lượt xem -->
-            <div class="col-md-3 mb-4">
+            {{-- <div class="col-md-3 mb-4">
                 <div class="card shadow-sm">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
@@ -84,7 +84,7 @@
                         </p>
                     </div>
                 </div>
-            </div>
+            </div> --}}
         </div>
 
         {{-- Quản lý danh mục và tin tức --}}
@@ -94,95 +94,67 @@
                 <div class="card shadow-sm w-100">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">Danh mục nổi bật</h5>
-                        <a href="#" class="text-primary small text-nowrap ms-auto">Xem tất cả</a>
+                        <a href="{{ route('admin.categories.index') }}" class="text-primary small text-nowrap ms-auto">Xem
+                            tất cả</a>
                     </div>
                     <div class="list-group list-group-flush">
-                        <a href="#" class="list-group-item list-group-item-action d-flex align-items-center">
-                            <div class="bg-primary bg-opacity-10 text-primary p-3 rounded me-3">
-                                <i class="fas fa-graduation-cap"></i>
+                        @forelse ($topCategories as $category)
+                            <a href="{{ route('admin.news.index') }}?category={{ $category->id }}"
+                                class="list-group-item list-group-item-action d-flex align-items-center">
+                                <div class="bg-primary bg-opacity-10 text-primary p-3 rounded me-3">
+                                    <i class="fas fa-folder"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="fw-semibold">{{ $category->name }}</div>
+                                    <small class="text-muted">{{ $category->news_count }} bài viết</small>
+                                </div>
+                                <i class="fas fa-chevron-right text-primary"></i>
+                            </a>
+                        @empty
+                            <div class="text-center text-muted py-4">
+                                <i class="fas fa-folder-open fa-2x mb-2"></i>
+                                <p class="mb-0">Chưa có danh mục nào được tạo.</p>
                             </div>
-                            <div class="flex-grow-1">
-                                <div class="fw-semibold">Khóa học lập trình</div>
-                                <small class="text-muted">15 bài viết</small>
-                            </div>
-                            <i class="fas fa-chevron-right text-primary"></i>
-                        </a>
-                        <a href="#" class="list-group-item list-group-item-action d-flex align-items-center">
-                            <div class="bg-success bg-opacity-10 text-success p-3 rounded me-3">
-                                <i class="fas fa-chart-line"></i>
-                            </div>
-                            <div class="flex-grow-1">
-                                <div class="fw-semibold">Phát triển sự nghiệp</div>
-                                <small class="text-muted">28 bài viết</small>
-                            </div>
-                            <i class="fas fa-chevron-right text-primary"></i>
-                        </a>
-                        <a href="#" class="list-group-item list-group-item-action d-flex align-items-center">
-                            <div class="bg-warning bg-opacity-10 text-warning p-3 rounded me-3">
-                                <i class="fas fa-book"></i>
-                            </div>
-                            <div class="flex-grow-1">
-                                <div class="fw-semibold">Tài liệu học tập</div>
-                                <small class="text-muted">42 bài viết</small>
-                            </div>
-                            <i class="fas fa-chevron-right text-primary"></i>
-                        </a>
-                        <a href="#" class="list-group-item list-group-item-action d-flex align-items-center">
-                            <div class="bg-purple bg-opacity-10 text-purple p-3 rounded me-3">
-                                <i class="fas fa-lightbulb"></i>
-                            </div>
-                            <div class="flex-grow-1">
-                                <div class="fw-semibold">Kỹ năng mềm</div>
-                                <small class="text-muted">33 bài viết</small>
-                            </div>
-                            <i class="fas fa-chevron-right text-primary"></i>
-                        </a>
+                        @endforelse
                     </div>
                 </div>
             </div>
+
 
             <!-- Tin tức nổi bật -->
             <div class="col-lg-6 mb-4 d-flex align-items-stretch">
                 <div class="card shadow-sm w-100">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">Tin tức nổi bật</h5>
-                        <a href="#" class="text-primary small text-nowrap ms-auto">Xem tất cả</a>
+                        <a href="{{ route('admin.news.index') }}" class="text-primary small text-nowrap ms-auto">Xem tất
+                            cả</a>
                     </div>
                     <div class="card-body">
-                        <div class="mb-4 border-bottom pb-3">
-                            <h6 class="fw-semibold">Lộ trình học lập trình web trong 6 tháng</h6>
-                            <small class="text-muted">5 giờ trước - <span class="text-primary">Khóa học lập
-                                    trình</span></small>
-                            <p class="mt-2 text-muted">
-                                Hướng dẫn chi tiết lộ trình trở thành lập trình viên web full-stack chỉ trong 6 tháng
-                                với các tài liệu miễn phí...
-                            </p>
-                        </div>
-                        <div class="mb-4 border-bottom pb-3">
-                            <h6 class="fw-semibold">10 kỹ năng mềm quan trọng cho lập trình viên</h6>
-                            <small class="text-muted">1 ngày trước - <span class="text-primary">Kỹ năng
-                                    mềm</span></small>
-                            <p class="mt-2 text-muted">
-                                Ngoài kiến thức chuyên môn, những kỹ năng này sẽ giúp bạn thăng tiến nhanh trong sự
-                                nghiệp lập trình...
-                            </p>
-                        </div>
-                        <div class="mb-2">
-                            <h6 class="fw-semibold">Cập nhật xu hướng công nghệ 2024</h6>
-                            <small class="text-muted">2 ngày trước - <span class="text-primary">Phát triển sự
-                                    nghiệp</span></small>
-                            <p class="mt-2 text-muted">
-                                Những công nghệ và ngôn ngữ lập trình đáng chú ý sẽ thống trị thị trường trong năm tới
-                                theo dự đoán của chuyên gia...
-                            </p>
-                        </div>
+                        @forelse ($latestNews as $news)
+                            <div class="mb-4 border-bottom pb-3">
+                                <h6 class="fw-semibold">{{ $news->title }}</h6>
+                                <small class="text-muted">
+                                    {{ $news->created_at->diffForHumans() }} -
+                                    <span class="text-primary">{{ $news->category->name ?? 'Không có danh mục' }}</span>
+                                </small>
+                                <p class="mt-2 text-muted">
+                                    {{ \Illuminate\Support\Str::limit(strip_tags($news->content->content_html ?? ''), 120) }}
+                                </p>
+                            </div>
+                        @empty
+                            <div class="text-center text-muted py-4">
+                                <i class="fas fa-newspaper fa-2x mb-2"></i>
+                                <p class="mb-0">Chưa có bài viết nào được đăng.</p>
+                            </div>
+                        @endforelse
                     </div>
                 </div>
             </div>
+
         </div>
 
         {{-- Quản lý tư vấn --}}
-        <div class="card shadow-sm mb-4">
+        {{-- <div class="card shadow-sm mb-4">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0 fw-bold">Yêu cầu tư vấn gần đây</h5>
                 <a href="#" class="btn btn-sm btn-outline-primary text-nowrap ms-auto">Xem tất cả</a>
@@ -251,8 +223,7 @@
                     </tbody>
                 </table>
             </div>
-        </div>
+        </div> --}}
 
-        {{-- {{ $news->links() }} <!-- Hiển thị phân trang nếu có --> --}}
     </div>
 @endsection

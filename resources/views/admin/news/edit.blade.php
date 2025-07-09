@@ -51,29 +51,36 @@
                     <div class="position-fixed" style="bottom: 120px; right: 124px; z-index: 1050;" id="floating-buttons">
                         <div class="d-flex flex-column gap-5">
                             <div class="d-flex flex-column gap-3">
+                                <!-- Quay lại -->
                                 <a href="{{ route('admin.news.index') }}" class="btn btn-outline-dark btn-sm rounded-circle"
-                                    data-bs-toggle="tooltip" title="Quay lại trang quản lý tin tức">
+                                    data-bs-toggle="tooltip" data-bs-placement="left"
+                                    title="Quay lại trang quản lý tin tức">
                                     <i class="bi bi-arrow-left"></i>
                                 </a>
 
+                                <!-- Xem trước -->
                                 <button type="button" class="btn btn-outline-primary btn-sm rounded-circle"
                                     data-bs-toggle="modal" data-bs-target="#modalPreviewNews"
-                                    title="Xem trước bài viết (chưa lưu)">
+                                    title="Xem trước bài viết (chưa lưu)" data-bs-placement="left">
                                     <i class="bi bi-eye"></i>
                                 </button>
 
+                                <!-- Cập nhật -->
                                 <button type="submit" class="btn btn-dark btn-sm rounded-circle" data-bs-toggle="tooltip"
-                                    title="Cập nhật bài viết">
+                                    data-bs-placement="left" title="Cập nhật bài viết (lưu)">
                                     <i class="bi bi-send-check-fill"></i>
                                 </button>
                             </div>
 
+                            <!-- Cuộn lên đầu -->
                             <button type="button" class="btn btn-secondary btn-sm rounded-circle" data-bs-toggle="tooltip"
-                                title="Cuộn lên đầu trang" onclick="window.scrollTo({ top: 0, behavior: 'smooth' });">
+                                data-bs-placement="left" title="Cuộn lên đầu trang"
+                                onclick="window.scrollTo({ top: 0, behavior: 'smooth' });">
                                 <i class="bi bi-chevron-double-up"></i>
                             </button>
                         </div>
                     </div>
+
                 </form>
             </div>
         </div>
@@ -135,6 +142,8 @@
                     // '|',
                     // 'blockQuote', 'insertTable',
                     '|',
+                    'uploadImage',
+                    '|',
                     'undo', 'redo'
                 ],
                 removePlugins: ['MediaEmbed'],
@@ -186,5 +195,15 @@
             .catch(error => {
                 console.error('Lỗi khi khởi tạo CKEditor:', error);
             });
+    </script>
+
+    // Tooltip
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.forEach(function(tooltipTriggerEl) {
+                new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        });
     </script>
 @endsection

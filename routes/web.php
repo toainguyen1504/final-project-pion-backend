@@ -6,12 +6,8 @@ use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\NewsController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\CKEditorController;
-use App\Http\Controllers\ClientController;
-use App\Models\News;
-
-// CLIENT
-Route::get('/', [ClientController::class, 'index'])->name('index');
 
 // Route đăng nhập
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
@@ -24,23 +20,20 @@ Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLink
 // =================================================================================
 // =================================================================================
 // Nhóm dành cho admin và staff
-Route::prefix('admin')
-    ->name('admin.')
+Route::name('admin.')
     ->middleware(['auth', 'role:admin,staff'])
     ->group(function () {
         // Dashboard
-        Route::get('/', function () {
-            return view('admin.master');
-        })->name('dashboard');
+       Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
-        // Resource routes
+        // News and category
         Route::resource('categories', CategoryController::class);
         Route::resource('news', NewsController::class);
     });
 
+
 // Nhóm chỉ dành cho admin (super)
-Route::prefix('admin')
-    ->name('admin.')
+Route::name('admin.')
     ->middleware(['auth', 'role:admin'])
     ->group(function () {
         Route::resource('users', UserController::class);
@@ -48,9 +41,8 @@ Route::prefix('admin')
 
 // CKEditor upload route
 Route::post('/ckeditor/upload', [CKEditorController::class, 'upload'])->name('ckeditor.upload');
-
 // ====================================================
-// ====================================================
+// ================Example NOTE when use Route::resource====================================
 // GET	/admin/categories	-> index -> admin.categories.index
 // GET	/admin/categories/create	-> create ->	admin.categories.create
 // POST	/admin/categories	-> store	-> admin.categories.store

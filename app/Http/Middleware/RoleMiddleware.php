@@ -19,7 +19,7 @@ class RoleMiddleware
         $user = Auth::user();
 
         if (!$user || !in_array($user->role->name, $roles)) {
-            return redirect()->route('admin.dashboard')->with('error', 'Bạn không có quyền truy cập chức năng này.');
+            return redirect()->route('admin.dashboard');
         }
 
         return $next($request);

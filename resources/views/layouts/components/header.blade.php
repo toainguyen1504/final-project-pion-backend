@@ -11,11 +11,12 @@
             <li class="nav-item d-none d-md-block"><a href="/admin" class="nav-link">News</a></li> --}}
         </ul>
         <ul class="navbar-nav ms-auto">
-            <li class="nav-item">
+            {{-- Nút tìm kiếm --}}
+            {{-- <li class="nav-item">
                 <a class="nav-link" data-widget="navbar-search" href="#" role="button">
                     <i class="bi bi-search"></i>
                 </a>
-            </li>
+            </li> --}}
 
             {{-- Tin nhắn từ form đăng kí --}}
             {{-- <li class="nav-item dropdown">
@@ -68,7 +69,7 @@
                         </p>
                     </li>
                     <li class="user-footer">
-                        <a href="#" class="btn btn-default btn-flat">Thông tin cá nhân</a>
+                        {{-- <a href="#" class="btn btn-default btn-flat">Thông tin cá nhân</a> --}}
 
                         <form action="{{ route('logout') }}" method="POST" class="d-inline float-end">
                             @csrf

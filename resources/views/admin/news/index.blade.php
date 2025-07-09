@@ -24,41 +24,41 @@
             </tr>
         </thead>
         <tbody>
-            @foreach ($news as $index => $post)
+            @forelse ($news as $index => $post)
                 <tr>
                     <td class="text-center">{{ $index + 1 }}</td>
                     <td class="px-3">{{ $post->title }}</td>
                     <td class="px-3">{{ optional($post->category)->name ?? '-' }}</td>
                     <td class="text-center">
-                        {{-- {{ route('admin.news.show', $post->id) }} --}}
                         <button class="btn btn-dark btn-sm w-100" data-bs-toggle="modal" data-bs-target="#modalViewNews"
                             data-content="{{ $post->content?->content_html ?? '[Chưa có nội dung]' }}"
                             data-title="{{ $post->title }}"
                             data-category="{{ optional($post->category)->name ?? 'Không có danh mục' }}">
-                            Xem
+                            Xem bài viết
                         </button>
-
                     </td>
                     <td class="text-center">{{ $post->user->name }}</td>
                     <td class="text-center">{{ $post->created_at->format('d/m/Y H:i') }}</td>
                     <td class="text-center">{{ $post->updated_at->format('d/m/Y H:i') }}</td>
                     <td>
                         <div class="d-flex justify-content-center gap-3">
-                            {{-- nút edit --}}
                             <a href="{{ route('admin.news.edit', $post->id) }}" class="btn btn-warning btn-sm px-3">Sửa</a>
-
-                            <!-- Nút Xóa kích hoạt modal -->
                             <button type="button" class="btn btn-danger btn-sm px-3" data-bs-toggle="modal"
                                 data-bs-target="#modalDeleteNews" data-id="{{ $post->id }}"
                                 data-title="{{ $post->title }}">
-                                {{-- <i class="bi bi-trash3 me-1"></i> <strong>XÓA</strong> --}}
                                 Xóa
                             </button>
                         </div>
                     </td>
                 </tr>
-            @endforeach
-
+            @empty
+                <tr>
+                    <td colspan="8" class="text-center text-muted py-4">
+                        <i class="fas fa-newspaper fa-2x mb-2 d-block"></i>
+                        <span>Chưa có bài viết nào được đăng.</span>
+                    </td>
+                </tr>
+            @endforelse
         </tbody>
     </table>
 
@@ -146,7 +146,7 @@
             const title = button.getAttribute('data-title');
 
             const form = document.getElementById('delete-news-form');
-            form.action = `/admin/news/${postId}`;
+            form.action = `/news/${postId}`;
 
             document.getElementById('delete-title').textContent = title;
         });

@@ -3,29 +3,31 @@
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Pion Admin</title>
+    <title>Quản trị PION</title>
+    <link rel="icon" type="image/x-icon" href="{{ asset('adminAssets/favicon/favicon.ico') }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <!--begin::Fonts-->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/source-sans-3@5.0.12/index.css"
         integrity="sha256-tXJfXfp6Ewt1ilPzLDtQnJV4hclT9XuaZUKyUvmyr+Q=" crossorigin="anonymous" />
     <!--end::Fonts-->
+
     <!--begin::Third Party Plugin(OverlayScrollbars)-->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/overlayscrollbars@2.10.1/styles/overlayscrollbars.min.css"
         integrity="sha256-tZHrRjVqNSRyWg2wbppGnT833E/Ys0DHWGwT04GiqQg=" crossorigin="anonymous" />
     <!--end::Third Party Plugin(OverlayScrollbars)-->
+
     <!--begin::Third Party Plugin(Bootstrap Icons)-->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
         integrity="sha256-9kPW/n5nn53j4WMRYAxe9c1rCY96Oogo/MKSVdKzPmI=" crossorigin="anonymous" />
     <!--end::Third Party Plugin(Bootstrap Icons)-->
+
     <!--begin::Required Plugin(AdminLTE)-->
     <link rel="stylesheet" href="{{ asset('adminAssets/css/adminlte.css') }}" />
     <!--end::Required Plugin(AdminLTE)-->
 
-    <!-- Trong head -->
-    {{-- <script src="https://cdn.ckeditor.com/ckeditor5/41.2.0/super-build/ckeditor.js"></script> --}}
+    <!-- CKEditor -->
     <link rel="stylesheet" href="https://cdn.ckeditor.com/ckeditor5/45.2.0/ckeditor5.css">
-
 
     {{-- awesome ICON --}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -59,24 +61,16 @@
             transition: 0.2s ease;
         }
 
-        /* #modal-view-content img,
-        #preview-content img {
-            max-width: 100%;
-            height: auto;
-            display: block;
-            margin: 0 auto;
-        } */
     </style>
 
     <link rel="stylesheet" href="{{ asset('css/post.css') }}">
-
 
 </head>
 
 <body class="layout-fixed sidebar-expand-lg sidebar-mini bg-body-tertiary">
     <div class="app-wrapper">
-        @include('layouts.header')
-        @include('layouts.sidebar')
+        @include('layouts.components.header')
+        @include('layouts.components.sidebar')
 
         <main class="app-main px-5 py-4">
             @if (session('success') || session('error'))
@@ -97,7 +91,7 @@
             @yield('content') <!-- Đây là nơi nội dung của các view con sẽ được chèn vào -->
         </main>
 
-        @include('layouts.footer')
+        @include('layouts.components.footer')
     </div>
 
     <!--begin::Script-->

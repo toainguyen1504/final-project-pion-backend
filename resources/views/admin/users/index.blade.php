@@ -8,7 +8,8 @@
                 <h1 class="mb-0 fs-2">Danh sách quản trị viên</h1>
             </div>
             <div class="col-md-6 text-end">
-                <a href="{{ route('admin.users.create') }}" class="btn btn-dark" style="width: 40%;">+ Thêm quản trị viên mới</a>
+                <a href="{{ route('admin.users.create') }}" class="btn btn-dark" style="width: 40%;">+ Thêm quản trị viên
+                    mới</a>
             </div>
         </div>
 
@@ -62,14 +63,16 @@
                                         data-name="{{ $user->name }}">
                                         Xóa
                                     </button>
-
                                 </div>
                             </td>
 
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="text-center text-muted">Chưa có người dùng nào.</td>
+                            <td colspan="7" class="text-center text-muted py-4">
+                                <i class="fas fa-user-slash fa-2x mb-2 d-block"></i>
+                                <span>Chưa có người dùng nào được tạo.</span>
+                            </td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -120,7 +123,7 @@
             const userName = button.getAttribute('data-name');
 
             const form = document.getElementById('delete-user-form');
-            form.action = `/admin/users/${userId}`;
+            form.action = `/users/${userId}`;
             document.getElementById('delete-user-name').textContent = userName;
         });
     </script>

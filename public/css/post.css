@@ -122,13 +122,14 @@
 /* CKEditor fallback: image without wrapper */
 .post-content img {
     display: block;
-    margin: var(--post-spacing-lg) auto;
     max-width: 100%;
     width: 100%;
     height: auto;
+    max-height: 480px;
     object-fit: cover;
     border-radius: var(--post-border-radius);
     aspect-ratio: 16 / 9;
+    margin: 24px auto 12px;
 }
 
 /* CKEditor fallback: caption using <i> or <em> */
@@ -139,5 +140,5 @@
     font-style: italic;
     font-size: var(--post-caption-size);
     color: var(--post-caption-color);
-    margin-top: 8px;
+    margin-top: 4px;
 }
