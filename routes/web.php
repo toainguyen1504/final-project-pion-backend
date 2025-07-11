@@ -9,10 +9,11 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\CKEditorController;
 
-// Route đăng nhập
+// Tối ưu route đăng nhập - quên mk sau...
+// Route đăng nhập  
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
-Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
 // Quên mật khẩu
 Route::get('/forgot-password', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
 Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
@@ -24,7 +25,7 @@ Route::name('admin.')
     ->middleware(['auth', 'role:admin,staff'])
     ->group(function () {
         // Dashboard
-       Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
         // News and category
         Route::resource('categories', CategoryController::class);
@@ -40,7 +41,9 @@ Route::name('admin.')
     });
 
 // CKEditor upload route
-Route::post('/ckeditor/upload', [CKEditorController::class, 'upload'])->name('ckeditor.upload');
+Route::post('/ckeditor/upload', [CKEditorController::class, 'upload'])
+    ->middleware('auth')
+    ->name('ckeditor.upload');
 // ====================================================
 // ================Example NOTE when use Route::resource====================================
 // GET	/admin/categories	-> index -> admin.categories.index

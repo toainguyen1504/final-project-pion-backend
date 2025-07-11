@@ -94,7 +94,7 @@
                 <div class="card shadow-sm w-100">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">Danh mục nổi bật</h5>
-                        <a href="{{ route('admin.categories.index') }}" class="text-primary small text-nowrap ms-auto">Xem
+                        <a href="{{ route('admin.categories.index') }}" class="btn-link text-primary small text-nowrap ms-auto">Xem
                             tất cả</a>
                     </div>
                     <div class="list-group list-group-flush">
@@ -126,7 +126,7 @@
                 <div class="card shadow-sm w-100">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">Tin tức nổi bật</h5>
-                        <a href="{{ route('admin.news.index') }}" class="text-primary small text-nowrap ms-auto">Xem tất
+                        <a href="{{ route('admin.news.index') }}" class="btn-link text-primary small text-nowrap ms-auto">Xem tất
                             cả</a>
                     </div>
                     <div class="card-body">

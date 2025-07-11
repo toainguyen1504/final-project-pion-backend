@@ -6,7 +6,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['*'], // Hoặc ['https://tenmienfe.com'] nếu cần bảo mật
+    'allowed_origins' => ['https://pion.edu.vn'], // Hoặc ['https://tenmienfe.com'] nếu cần bảo mật
 
     'allowed_origins_patterns' => [],
 

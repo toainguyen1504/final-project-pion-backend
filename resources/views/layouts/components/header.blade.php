@@ -55,13 +55,13 @@
                         ? asset('storage/' . $user->profile_image)
                         : asset('adminAssets/img/avatar_default.jpg');
             @endphp
-            <li class="nav-item dropdown user-menu">
+            <li class="nav-item dropdown user-menu pe-4">
                 <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
                     <img src="{{ $avatar }}" class="user-image rounded-circle shadow" alt="User Image" />
                     <span class="d-none d-md-inline">{{ $user->name ?? 'Tài khoản' }}</span>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
-                    <li class="user-header text-bg-primary">
+                    <li class="user-header bg-primary">
                         <img src="{{ $avatar }}" class="rounded-circle shadow" alt="User Image" />
                         <p>
                             {{ $user->name ?? 'Tài khoản' }} - {{ $user->role->name ?? 'Không rõ vai trò' }}
@@ -70,7 +70,6 @@
                     </li>
                     <li class="user-footer">
                         {{-- <a href="#" class="btn btn-default btn-flat">Thông tin cá nhân</a> --}}
-
                         <form action="{{ route('logout') }}" method="POST" class="d-inline float-end">
                             @csrf
                             <button type="submit" class="btn btn-default btn-flat">Đăng xuất</button>

@@ -2,28 +2,42 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
+use App\Http\Controllers\Controller;
+use App\Services\ImageService;
 
 class CKEditorController extends Controller
 {
     public function upload(Request $request)
     {
         if ($request->hasFile('upload')) {
-            $originName = $request->file('upload')->getClientOriginalName();
-            $fileName = pathinfo($originName, PATHINFO_FILENAME);
-            $extension = $request->file('upload')->getClientOriginalExtension();
-            $fileName = Str::slug($fileName) . '_' . time() . '.' . $extension;
+            $file = $request->file('upload');
 
-            $request->file('upload')->move(public_path('uploads'), $fileName);
+            $allowedMime = ['image/jpeg', 'image/png'];
+            if (!in_array($file->getMimeType(), $allowedMime)) {
+                return response()->json([
+                    'uploaded' => 0,
+                    'error' => ['message' => 'Chỉ chấp nhận ảnh JPEG hoặc PNG.']
+                ], 422);
+            }
 
-            $url = asset('uploads/' . $fileName);
+            $cleanName = ImageService::generateCleanFilename($file->getClientOriginalName());
+
+            $uploadPath = public_path('uploads/news');
+            ImageService::ensureDirectoryExists($uploadPath);
+
+            $file->move($uploadPath, $cleanName);
 
             return response()->json([
-                'url' => $url,
-                'uploaded' => 1
+                'uploaded' => 1,
+                'fileName' => $cleanName,
+                'url' => asset('uploads/news/' . $cleanName)
             ]);
         }
+
+        return response()->json([
+            'uploaded' => 0,
+            'error' => ['message' => 'Không có file được gửi lên.']
+        ], 400);
     }
 }

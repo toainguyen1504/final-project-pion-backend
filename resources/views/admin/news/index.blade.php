@@ -1,66 +1,82 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="row align-items-center mb-4">
+    <div class="row align-items-center mb-5">
         <div class="col-md-6">
             <h1 class="mb-0 fs-2">Quản lý bài viết</h1>
         </div>
-        <div class="col-md-6 text-end">
-            <a href="{{ route('admin.news.create') }}" class="btn btn-dark" style="width: 40%;">+ Thêm bài viết mới</a>
+        <div class="col-md-6 d-flex justify-content-end">
+            <a href="{{ route('admin.news.create') }}"
+                class="btn btn-dark d-flex align-items-center justify-content-center gap-2" style="width: 40%;">
+                <i class="fas fa-plus"></i>
+                <span>Thêm bài viết mới</span>
+            </a>
         </div>
     </div>
 
-    <table class="table table-bordered">
-        <thead class="table-light">
-            <tr>
-                <th class="text-center">STT</th>
-                <th class="px-3">Tiêu đề</th>
-                <th class="px-3">Danh mục</th>
-                <th class="text-center">Bài viết</th>
-                <th class="text-center">Người tạo</th>
-                <th class="text-center">Ngày tạo</th>
-                <th class="text-center">Cập nhật</th>
-                <th class="text-center">Hành động</th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse ($news as $index => $post)
+    <div class="table-responsive">
+        <table class="table table-bordered align-middle table-striped table-hover py-2" id="news-table">
+            <thead class="table-light">
                 <tr>
-                    <td class="text-center">{{ $index + 1 }}</td>
-                    <td class="px-3">{{ $post->title }}</td>
-                    <td class="px-3">{{ optional($post->category)->name ?? '-' }}</td>
-                    <td class="text-center">
-                        <button class="btn btn-dark btn-sm w-100" data-bs-toggle="modal" data-bs-target="#modalViewNews"
-                            data-content="{{ $post->content?->content_html ?? '[Chưa có nội dung]' }}"
-                            data-title="{{ $post->title }}"
-                            data-category="{{ optional($post->category)->name ?? 'Không có danh mục' }}">
-                            Xem bài viết
-                        </button>
-                    </td>
-                    <td class="text-center">{{ $post->user->name }}</td>
-                    <td class="text-center">{{ $post->created_at->format('d/m/Y H:i') }}</td>
-                    <td class="text-center">{{ $post->updated_at->format('d/m/Y H:i') }}</td>
-                    <td>
-                        <div class="d-flex justify-content-center gap-3">
-                            <a href="{{ route('admin.news.edit', $post->id) }}" class="btn btn-warning btn-sm px-3">Sửa</a>
-                            <button type="button" class="btn btn-danger btn-sm px-3" data-bs-toggle="modal"
-                                data-bs-target="#modalDeleteNews" data-id="{{ $post->id }}"
-                                data-title="{{ $post->title }}">
-                                Xóa
-                            </button>
-                        </div>
-                    </td>
+                    <th class="text-center" style="width: 50px;">STT</th>
+                    <th style="min-width: 200px;">Tiêu đề</th>
+                    <th style="max-width: 160px;">Danh mục</th>
+                    <th class="text-center" style="max-width: 140px;">Người tạo</th>
+                    <th class="text-center" style="width: 140px;">Ngày tạo</th>
+                    <th class="text-center" style="width: 140px;">Cập nhật</th>
+                    <th class="text-center" style="width: 160px;">Hành động</th>
                 </tr>
-            @empty
-                <tr>
-                    <td colspan="8" class="text-center text-muted py-4">
-                        <i class="fas fa-newspaper fa-2x mb-2 d-block"></i>
-                        <span>Chưa có bài viết nào được đăng.</span>
-                    </td>
-                </tr>
-            @endforelse
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @forelse ($news as $index => $post)
+                    <tr>
+                        <td class="text-center">{{ $index + 1 }}</td>
+
+                        <td class="text-truncate" style="max-width: 240px;">
+                            <a href="#" class="title-link-custom" data-bs-toggle="modal"
+                                data-bs-target="#modalViewNews"
+                                data-content="{{ $post->content?->content_html ?? '[Chưa có nội dung]' }}"
+                                data-title="{{ $post->title }}"
+                                data-category="{{ optional($post->category)->name ?? 'Không có danh mục' }}"
+                                title="{{ $post->title }}">
+                                {{ \Illuminate\Support\Str::limit($post->title, 80) }}
+                            </a>
+                        </td>
+
+                        <td class="text-truncate" style="max-width: 180px;" title="{{ optional($post->category)->name }}">
+                            {{ optional($post->category)->name ?? '-' }}
+                        </td>
+
+                        <td class="text-truncate text-center" style="max-width: 140px;" title="{{ $post->user->name }}">
+                            {{ $post->user->name }}
+                        </td>
+
+                        <td class="text-center">{{ $post->created_at->format('d/m/Y H:i') }}</td>
+                        <td class="text-center">{{ $post->updated_at->format('d/m/Y H:i') }}</td>
+
+                        <td>
+                            <div class="d-flex justify-content-center gap-2 flex-wrap">
+                                <a href="{{ route('admin.news.edit', $post->id) }}"
+                                    class="btn btn-warning btn-sm px-3">Sửa</a>
+                                <button type="button" class="btn btn-danger btn-sm px-3" data-bs-toggle="modal"
+                                    data-bs-target="#modalDeleteNews" data-id="{{ $post->id }}"
+                                    data-title="{{ $post->title }}">
+                                    Xóa
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="7" class="text-center text-muted py-4">
+                            <i class="fas fa-newspaper fa-2x mb-2 d-block"></i>
+                            <span>Chưa có bài viết nào được đăng.</span>
+                        </td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
 
     {{-- MODAL view content --}}
     <div class="modal fade" id="modalViewNews" tabindex="-1" aria-hidden="true">
@@ -149,6 +165,29 @@
             form.action = `/news/${postId}`;
 
             document.getElementById('delete-title').textContent = title;
+        });
+    </script>
+
+    {{-- Script News DataTables --}}
+    <script>
+        $(document).ready(function() {
+            $('#news-table').DataTable({
+                lengthMenu: [
+                    [6, 12, 18, -1],
+                    [6, 12, 18, "Tất cả"]
+                ],
+                pageLength: 6,
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json'
+                },
+                paging: true,
+                lengthChange: true,
+                searching: true,
+                ordering: true,
+                info: true,
+                autoWidth: false,
+                responsive: true
+            });
         });
     </script>
 @endsection

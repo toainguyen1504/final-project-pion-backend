@@ -26,6 +26,10 @@
     <link rel="stylesheet" href="{{ asset('adminAssets/css/adminlte.css') }}" />
     <!--end::Required Plugin(AdminLTE)-->
 
+    {{-- DataTables Bootstrap5 CSS --}}
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+
+
     <!-- CKEditor -->
     <link rel="stylesheet" href="https://cdn.ckeditor.com/ckeditor5/45.2.0/ckeditor5.css">
 
@@ -34,6 +38,36 @@
 
     {{-- Custom Bootstrap CSS --}}
     <style>
+        /* Common */
+        /* Bỏ outline của btn */
+        button:focus,
+        button:active {
+            outline: none;
+            box-shadow: none;
+        }
+
+        .text-primary,
+        .text-danger {
+            color: #ce232d !important;
+        }
+
+        .bg-primary {
+            background-color: #ebb5b8f4 !important;
+        }
+
+        /* Custom btn link */
+        .btn-link {
+            color: #ce232d !important;
+            transition: color 0.2s ease;
+        }
+
+        .btn-link:hover {
+            color: rgb(207, 33, 44) !important;
+            text-decoration-thickness: 1.5px;
+        }
+
+        /* End Common */
+
         button.btn-dark:disabled {
             opacity: 0.4;
         }
@@ -48,19 +82,150 @@
             box-shadow: none;
         }
 
-        #floating-buttons .btn {
-            width: 42px;
-            height: 42px;
+        /* Custom floating-buttons*/
+        .floating-btn {
             display: flex;
             align-items: center;
             justify-content: center;
+            gap: 6px;
+            height: 3em;
+            min-width: 112px;
+            background: #fff;
+            border: none;
+            border-radius: 999px;
+            cursor: pointer;
+            letter-spacing: 0.5px;
+            font-weight: 500;
+            box-shadow: 3px 3px 10px #d1d1d1, -3px -3px 10px #ffffff;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: #333;
         }
 
-        #floating-buttons .btn:hover {
-            transform: scale(1.05);
-            transition: 0.2s ease;
+        .floating-btn svg {
+            transition: all 0.3s ease;
+            font-size: 16px;
         }
 
+        .floating-btn:hover {
+            box-shadow: 6px 6px 20px #d1d1d1, -6px -6px 20px #ffffff;
+            transform: translateY(-3px);
+        }
+
+        .floating-btn:hover svg {
+            transform: translateX(-4px);
+        }
+
+        /* màu cho từng nút */
+        .floating-preview {
+            background: #e7f1ff;
+            color: #0d6efd;
+        }
+
+        .floating-preview:hover {
+            background: #d0e3ff;
+        }
+
+        .floating-submit {
+            background: #e9fbe7;
+            color: #198754;
+        }
+
+        .floating-submit:hover {
+            background: #d1f7cf;
+        }
+
+        .floating-top {
+            background: #f0f0f0;
+            color: #6c757d;
+            margin-top: 20px;
+        }
+
+        .floating-top:hover {
+            background: #e0e0e0;
+        }
+
+        .floating-btn:disabled,
+        .floating-btn.disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            pointer-events: none;
+            filter: grayscale(0.6);
+        }
+
+        /* End Custom floating-buttons*/
+
+        /* Css title for table */
+        .title-link-custom {
+            color: #212529;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+            letter-spacing: 0.3px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .title-link-custom:hover {
+            color: #ce232d;
+            text-decoration-thickness: 1.5px;
+        }
+
+        /* DataTables Pagination Styling */
+        .dataTables_wrapper .dataTables_paginate .pagination .page-item .page-link {
+            color: #212529;
+            background-color: #fff;
+            border: 1px solid #dee2e6;
+            transition: all 0.2s ease;
+        }
+
+        .dataTables_wrapper .dataTables_paginate .pagination .page-item.active .page-link {
+            background-color: #ce232d;
+            color: #fff;
+            border-color: #ce232d;
+            font-weight: bold;
+            box-shadow: 0 0 4px rgba(206, 35, 45, 0.4);
+        }
+
+        .dataTables_wrapper .dataTables_paginate .pagination .page-item .page-link:hover,
+        .dataTables_wrapper .pagination .page-link:focus {
+            background-color: #fce7e9;
+            color: #ce232d;
+            border-color: #ce232d;
+        }
+
+        /* Nút Trước / Sau bị vô hiệu (ở đầu hoặc cuối) */
+        .dataTables_wrapper .dataTables_paginate .pagination .page-item.disabled .page-link {
+            background-color: #f5f5f5;
+            color: #999;
+            border-color: #dee2e6;
+            cursor: not-allowed;
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        /* Bỏ outline cho các nút trong pagination */
+        .dataTables_wrapper .pagination .page-link:focus,
+        .dataTables_wrapper .pagination .page-link:active {
+            outline: none;
+            box-shadow: none;
+        }
+
+        /* Ô tìm kiếm DataTables & Dropdown chọn số dòng hiển thị */
+        .dataTables_wrapper .dataTables_filter input:focus,
+        .dataTables_wrapper .dataTables_length select:focus {
+            outline: none;
+            border-color: #ce232d;
+            box-shadow: none;
+        }
+
+        .dataTables_wrapper .dataTables_length select:hover {
+            cursor: pointer;
+        }
+
+        .dataTables_wrapper .dataTables_filter input:hover,
+        .dataTables_wrapper .dataTables_length select:hover {
+            border-color: #ce232d;
+        }
     </style>
 
     <link rel="stylesheet" href="{{ asset('css/post.css') }}">
@@ -130,6 +295,12 @@
         });
     </script>
     <!--end::OverlayScrollbars Configure-->
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    {{-- DataTables Bootstrap5 JS --}}
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
 
     {{-- @stack('scripts') --}}
 

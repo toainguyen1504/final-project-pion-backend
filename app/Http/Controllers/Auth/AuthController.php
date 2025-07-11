@@ -19,7 +19,7 @@ class AuthController extends Controller
         $credentials = $request->only('email', 'password');
 
         if (Auth::attempt($credentials)) {
-            return redirect()->intended('/admin')->with('success', 'Đăng nhập hệ thống quản trị thành công!');
+            return redirect()->intended('/')->with('success', 'Đăng nhập hệ thống quản trị thành công!');
         }
 
         return back()->with('error', 'Email hoặc mật khẩu không đúng.');

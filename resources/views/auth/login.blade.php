@@ -41,7 +41,7 @@
 <body>
     <div class="login-container text-center">
         <a href="/"><img src="{{ asset('adminAssets/img/logo.png') }}" alt="Pion Logo" class="logo"></a>
-        <h1 class="mb-4 title">Đăng nhập quản trị</h1>
+        <h1 class="mb-4 title">Đăng nhập</h1>
 
         @if (session('error'))
             <div class="alert alert-danger text-start">{{ session('error') }}</div>

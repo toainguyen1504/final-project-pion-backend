@@ -1,59 +1,68 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="row align-items-center mb-4">
+    <div class="row align-items-center mb-5">
         <div class="col-md-6">
             <h1 class="mb-0 fs-2">Quản lý danh mục bài viết</h1>
         </div>
-        <div class="col-md-6 text-end">
-            <button class="btn btn-dark" style="width: 40%;" data-bs-toggle="modal" data-bs-target="#modalAddCategory">
-                + Thêm danh mục
+        <div class="col-md-6 d-flex justify-content-end">
+            <button class="btn btn-dark d-flex align-items-center justify-content-center gap-2" style="width: 40%;"
+                data-bs-toggle="modal" data-bs-target="#modalAddCategory">
+                <i class="fas fa-plus"></i>
+                <span>Thêm danh mục</span>
             </button>
         </div>
     </div>
 
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th class="text-center">STT</th>
-                <th class="px-3">Tên danh mục</th>
-                <th class="text-center">Ngày tạo</th>
-                <th class="text-center">Ngày cập nhật</th>
-                <th class="text-center">Hành động</th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse ($categories as $index => $category)
+    <div class="table-responsive">
+        <table class="table table-bordered align-middle table-striped table-hover py-2" id="categories-table">
+            <thead class="table-light">
                 <tr>
-                    <td class="text-center">{{ $index + 1 }}</td>
-                    <td class="px-3">{{ $category->name }}</td>
-                    <td class="text-center">{{ $category->created_at->format('d/m/Y H:i') }}</td>
-                    <td class="text-center">{{ $category->updated_at->format('d/m/Y H:i') }}</td>
-                    <td>
-                        <div class="d-flex justify-content-center gap-3">
-                            <button class="btn btn-warning btn-sm px-3" data-bs-toggle="modal"
-                                data-bs-target="#modalEditCategory" data-id="{{ $category->id }}"
-                                data-name="{{ $category->name }}">
-                                Sửa
-                            </button>
+                    <th class="text-center" style="width: 60px;">STT</th>
+                    <th style="min-width: 200px;">Tên danh mục</th>
+                    <th class="text-center" style="width: 160px;">Ngày tạo</th>
+                    <th class="text-center" style="width: 160px;">Ngày cập nhật</th>
+                    <th class="text-center" style="width: 140px;">Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse ($categories as $index => $category)
+                    <tr>
+                        <td class="text-center">{{ $index + 1 }}</td>
 
-                            <button type="button" class="btn btn-danger btn-sm text-white px-3" data-bs-toggle="modal"
-                                data-bs-target="#modalConfirmDelete" data-id="{{ $category->id }}">
-                                Xóa
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-            @empty
-                <tr>
-                    <td colspan="5" class="text-center text-muted py-4">
-                        <i class="fas fa-folder-open fa-2x mb-2 d-block"></i>
-                        <span>Chưa có danh mục nào được tạo.</span>
-                    </td>
-                </tr>
-            @endforelse
-        </tbody>
-    </table>
+                        <td class="text-truncate" style="max-width: 240px;" title="{{ $category->name }}">
+                            {{ \Illuminate\Support\Str::limit($category->name, 80) }}
+                        </td>
+
+                        <td class="text-center">{{ $category->created_at->format('d/m/Y H:i') }}</td>
+                        <td class="text-center">{{ $category->updated_at->format('d/m/Y H:i') }}</td>
+
+                        <td class="text-center">
+                            <div class="d-flex justify-content-center gap-2 flex-wrap">
+                                <button class="btn btn-warning btn-sm px-3" data-bs-toggle="modal"
+                                    data-bs-target="#modalEditCategory" data-id="{{ $category->id }}"
+                                    data-name="{{ $category->name }}">
+                                    Sửa
+                                </button>
+
+                                <button type="button" class="btn btn-danger btn-sm text-white px-3" data-bs-toggle="modal"
+                                    data-bs-target="#modalConfirmDelete" data-id="{{ $category->id }}">
+                                    Xóa
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="5" class="text-center text-muted py-4">
+                            <i class="fas fa-folder-open fa-2x mb-2 d-block"></i>
+                            <span>Chưa có danh mục nào được tạo.</span>
+                        </td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
 
     <!-- Modal thêm danh mục -->
     <div class="modal fade" id="modalAddCategory" tabindex="-1" aria-labelledby="modalAddCategoryLabel" aria-hidden="true">
@@ -256,7 +265,28 @@
         });
     </script>
 
-
+    {{-- Script Categories DataTables --}}
+    <script>
+        $(document).ready(function() {
+            $('#categories-table').DataTable({
+                lengthMenu: [
+                    [6, 12, 18, -1],
+                    [6, 12, 18, "Tất cả"]
+                ],
+                pageLength: 6,
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json'
+                },
+                paging: true,
+                lengthChange: true,
+                searching: true,
+                ordering: true,
+                info: true,
+                autoWidth: false,
+                responsive: true
+            });
+        });
+    </script>
 
     {{-- open modal again if err --}}
     @if (session('openModal') === 'modalEditCategory' && session('editingId'))

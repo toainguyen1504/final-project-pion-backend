@@ -3,13 +3,16 @@
 @section('content')
     <div class="container">
 
-        <div class="row align-items-center mb-4">
+        <div class="row align-items-center mb-5">
             <div class="col-md-6">
                 <h1 class="mb-0 fs-2">Danh sách quản trị viên</h1>
             </div>
-            <div class="col-md-6 text-end">
-                <a href="{{ route('admin.users.create') }}" class="btn btn-dark" style="width: 40%;">+ Thêm quản trị viên
-                    mới</a>
+            <div class="col-md-6 d-flex justify-content-end">
+                <a href="{{ route('admin.users.create') }}"
+                    class="btn btn-dark d-flex align-items-center justify-content-center gap-2" style="width: 40%;">
+                    <i class="fas fa-plus"></i>
+                    <span>Thêm quản trị viên mới</span>
+                </a>
             </div>
         </div>
 
@@ -18,7 +21,7 @@
         @endif
 
         <div class="table-responsive">
-            <table class="table table-bordered table-hover align-middle">
+            <table class="table table-bordered align-middle table-striped table-hover py-2" id="users-table">
                 <thead class="table-light">
                     <tr>
                         <th>#</th>
@@ -125,6 +128,29 @@
             const form = document.getElementById('delete-user-form');
             form.action = `/users/${userId}`;
             document.getElementById('delete-user-name').textContent = userName;
+        });
+    </script>
+
+    {{-- Script users DataTables --}}
+    <script>
+        $(document).ready(function() {
+            $('#users-table').DataTable({
+                lengthMenu: [
+                    [6, 12, 18, -1],
+                    [6, 12, 18, "Tất cả"]
+                ],
+                pageLength: 6,
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json'
+                },
+                paging: true,
+                lengthChange: true,
+                searching: true,
+                ordering: true,
+                info: true,
+                autoWidth: false,
+                responsive: true
+            });
         });
     </script>
 @endsection

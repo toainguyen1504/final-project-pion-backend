@@ -48,35 +48,53 @@
                     </div>
 
                     <!-- Floating buttons -->
-                    <div class="position-fixed" style="bottom: 120px; right: 124px; z-index: 1050;" id="floating-buttons">
-                        <div class="d-flex flex-column gap-5">
-                            <div class="d-flex flex-column gap-3">
-                                <!-- Quay lại -->
-                                <a href="{{ route('admin.news.index') }}" class="btn btn-outline-dark btn-sm rounded-circle"
-                                    data-bs-toggle="tooltip" data-bs-placement="left"
-                                    title="Quay lại trang quản lý tin tức">
-                                    <i class="bi bi-arrow-left"></i>
-                                </a>
+                    <div class="position-fixed" style="bottom: 120px; right: 92px; z-index: 1050;" id="floating-buttons">
+                        <div class="d-flex flex-column gap-3">
+                            <!-- Quay lại -->
+                            <a href="{{ route('admin.news.index') }}" class="floating-btn floating-back"
+                                data-bs-toggle="tooltip" data-bs-placement="left" title="Quay lại trang quản lý tin tức">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                    class="bi bi-arrow-left" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd"
+                                        d="M15 8a.5.5 0 0 1-.5.5H3.707l4.147 4.146a.5.5 0 0 1-.708.708l-5-5a.5.5 0 0 1 0-.708l5-5a.5.5 0 1 1 .708.708L3.707 7.5H14.5A.5.5 0 0 1 15 8z" />
+                                </svg>
+                                <span>Back</span>
+                            </a>
 
-                                <!-- Xem trước -->
-                                <button type="button" class="btn btn-outline-primary btn-sm rounded-circle"
-                                    data-bs-toggle="modal" data-bs-target="#modalPreviewNews"
-                                    title="Xem trước bài viết (chưa lưu)" data-bs-placement="left">
-                                    <i class="bi bi-eye"></i>
-                                </button>
+                            <!-- Xem trước -->
+                            <button type="button" class="floating-btn floating-preview" data-bs-toggle="modal"
+                                data-bs-target="#modalPreviewNews" data-bs-toggle="tooltip" data-bs-placement="left"
+                                title="Xem trước bài viết (chưa lưu)">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                    class="bi bi-eye" viewBox="0 0 16 16">
+                                    <path
+                                        d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zm-8 4a4 4 0 1 1 0-8 4 4 0 0 1 0 8z" />
+                                    <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z" />
+                                </svg>
+                                <span>Preview</span>
+                            </button>
 
-                                <!-- Cập nhật -->
-                                <button type="submit" class="btn btn-dark btn-sm rounded-circle" data-bs-toggle="tooltip"
-                                    data-bs-placement="left" title="Cập nhật bài viết (lưu)">
-                                    <i class="bi bi-send-check-fill"></i>
-                                </button>
-                            </div>
+                            <!-- Cập nhật -->
+                            <button type="submit" class="floating-btn floating-submit" data-bs-toggle="tooltip"
+                                data-bs-placement="left" title="Cập nhật bài viết (lưu)">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                    class="bi bi-send-check-fill" viewBox="0 0 16 16">
+                                    <path
+                                        d="M15.964.686a.5.5 0 0 0-.65-.65L.273 7.313a.5.5 0 0 0 .065.93l4.765 1.278 1.278 4.765a.5.5 0 0 0 .93.065l7.277-15.665zm-5.5 6.707l-4 4a.5.5 0 0 1-.708-.708l4-4a.5.5 0 0 1 .708.708z" />
+                                </svg>
+                                <span>Update</span>
+                            </button>
 
                             <!-- Cuộn lên đầu -->
-                            <button type="button" class="btn btn-secondary btn-sm rounded-circle" data-bs-toggle="tooltip"
+                            <button type="button" class="floating-btn floating-top" data-bs-toggle="tooltip"
                                 data-bs-placement="left" title="Cuộn lên đầu trang"
                                 onclick="window.scrollTo({ top: 0, behavior: 'smooth' });">
-                                <i class="bi bi-chevron-double-up"></i>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                    class="bi bi-chevron-double-up" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd"
+                                        d="M7.646 2.146a.5.5 0 0 1 .708 0l5 5a.5.5 0 0 1-.708.708L8 2.707 3.354 7.854a.5.5 0 1 1-.708-.708l5-5zM7.646 7.146a.5.5 0 0 1 .708 0l5 5a.5.5 0 0 1-.708.708L8 7.707l-4.646 4.647a.5.5 0 0 1-.708-.708l5-5z" />
+                                </svg>
+                                <span>Top</span>
                             </button>
                         </div>
                     </div>
@@ -122,13 +140,13 @@
                         {
                             model: 'heading2',
                             view: 'h2',
-                            title: 'Tiêu đề phụ (H2) - tự động đánh số 1,2,3...',
+                            title: 'H2 - Tiêu đề phụ (tự động đánh số 1,2,3...)',
                             class: 'ck-heading_heading2'
                         },
                         {
                             model: 'heading3',
                             view: 'h3',
-                            title: 'Tiêu đề nhỏ (H3) - tự động dạng danh sách đánh dấu (icon)',
+                            title: 'H3 - Tiêu đề nhỏ (tự động dạng danh sách đánh dấu - icon)',
                             class: 'ck-heading_heading3'
                         }
                     ]
@@ -137,6 +155,8 @@
                     'heading',
                     '|',
                     'bold', 'italic', 'link',
+                    '|',
+                    'bulletedList',
                     // '|',
                     // 'bulletedList', 'numberedList',
                     // '|',
@@ -197,7 +217,50 @@
             });
     </script>
 
-    // Tooltip
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('edit-form');
+            const titleInput = document.getElementById('title-input');
+            const categorySelect = document.getElementById('category-select');
+            const updateButton = document.querySelector('.floating-submit');
+
+            // Lưu giá trị ban đầu
+            const originalTitle = titleInput.value.trim();
+            const originalCategory = categorySelect.value;
+            let originalContent = '';
+
+            // Lấy dữ liệu CKEditor ban đầu sau khi editor ready
+            if (editorInstance) {
+                originalContent = editorInstance.getData().trim();
+            } else {
+                console.error('CKEditor chưa khởi tạo xong để lấy dữ liệu ban đầu.');
+            }
+
+            // Hàm kiểm tra sự thay đổi
+            function checkChanges() {
+                const currentTitle = titleInput.value.trim();
+                const currentCategory = categorySelect.value;
+                const currentContent = editorInstance.getData().trim();
+
+                const hasChanges =
+                    currentTitle !== originalTitle ||
+                    currentCategory !== originalCategory ||
+                    currentContent !== originalContent;
+
+                updateButton.disabled = !hasChanges;
+            }
+
+            // Lắng nghe các sự kiện thay đổi
+            titleInput.addEventListener('input', checkChanges);
+            categorySelect.addEventListener('change', checkChanges);
+            editorInstance.model.document.on('change:data', checkChanges);
+
+            // Khởi chạy kiểm tra ban đầu
+            checkChanges();
+        });
+    </script>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
