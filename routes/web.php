@@ -8,6 +8,21 @@ use App\Http\Controllers\Admin\NewsController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\CKEditorController;
+use App\Models\News;
+
+// CLIENT
+Route::get('/preview/posts', function () {
+    $posts = \App\Models\News::with('category')->latest()->get();
+    return view('preview.post-list', compact('posts'));
+})->name('preview.post.list');
+
+
+Route::get('/preview/posts/{id}', function ($id) {
+    $posts = \App\Models\News::latest()->limit(10)->get();
+    $post = News::with('category')->findOrFail($id);
+    return view('preview.post-detail', compact('post', 'posts'));
+})->name('preview.post.detail');
+
 
 // Tối ưu route đăng nhập - quên mk sau...
 // Route đăng nhập  

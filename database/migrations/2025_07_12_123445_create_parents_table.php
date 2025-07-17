@@ -11,12 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('roles', function (Blueprint $table) {
+        Schema::create('parents', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique();       // ví dụ: admin, staff, teacher, parent, guest
-            $table->string('label')->nullable();    // Tên hiển thị: Quản trị viên, Giáo viên, Phụ huynh...
-            $table->text('description')->nullable(); // Mô tả quyền / vai trò
+
+            $table->decimal('balance', 12, 2)->default(0); // Số dư tài khoản phụ huynh
+            $table->unsignedBigInteger('user_id')->unique(); // Mỗi phụ huynh ứng với 1 user
+
             $table->timestamps();
+
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 
@@ -25,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('roles');
+        Schema::dropIfExists('parents');
     }
 };

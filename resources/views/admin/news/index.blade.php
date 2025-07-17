@@ -57,8 +57,8 @@
                         <td>
                             <div class="d-flex justify-content-center gap-2 flex-wrap">
                                 <a href="{{ route('admin.news.edit', $post->id) }}"
-                                    class="btn btn-warning btn-sm px-3">Sửa</a>
-                                <button type="button" class="btn btn-danger btn-sm px-3" data-bs-toggle="modal"
+                                    class="btn btn-warning btn-xl px-4">Sửa</a>
+                                <button type="button" class="btn btn-danger btn-xl px-4" data-bs-toggle="modal"
                                     data-bs-target="#modalDeleteNews" data-id="{{ $post->id }}"
                                     data-title="{{ $post->title }}">
                                     Xóa

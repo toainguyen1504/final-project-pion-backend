@@ -11,11 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('roles', function (Blueprint $table) {
+        Schema::create('permissions', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique();       // ví dụ: admin, staff, teacher, parent, guest
-            $table->string('label')->nullable();    // Tên hiển thị: Quản trị viên, Giáo viên, Phụ huynh...
-            $table->text('description')->nullable(); // Mô tả quyền / vai trò
+            $table->string('name')->unique();         // Ví dụ: view_post, delete_user
+            $table->string('label')->nullable();      // Tên hiển thị: Xem bài viết, xóa (khóa) người dùng
+            $table->text('description')->nullable();  // Mô tả chi tiết quyền
             $table->timestamps();
         });
     }
@@ -25,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('roles');
+        Schema::dropIfExists('permissions');
     }
 };

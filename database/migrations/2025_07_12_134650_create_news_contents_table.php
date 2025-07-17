@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('news_contents', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('news_id')->unique();
-            $table->longText('content_html');
+            $table->longText('content_html')->nullable();  // HTML CKEditor
+            $table->json('content_json')->nullable();      // Cấu trúc semantic nếu có
             $table->foreign('news_id')->references('id')->on('news')->onDelete('cascade');
             $table->timestamps();
         });

@@ -4,11 +4,10 @@
 
 @section('content')
     <div class="d-flex flex-column align-items-center justify-content-center text-center" style="min-height: 70vh;">
-        <h1 class="display-1 fw-bold text-danger">404</h1>
-        <h2 class="mb-3">Không tìm thấy trang</h2>
+        <h1 class="display-1 fw-bold text-danger">Oops!</h1>
+        <h2 class="my-3">Trang bạn cần không được tìm thấy!</h2>
         <p class="text-muted mb-4">
-            Trang bạn đang cố truy cập không tồn tại hoặc đã bị xóa.<br>
-            Vui lòng kiểm tra lại đường dẫn hoặc quay về trang chính.
+            Liên kết có thể đã bị thay đổi, xoá hoặc bạn đang tìm ở nơi sai.
         </p>
         <a href="{{ route('admin.dashboard') }}" class="btn btn-dark px-4 py-2">
             <i class="bi bi-arrow-left me-2"></i> Quay về Trang quản trị

@@ -2,6 +2,28 @@
 
 @section('content')
     <div class="container-fluid bg-light py-4">
+
+        {{-- Chọn template --}}
+        <div class="mb-3">
+            <label class="form-label fw-bold text-danger">🎨 Chọn Template giao diện bài viết</label>
+            <div class="overflow-auto d-flex flex-row gap-3 border rounded p-3 bg-white" style="white-space: nowrap;">
+                @foreach ($templates as $template)
+                    <div class="card template-card shadow-sm border-0"
+                        style="width: 180px; min-width: 180px; cursor: pointer;"
+                        onclick="selectTemplate('{{ $template->css_class }}')" data-id="{{ $template->id }}">
+                        <div class="card-body text-center">
+                            <i class="bi bi-palette-fill fs-2 text-danger mb-2"></i>
+                            <h6 class="card-title mb-1">{{ $template->name }}</h6>
+                            <small class="text-muted">{{ $template->description }}</small>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+            {{-- Gán vào input hidden --}}
+            <input type="hidden" name="template_id" id="selected-template-id">
+        </div>
+
+        {{-- Guide write news --}}
         <div class="alert alert-info alert-dismissible fade show mb-3" role="alert">
             <i class="bi bi-info-circle-fill"></i>
             <strong>Hướng dẫn viết bài:</strong> Tiêu đề ngắn, chọn danh mục đúng, intro 2–3 câu, thêm hình ảnh, dùng H2/H3,
@@ -257,5 +279,21 @@
                 new bootstrap.Tooltip(tooltipTriggerEl);
             });
         });
+    </script>
+
+    <script>
+        function selectTemplate(cssClass) {
+            // Gán class vào form hoặc vùng nội dung
+            const editorWrapper = document.querySelector('#editor').closest('.mb-4');
+            editorWrapper.className = 'mb-4 ' + cssClass;
+
+            // Gán id vào input để gửi khi submit
+            const templateId = event.currentTarget.getAttribute('data-id');
+            document.getElementById('selected-template-id').value = templateId;
+
+            // Highlight template được chọn
+            document.querySelectorAll('.template-card').forEach(card => card.classList.remove('border-danger'));
+            event.currentTarget.classList.add('border-danger');
+        }
     </script>
 @endsection

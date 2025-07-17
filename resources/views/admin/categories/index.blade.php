@@ -39,13 +39,13 @@
 
                         <td class="text-center">
                             <div class="d-flex justify-content-center gap-2 flex-wrap">
-                                <button class="btn btn-warning btn-sm px-3" data-bs-toggle="modal"
+                                <button class="btn btn-warning btn-xl px-4" data-bs-toggle="modal"
                                     data-bs-target="#modalEditCategory" data-id="{{ $category->id }}"
                                     data-name="{{ $category->name }}">
                                     Sửa
                                 </button>
 
-                                <button type="button" class="btn btn-danger btn-sm text-white px-3" data-bs-toggle="modal"
+                                <button type="button" class="btn btn-danger text-white btn-xl px-4" data-bs-toggle="modal"
                                     data-bs-target="#modalConfirmDelete" data-id="{{ $category->id }}">
                                     Xóa
                                 </button>

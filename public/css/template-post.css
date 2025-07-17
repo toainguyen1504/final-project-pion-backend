@@ -1,0 +1,16 @@
+.template-elegant {
+    background-color: #fefefe;
+    border: 2px dashed #ce232d;
+}
+
+.template-minimal {
+    font-family: "Inter", sans-serif;
+    line-height: 1.8;
+}
+
+.template-classic {
+    background-color: #fff;
+    font-family: Georgia, serif;
+    padding: 16px;
+    border-left: 4px solid #ce232d;
+}

@@ -65,19 +65,19 @@
                             <li class="nav-item">
                                 <a href="/users" class="nav-link">
                                     <i class="nav-icon bi bi-circle"></i>
-                                    <p>Người dùng</p>
+                                    <p>Quản lý</p>
                                 </a>
                             </li>
-                            <li class="nav-item">
+                            {{-- <li class="nav-item">
                                 <a href="#!" class="nav-link">
                                     <i class="nav-icon bi bi-circle"></i>
                                     <p>Quyền truy cập</p>
                                 </a>
-                            </li>
+                            </li> --}}
                             <li class="nav-item">
-                                <a href="#!" class="nav-link">
+                                <a href="/users/create" class="nav-link">
                                     <i class="nav-icon bi bi-circle"></i>
-                                    <p>Vai trò</p>
+                                    <p>Thêm người quản lý</p>
                                 </a>
                             </li>
                         </ul>

@@ -57,18 +57,17 @@
                                 <div class="d-flex justify-content-center gap-3">
                                     {{-- nút edit --}}
                                     <a href="{{ route('admin.users.edit', $user->id) }}"
-                                        class="btn btn-warning btn-sm px-3">Sửa</a>
+                                        class="btn btn-warning btn-xl px-4">Sửa</a>
 
                                     <!-- Nút Xóa kích hoạt modal -->
                                     <!-- Nút Xóa -->
-                                    <button type="button" class="btn btn-danger btn-sm px-3" data-bs-toggle="modal"
+                                    <button type="button" class="btn btn-danger btn-xl px-4" data-bs-toggle="modal"
                                         data-bs-target="#modalDeleteUser" data-id="{{ $user->id }}"
                                         data-name="{{ $user->name }}">
                                         Xóa
                                     </button>
                                 </div>
                             </td>
-
                         </tr>
                     @empty
                         <tr>

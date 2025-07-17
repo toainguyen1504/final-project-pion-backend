@@ -11,29 +11,26 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('news', function (Blueprint $table) {
+        Schema::create('consultations', function (Blueprint $table) {
             $table->id();
-            $table->string('title');
-            $table->unsignedBigInteger('user_id');
-            $table->unsignedBigInteger('category_id')->nullable();
+            $table->text('request_content');         // Nội dung yêu cầu tư vấn
+            $table->string('status')->default('pending'); // Trạng thái: pending, approved, rejected
+            $table->unsignedBigInteger('user_id');   // Người yêu cầu tư vấn
+            $table->unsignedBigInteger('handled_by')->nullable(); // Nhân viên xử lý
+
             $table->timestamps();
 
             $table->foreign('user_id')
                 ->references('id')->on('users')
                 ->onDelete('cascade');
-
-            $table->foreign('category_id')
-                ->references('id')->on('categories')
-                ->onDelete('set null');
         });
     }
-
 
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('news');
+        Schema::dropIfExists('consultations');
     }
 };
