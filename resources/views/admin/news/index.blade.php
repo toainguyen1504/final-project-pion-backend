@@ -11,6 +11,11 @@
                 <i class="fas fa-plus"></i>
                 <span>Thêm bài viết mới</span>
             </a>
+            {{-- <a href="{{ route('admin.news.selectTemplate') }}"
+                class="btn btn-dark d-flex align-items-center justify-content-center gap-2" style="width: 40%;">
+                <i class="fas fa-plus"></i>
+                <span>Thêm bài viết mới</span>
+            </a> --}}
         </div>
     </div>
 

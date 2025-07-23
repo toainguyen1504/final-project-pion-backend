@@ -44,7 +44,10 @@ Route::name('admin.')
 
         // News and category
         Route::resource('categories', CategoryController::class);
-        Route::resource('news', NewsController::class);
+        Route::resource('news', NewsController::class)->except(['show']);
+        
+        // Chọn template trước khi tạo bài viết
+        Route::get('news/select-template', [NewsController::class, 'selectTemplate'])->name('news.selectTemplate');
     });
 
 

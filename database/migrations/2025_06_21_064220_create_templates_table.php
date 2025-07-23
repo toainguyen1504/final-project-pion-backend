@@ -14,10 +14,11 @@ return new class extends Migration
         Schema::create('templates', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('slug')->unique();
-            $table->string('css_class')->nullable(); // lớp css áp dụng vào layout → tô điểm
-            $table->string('view_path'); // blade path: templates/classic.blade.php → dựng khung
-            $table->boolean('is_active')->default(true);
+            $table->string('slug')->unique(); //Định danh logic, dùng cho API, route hoặc mapping UI
+            $table->string('css_class')->nullable(); // Gắn class vào HTML để tuỳ biến giao diện
+            $table->json('config_json')->nullable(); // chứa cấu hình dạng JSON cho giao diện - → phục vụ FE
+            $table->string('view_path'); // Dẫn đến Blade hiển thị bài viết → backend render
+            $table->boolean('is_active')->default(true); //Bật/tắt template, giúp admin kiểm soát
             $table->timestamps();
         });
     }

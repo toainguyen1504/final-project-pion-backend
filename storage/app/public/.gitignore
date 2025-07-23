@@ -1,2 +1,6 @@
 *
 !.gitignore
+
+# Ignore upload folders
+/public/uploads/
+/storage/app/public/uploads/

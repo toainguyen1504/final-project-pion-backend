@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers\Admin;
 
-use Illuminate\Http\Request;
+// use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreNewsRequest;
 use App\Models\News;
 use App\Models\Category;
+use App\Models\Template;
 use App\Models\NewsContent;
 use App\Services\ImageService;
 
@@ -19,6 +20,14 @@ class NewsController extends Controller
         return view('admin.news.index', compact('news'));
     }
 
+    // select Template
+    public function selectTemplate()
+    {
+        $templates = Template::where('is_active', true)->get();
+        return view('admin.news.select-template', compact('templates'));
+    }
+
+
     public function create()
     {
         $categories = Category::all();
@@ -27,6 +36,7 @@ class NewsController extends Controller
 
     public function store(StoreNewsRequest $request)
     {
+        // /** @var StoreNewsRequest $request */
         try {
             $news = News::create([
                 'title'       => $request->title,
@@ -36,8 +46,7 @@ class NewsController extends Controller
 
             NewsContent::create([
                 'news_id'      => $news->id,
-                'user_id'      => Auth::id(),
-                'content_html' => $request->content,
+                'content_html' => $request->input('content'),
             ]);
 
             return redirect()->route('admin.news.index')->with('success', '🎉 Bài viết đã được xuất bản!');
@@ -60,7 +69,7 @@ class NewsController extends Controller
             $news = News::with('content')->findOrFail($id);
 
             $oldContent = $news->content->content_html ?? '';
-            $newContent = $request->content;
+            $newContent = $request->input('content');
 
             $oldImages = ImageService::extractImagePaths($oldContent);
             $newImages = ImageService::extractImagePaths($newContent);
@@ -75,10 +84,9 @@ class NewsController extends Controller
                 'category_id' => $request->category_id,
             ]);
 
-            if ($news->content) {
-                $news->content->content_html = $newContent;
-                $news->content->save();
-            }
+            $newsContent = $news->content ?? new NewsContent(['news_id' => $news->id]);
+            $newsContent->content_html = $newContent;
+            $newsContent->save();
 
             return redirect()->route('admin.news.index')->with('success', 'Cập nhật bài viết thành công!');
         } catch (\Exception $e) {

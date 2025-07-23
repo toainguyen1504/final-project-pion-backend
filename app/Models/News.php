@@ -4,6 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property \App\Models\NewsContent|null $content
+ */
+
 class News extends Model
 {
     protected $fillable = ['title', 'user_id', 'category_id'];
@@ -21,5 +25,16 @@ class News extends Model
     public function category()
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function template()
+    {
+        return $this->belongsTo(Template::class);
+    }
+
+
+    public function images()
+    {
+        return $this->morphMany(Image::class, 'imageable');
     }
 }
