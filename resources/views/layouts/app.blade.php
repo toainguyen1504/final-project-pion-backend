@@ -28,7 +28,10 @@
 
     {{-- DataTables Bootstrap5 CSS --}}
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css">
 
+    <!-- FixedColumns CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/fixedcolumns/4.3.0/css/fixedColumns.dataTables.min.css">
 
     <!-- CKEditor -->
     <link rel="stylesheet" href="https://cdn.ckeditor.com/ckeditor5/45.2.0/ckeditor5.css">
@@ -170,7 +173,44 @@
             text-decoration-thickness: 1.5px;
         }
 
-        /* DataTables Pagination Styling */
+        .dataTables_wrapper .dt-button-collection {
+            max-height: 300px;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        /* Input search DataTables */
+        .dataTables_wrapper .dataTables_filter input:focus {
+            outline: none !important;
+            box-shadow: none !important;
+            border-color: #000 !important;
+        }
+
+        .dataTables_wrapper .dataTables_filter input {
+            padding: 8px 16px;
+        }
+
+        .dataTables_wrapper .dataTables_length select:hover {
+            cursor: pointer;
+        }
+
+        .dataTables_wrapper .dataTables_filter input:hover {
+            border-color: #000 !important;
+        }
+
+        /* Bottom DataTables */
+        .dataTables_wrapper .bottom {
+            margin-top: 16px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* DataTables Info */
+        .dataTables_wrapper .dataTables_info {
+            display: inline-block;
+        }
+
+        /* DataTables Pagination */
         .dataTables_wrapper .dataTables_paginate .pagination .page-item .page-link {
             color: #212529;
             background-color: #fff;
@@ -193,7 +233,7 @@
             border-color: #ce232d;
         }
 
-        /* Nút Trước / Sau bị vô hiệu (ở đầu hoặc cuối) */
+        /* btn before / after disable */
         .dataTables_wrapper .dataTables_paginate .pagination .page-item.disabled .page-link {
             background-color: #f5f5f5;
             color: #999;
@@ -203,33 +243,40 @@
             pointer-events: none;
         }
 
-        /* Bỏ outline cho các nút trong pagination */
+        /* unset outline button pagination */
         .dataTables_wrapper .pagination .page-link:focus,
         .dataTables_wrapper .pagination .page-link:active {
             outline: none;
             box-shadow: none;
         }
 
-        /* Ô tìm kiếm DataTables & Dropdown chọn số dòng hiển thị */
-        .dataTables_wrapper .dataTables_filter input:focus,
-        .dataTables_wrapper .dataTables_length select:focus {
-            outline: none;
-            border-color: #ce232d;
-            box-shadow: none;
+        /* END Bottom DataTables */
+
+        /* Style DataTables Buttons */
+        .dt-buttons>.dt-button {
+            background-color: #000 !important;
+            border: none !important;
+            color: #fff !important;
+            padding: 6px 12px !important;
+            border-radius: 4px !important;
+            margin-right: 5px !important;
+            font-size: 14px !important;
         }
 
-        .dataTables_wrapper .dataTables_length select:hover {
-            cursor: pointer;
+        .dt-buttons>.dt-button:focus:not(.disabled) {
+            outline: none !important;
+            box-shadow: !important;
         }
 
-        .dataTables_wrapper .dataTables_filter input:hover,
-        .dataTables_wrapper .dataTables_length select:hover {
-            border-color: #ce232d;
+        /* Hover effect */
+        .dt-buttons>.dt-button:hover {
+            opacity: 0.8;
         }
     </style>
 
     <link rel="stylesheet" href="{{ asset('css/post.css') }}">
 
+    @stack('styles')
 </head>
 
 <body class="layout-fixed sidebar-expand-lg sidebar-mini bg-body-tertiary">
@@ -300,7 +347,20 @@
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     {{-- DataTables Bootstrap5 JS --}}
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
 
+    <!-- FixedColumns JS -->
+    <script src="https://cdn.datatables.net/fixedcolumns/4.3.0/js/dataTables.fixedColumns.min.js"></script>
+
+    {{-- support export --}}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+
+    {{-- Buttons export --}}
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.colVis.min.js"></script>
 
     {{-- @stack('scripts') --}}
 

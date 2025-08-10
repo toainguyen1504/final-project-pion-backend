@@ -27,13 +27,13 @@
                         </div>
                     @endif
 
-                    <!-- Tiêu đề -->
+                    <!-- title-->
                     <div class="mb-4">
                         <input type="text" name="title" id="title-input" class="form-control border-0 fs-4 fw-bold"
                             placeholder="Tiêu đề bài viết..." required value="{{ old('title') }}">
                     </div>
 
-                    <!-- Danh mục -->
+                    <!-- category -->
                     <div class="mb-4">
                         <label class="form-label">Danh mục</label>
                         <select name="category_id" id="category-select" class="form-select fs-6" required>
@@ -46,9 +46,8 @@
                             @endforeach
                         </select>
                     </div>
-                    {{-- INTRO : đoạn mô tả (nên có) + img + mô tả ảnh (ảnh thì có hoặc khônng) --}}
 
-                    <!-- Nội dung -->
+                    <!-- content CKEditor -->
                     <div class="mb-4">
                         <div class="border rounded" style="min-height: calc(1123px - 200px); padding: 16px;">
                             <textarea name="content" id="editor">{{ old('content') }}</textarea>
@@ -58,7 +57,7 @@
                     <!-- Floating buttons -->
                     <div class="position-fixed" style="bottom: 120px; right: 92px; z-index: 1050;" id="floating-buttons">
                         <div class="d-flex flex-column gap-3">
-                            <!-- Quay lại -->
+                            <!-- Back btn -->
                             <a href="{{ route('admin.news.index') }}" class="floating-btn floating-back"
                                 data-bs-toggle="tooltip" data-bs-placement="left" title="Quay lại trang quản lý tin tức">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
@@ -69,7 +68,7 @@
                                 <span>Back</span>
                             </a>
 
-                            <!-- Xem trước -->
+                            <!-- Preview btn -->
                             <button type="button" class="floating-btn floating-preview" data-bs-toggle="modal"
                                 data-bs-target="#modalPreviewNews" data-bs-toggle="tooltip" data-bs-placement="left"
                                 title="Xem trước bài viết (chưa lưu)">
@@ -82,7 +81,7 @@
                                 <span>Preview</span>
                             </button>
 
-                            <!-- Xuất bản -->
+                            <!-- Publish btn -->
                             <button type="submit" class="floating-btn floating-submit" data-bs-toggle="tooltip"
                                 data-bs-placement="left" title="Xuất bản bài viết (lưu)">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
@@ -93,9 +92,9 @@
                                 <span>Publish</span>
                             </button>
 
-                            <!-- Cuộn lên đầu -->
+                            <!-- Scroll to top btn -->
                             <button type="button" class="floating-btn floating-top" data-bs-toggle="tooltip"
-                                data-bs-placement="left" title="Cuộn lên đầu trang"
+                                data-bs-placement="left" data-bs-trigger="hover" title="Cuộn lên đầu trang"
                                 onclick="window.scrollTo({ top: 0, behavior: 'smooth' });">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                                     class="bi bi-chevron-double-up" viewBox="0 0 16 16">
@@ -109,7 +108,7 @@
 
                 </form>
 
-                <!-- Modal xem trước -->
+                <!-- Modal preview -->
                 <div class="modal fade" id="modalPreviewNews" tabindex="-1" aria-hidden="true">
                     <div class="modal-dialog modal-xl modal-dialog-scrollable">
                         <div class="modal-content border-0 shadow">
@@ -122,7 +121,7 @@
                                 <div class="bg-white p-5 mx-auto"
                                     style="width: 794px; min-height: 1123px; border: 1px solid #dee2e6; border-radius: 4px;"
                                     id="preview-content">
-                                    <!-- Nội dung bài viết sẽ được render tại đây -->
+                                    <!--here is render content -->
                                 </div>
                             </div>
                         </div>
@@ -193,15 +192,15 @@
                 const categorySelect = document.getElementById('category-select');
                 const publishButton = document.querySelector('.floating-submit');
 
-                // Disable nút publish ban đầu
+                // Disable btn publish
                 publishButton.disabled = true;
 
-                // Lưu giá trị ban đầu
+                // save original value
                 const originalTitle = titleInput.value.trim();
                 const originalCategory = categorySelect.value;
                 const originalContent = editorInstance.getData().trim();
 
-                // Hàm kiểm tra thay đổi
+                //  check changes
                 function checkChanges() {
                     const currentTitle = titleInput.value.trim();
                     const currentCategory = categorySelect.value;
@@ -215,12 +214,12 @@
                     publishButton.disabled = !hasChanges;
                 }
 
-                // Đồng bộ nội dung CKEditor về textarea trước khi submit
+                // Sync CKEditor content to the textarea before submitting
                 form.addEventListener('submit', function() {
                     document.querySelector('#editor').value = editorInstance.getData();
                 });
 
-                // Sự kiện preview
+                // event preview
                 const previewBtn = document.querySelector('[data-bs-target="#modalPreviewNews"]');
                 const previewContent = document.getElementById('preview-content');
 
@@ -238,12 +237,11 @@
                     });
                 }
 
-                // Lắng nghe thay đổi để enable nút publish
                 titleInput.addEventListener('input', checkChanges);
                 categorySelect.addEventListener('change', checkChanges);
                 editorInstance.model.document.on('change:data', checkChanges);
 
-                checkChanges(); // Kiểm tra ngay ban đầu
+                checkChanges();
             })
             .catch(error => {
                 console.error('Lỗi khi khởi tạo CKEditor:', error);
@@ -261,15 +259,15 @@
 
     <script>
         function selectTemplate(cssClass) {
-            // Gán class vào form hoặc vùng nội dung
+            // Add a class to the form or content area
             const editorWrapper = document.querySelector('#editor').closest('.mb-4');
             editorWrapper.className = 'mb-4 ' + cssClass;
 
-            // Gán id vào input để gửi khi submit
+            // Assign an ID to the input to include it in the form submission
             const templateId = event.currentTarget.getAttribute('data-id');
             document.getElementById('selected-template-id').value = templateId;
 
-            // Highlight template được chọn
+            // Highlight template is selected
             document.querySelectorAll('.template-card').forEach(card => card.classList.remove('border-danger'));
             event.currentTarget.classList.add('border-danger');
         }

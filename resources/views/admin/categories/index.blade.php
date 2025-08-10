@@ -39,14 +39,15 @@
 
                         <td class="text-center">
                             <div class="d-flex justify-content-center gap-2 flex-wrap">
-                                <button class="btn btn-warning btn-xl px-4" data-bs-toggle="modal"
+                                <button class="btn btn-warning btn-sm py-1 px-3" data-bs-toggle="modal"
                                     data-bs-target="#modalEditCategory" data-id="{{ $category->id }}"
                                     data-name="{{ $category->name }}">
                                     Sửa
                                 </button>
 
-                                <button type="button" class="btn btn-danger text-white btn-xl px-4" data-bs-toggle="modal"
-                                    data-bs-target="#modalConfirmDelete" data-id="{{ $category->id }}">
+                                <button type="button" class="btn btn-danger text-white btn-sm py-1 px-3"
+                                    data-bs-toggle="modal" data-bs-target="#modalConfirmDelete"
+                                    data-id="{{ $category->id }}">
                                     Xóa
                                 </button>
                             </div>
@@ -64,7 +65,7 @@
         </table>
     </div>
 
-    <!-- Modal thêm danh mục -->
+    <!-- Modal add category -->
     <div class="modal fade" id="modalAddCategory" tabindex="-1" aria-labelledby="modalAddCategoryLabel" aria-hidden="true">
         <div class="modal-dialog" style="margin-top: 80px;">
             <div class="modal-content">
@@ -75,7 +76,7 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
                     </div>
                     <div class="modal-body">
-                        {{-- Hiển thị lỗi nếu có --}}
+                        {{-- show errs --}}
                         @if ($errors->any())
                             <div class="alert alert-danger mb-3">
                                 <ul class="mb-0 small">
@@ -100,7 +101,7 @@
         </div>
     </div>
 
-    <!-- Modal sửa danh mục -->
+    <!-- Modal edit category -->
     <div class="modal fade" id="modalEditCategory" tabindex="-1" aria-labelledby="modalEditCategoryLabel"
         aria-hidden="true">
         <div class="modal-dialog" style="margin-top: 80px;">
@@ -140,7 +141,7 @@
         </div>
     </div>
 
-    <!-- Modal xác nhận xóa -->
+    <!-- Modal confirm delete -->
     <div class="modal fade" id="modalConfirmDelete" tabindex="-1" aria-labelledby="modalConfirmDeleteLabel"
         aria-hidden="true">
         <div class="modal-dialog" style="margin-top: 80px;">
@@ -185,7 +186,7 @@
         });
     </script>
 
-    {{-- Theo dõi thay đổi của data --}}
+    {{-- Track changes to the data --}}
     <script>
         let originalName = '';
 
@@ -198,13 +199,13 @@
             const form = document.getElementById('editCategoryForm');
             const submitBtn = document.getElementById('btn-update-category');
 
-            // Gán giá trị ban đầu
+            // initial value
             input.value = name;
             originalName = name.trim();
             form.action = `/categories/${id}`;
-            submitBtn.disabled = true; // Mặc định disable
+            submitBtn.disabled = true;
 
-            // Theo dõi thay đổi
+            //Track changes
             input.addEventListener('input', function() {
                 const current = input.value.trim();
                 submitBtn.disabled = (current === originalName || current === '');
@@ -213,7 +214,7 @@
     </script>
 
 
-    {{-- Mở modal Delete --}}
+    {{-- Open modal Delete --}}
     <script>
         const modalDelete = document.getElementById('modalConfirmDelete');
         modalDelete.addEventListener('show.bs.modal', function(event) {
@@ -234,23 +235,19 @@
         });
     </script>
 
-    {{-- Xóa lỗi khi modal Add đóng --}}
+    {{-- Delete errs when modal Add is closed --}}
     <script>
         const modalAdd = document.getElementById('modalAddCategory');
         modalAdd.addEventListener('hidden.bs.modal', function() {
-            // Xóa lỗi
             modalAdd.querySelectorAll('.alert-danger').forEach(el => el.remove());
 
-            // Xóa input lỗi
             const input = modalAdd.querySelector('input[name="name"]');
             input?.classList.remove('is-invalid');
-
-            // Nếu có old input (giữ lại sau lỗi), xóa luôn
             input && (input.value = '');
         });
     </script>
 
-    {{-- Xóa lỗi khi modal Edit đóng --}}
+    {{-- Delete err when modal Edit is closed --}}
     <script>
         modalEdit.addEventListener('hidden.bs.modal', function() {
             modalEdit.querySelectorAll('.alert-danger').forEach(el => el.remove());
@@ -259,7 +256,7 @@
             input?.classList.remove('is-invalid');
             input && (input.value = '');
 
-            // Reset nút cập nhật về disable
+            // Reset btn
             const submitBtn = document.getElementById('btn-update-category');
             if (submitBtn) submitBtn.disabled = true;
         });
@@ -275,7 +272,7 @@
                 ],
                 pageLength: 6,
                 language: {
-                    url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json'
+                    url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json'
                 },
                 paging: true,
                 lengthChange: true,
@@ -307,4 +304,3 @@
         </script>
     @endif
 @endsection
-{{-- Với slug sau này sẽ có hàm, và tự động gán slug vào DB mà không cần phải nhập. slug sẽ được chuyển từ name --}}

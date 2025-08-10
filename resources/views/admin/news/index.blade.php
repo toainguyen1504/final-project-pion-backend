@@ -62,8 +62,8 @@
                         <td>
                             <div class="d-flex justify-content-center gap-2 flex-wrap">
                                 <a href="{{ route('admin.news.edit', $post->id) }}"
-                                    class="btn btn-warning btn-xl px-4">Sửa</a>
-                                <button type="button" class="btn btn-danger btn-xl px-4" data-bs-toggle="modal"
+                                    class="btn btn-warning btn-sm py-1 px-3">Sửa</a>
+                                <button type="button" class="btn btn-danger btn-sm py-1 px-3" data-bs-toggle="modal"
                                     data-bs-target="#modalDeleteNews" data-id="{{ $post->id }}"
                                     data-title="{{ $post->title }}">
                                     Xóa
@@ -183,7 +183,7 @@
                 ],
                 pageLength: 6,
                 language: {
-                    url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json'
+                    url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json'
                 },
                 paging: true,
                 lengthChange: true,

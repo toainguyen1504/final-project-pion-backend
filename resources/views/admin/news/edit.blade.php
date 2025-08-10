@@ -20,13 +20,13 @@
                         </div>
                     @endif
 
-                    <!-- Tiêu đề -->
+                    <!-- title -->
                     <div class="mb-4">
                         <input type="text" name="title" id="title-input" class="form-control border-0 fs-4 fw-bold"
                             placeholder="Tiêu đề bài viết..." value="{{ old('title', $news->title) }}" required>
                     </div>
 
-                    <!-- Danh mục -->
+                    <!-- category -->
                     <div class="mb-4">
                         <label class="form-label">Danh mục</label>
                         <select name="category_id" id="category-select" class="form-select fs-5" required>
@@ -40,7 +40,7 @@
                         </select>
                     </div>
 
-                    <!-- Nội dung -->
+                    <!-- content -->
                     <div class="mb-4">
                         <div class="border rounded" style="min-height: calc(1123px - 200px); padding: 16px;">
                             <textarea name="content" id="editor" class="w-100" style="min-height: 300px;">{{ old('content', $news->content->content_html ?? '') }}</textarea>
@@ -50,7 +50,7 @@
                     <!-- Floating buttons -->
                     <div class="position-fixed" style="bottom: 120px; right: 92px; z-index: 1050;" id="floating-buttons">
                         <div class="d-flex flex-column gap-3">
-                            <!-- Quay lại -->
+                            <!-- Back btn-->
                             <a href="{{ route('admin.news.index') }}" class="floating-btn floating-back"
                                 data-bs-toggle="tooltip" data-bs-placement="left" title="Quay lại trang quản lý tin tức">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
@@ -61,7 +61,7 @@
                                 <span>Back</span>
                             </a>
 
-                            <!-- Xem trước -->
+                            <!-- preview btn -->
                             <button type="button" class="floating-btn floating-preview" data-bs-toggle="modal"
                                 data-bs-target="#modalPreviewNews" data-bs-toggle="tooltip" data-bs-placement="left"
                                 title="Xem trước bài viết (chưa lưu)">
@@ -74,7 +74,7 @@
                                 <span>Preview</span>
                             </button>
 
-                            <!-- Cập nhật -->
+                            <!-- Edit btn -->
                             <button type="submit" class="floating-btn floating-submit" data-bs-toggle="tooltip"
                                 data-bs-placement="left" title="Cập nhật bài viết (lưu)">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
@@ -85,9 +85,9 @@
                                 <span>Update</span>
                             </button>
 
-                            <!-- Cuộn lên đầu -->
+                            <!-- scroll to top btn -->
                             <button type="button" class="floating-btn floating-top" data-bs-toggle="tooltip"
-                                data-bs-placement="left" title="Cuộn lên đầu trang"
+                                data-bs-placement="left" data-bs-trigger="hover" title="Cuộn lên đầu trang"
                                 onclick="window.scrollTo({ top: 0, behavior: 'smooth' });">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                                     class="bi bi-chevron-double-up" viewBox="0 0 16 16">
@@ -115,7 +115,7 @@
                     <div class="post-content bg-white p-5 mx-auto"
                         style="width: 794px; min-height: 1123px; border: 1px solid #dee2e6; border-radius: 4px;"
                         id="preview-content">
-                        <!-- Nội dung bài viết sẽ được render tại đây -->
+                        <!-- here is render content -->
                     </div>
                 </div>
             </div>
@@ -157,10 +157,6 @@
                     'bold', 'italic', 'link',
                     '|',
                     'bulletedList',
-                    // '|',
-                    // 'bulletedList', 'numberedList',
-                    // '|',
-                    // 'blockQuote', 'insertTable',
                     '|',
                     'uploadImage',
                     '|',
@@ -187,13 +183,12 @@
                 editorInstance = editor;
                 console.log('CKEditor đã khởi tạo thành công');
 
-                // Đồng bộ nội dung CKEditor về textarea trước khi submit
+                //  Sync CKEditor content to the textarea before submitting
                 const form = document.getElementById('edit-form');
                 form.addEventListener('submit', function() {
                     document.querySelector('#editor').value = editorInstance.getData();
                 });
 
-                // Gắn sự kiện preview
                 const previewBtn = document.querySelector('[data-bs-target="#modalPreviewNews"]');
                 const previewContent = document.getElementById('preview-content');
 
@@ -225,19 +220,19 @@
             const categorySelect = document.getElementById('category-select');
             const updateButton = document.querySelector('.floating-submit');
 
-            // Lưu giá trị ban đầu
+            // save original data
             const originalTitle = titleInput.value.trim();
             const originalCategory = categorySelect.value;
             let originalContent = '';
 
-            // Lấy dữ liệu CKEditor ban đầu sau khi editor ready
+            //get data original CKEditor when editor ready
             if (editorInstance) {
                 originalContent = editorInstance.getData().trim();
             } else {
                 console.error('CKEditor chưa khởi tạo xong để lấy dữ liệu ban đầu.');
             }
 
-            // Hàm kiểm tra sự thay đổi
+            // function check changes
             function checkChanges() {
                 const currentTitle = titleInput.value.trim();
                 const currentCategory = categorySelect.value;
@@ -251,12 +246,10 @@
                 updateButton.disabled = !hasChanges;
             }
 
-            // Lắng nghe các sự kiện thay đổi
             titleInput.addEventListener('input', checkChanges);
             categorySelect.addEventListener('change', checkChanges);
             editorInstance.model.document.on('change:data', checkChanges);
 
-            // Khởi chạy kiểm tra ban đầu
             checkChanges();
         });
     </script>

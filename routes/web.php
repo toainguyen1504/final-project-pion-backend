@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\NewsController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\CKEditorController;
+use App\Http\Controllers\Admin\ConsultationController;
 use App\Models\News;
 
 // CLIENT
@@ -16,26 +17,23 @@ Route::get('/preview/posts', function () {
     return view('preview.post-list', compact('posts'));
 })->name('preview.post.list');
 
-
 Route::get('/preview/posts/{id}', function ($id) {
     $posts = \App\Models\News::latest()->limit(10)->get();
     $post = News::with('category')->findOrFail($id);
     return view('preview.post-detail', compact('post', 'posts'));
 })->name('preview.post.detail');
 
-
-// Tối ưu route đăng nhập - quên mk sau...
-// Route đăng nhập  
+// Route Login  
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
-// Quên mật khẩu
+// Forgot password
 Route::get('/forgot-password', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
 Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
 
 // =================================================================================
 // =================================================================================
-// Nhóm dành cho admin và staff
+// allow admin and staff
 Route::name('admin.')
     ->middleware(['auth', 'role:admin,staff'])
     ->group(function () {
@@ -45,13 +43,16 @@ Route::name('admin.')
         // News and category
         Route::resource('categories', CategoryController::class);
         Route::resource('news', NewsController::class)->except(['show']);
-        
-        // Chọn template trước khi tạo bài viết
+
+        // Form Consultation
+        Route::resource('consultations', ConsultationController::class)->only(['index', 'destroy']);
+
+        // Select template before create news
         Route::get('news/select-template', [NewsController::class, 'selectTemplate'])->name('news.selectTemplate');
     });
 
 
-// Nhóm chỉ dành cho admin (super)
+// only admin (super)
 Route::name('admin.')
     ->middleware(['auth', 'role:admin'])
     ->group(function () {
@@ -62,6 +63,7 @@ Route::name('admin.')
 Route::post('/ckeditor/upload', [CKEditorController::class, 'upload'])
     ->middleware('auth')
     ->name('ckeditor.upload');
+
 // ====================================================
 // ================Example NOTE when use Route::resource====================================
 // GET	/admin/categories	-> index -> admin.categories.index

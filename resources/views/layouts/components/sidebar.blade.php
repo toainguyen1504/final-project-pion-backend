@@ -25,7 +25,6 @@
                             Quản lý danh mục
                         </p>
                     </a>
-
                 </li>
 
                 <li class="nav-item">
@@ -84,12 +83,12 @@
                     </li>
                 @endif
 
-                {{-- <li class="nav-item">
-                    <a href="#!" class="nav-link fw-semibold">
+                <li class="nav-item">
+                    <a href="{{ route('admin.consultations.index') }}" class="nav-link fw-semibold">
                         <i class="nav-icon bi bi-chat-dots-fill"></i>
                         <p>Quản lý tư vấn</p>
                     </a>
-                </li> --}}
+                </li>
             </ul>
         </nav>
     </div>

@@ -13,10 +13,15 @@ return new class extends Migration
     {
         Schema::create('consultations', function (Blueprint $table) {
             $table->id();
-            $table->text('request_content');         // Nội dung yêu cầu tư vấn
-            $table->string('status')->default('pending'); // Trạng thái: pending, approved, rejected
-            $table->unsignedBigInteger('user_id');   // Người yêu cầu tư vấn
-            $table->unsignedBigInteger('handled_by')->nullable(); // Nhân viên xử lý
+            $table->text('request_content');
+            $table->string('status')->default('pending'); // pending, approved, rejected
+            $table->unsignedBigInteger('user_id')->nullable();   // The user who requested the consultation
+            $table->unsignedBigInteger('handled_by')->nullable(); // The staff member handling the request
+
+            // info guest
+            $table->string('guest_name')->nullable();
+            $table->string('guest_email')->nullable();
+            $table->string('guest_phone')->nullable();
 
             $table->timestamps();
 

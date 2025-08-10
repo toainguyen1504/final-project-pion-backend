@@ -57,11 +57,11 @@
                                 <div class="d-flex justify-content-center gap-3">
                                     {{-- nút edit --}}
                                     <a href="{{ route('admin.users.edit', $user->id) }}"
-                                        class="btn btn-warning btn-xl px-4">Sửa</a>
+                                        class="btn btn-warning btn-sm py-1 px-3">Sửa</a>
 
                                     <!-- Nút Xóa kích hoạt modal -->
                                     <!-- Nút Xóa -->
-                                    <button type="button" class="btn btn-danger btn-xl px-4" data-bs-toggle="modal"
+                                    <button type="button" class="btn btn-danger btn-sm py-1 px-3" data-bs-toggle="modal"
                                         data-bs-target="#modalDeleteUser" data-id="{{ $user->id }}"
                                         data-name="{{ $user->name }}">
                                         Xóa
@@ -140,7 +140,7 @@
                 ],
                 pageLength: 6,
                 language: {
-                    url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json'
+                    url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json'
                 },
                 paging: true,
                 lengthChange: true,
