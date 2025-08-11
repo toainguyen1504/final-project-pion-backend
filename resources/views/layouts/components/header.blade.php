@@ -2,11 +2,11 @@
 <nav class="app-header navbar navbar-expand bg-body">
     <div class="container-fluid">
         <ul class="navbar-nav">
-            {{-- <li class="nav-item">
+            <li class="nav-item">
                 <a class="nav-link" data-lte-toggle="sidebar" href="#" role="button">
-                    <i class="bi bi-list"></i>
+                    <i class="fas fa-bars"></i>
                 </a>
-            </li> --}}
+            </li>
             {{-- <li class="nav-item d-none d-md-block"><a href="#" class="nav-link">Home</a></li>
             <li class="nav-item d-none d-md-block"><a href="/admin" class="nav-link">News</a></li> --}}
         </ul>

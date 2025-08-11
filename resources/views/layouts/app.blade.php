@@ -3,7 +3,7 @@
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Quản trị PION</title>
+    <title>PION ADMIN @yield('title')</title>
     <link rel="icon" type="image/x-icon" href="{{ asset('adminAssets/favicon/favicon.ico') }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
@@ -254,13 +254,15 @@
 
         /* Style DataTables Buttons */
         .dt-buttons>.dt-button {
-            background-color: #000 !important;
-            border: none !important;
-            color: #fff !important;
-            padding: 6px 12px !important;
-            border-radius: 4px !important;
-            margin-right: 5px !important;
-            font-size: 14px !important;
+            background-color: #fff !important;
+            border: 1px solid #dee2e6 !important;
+            color: #333 !important;
+            padding: 4px 10px !important;
+            border-radius: 6px !important;
+            margin-right: 6px !important;
+            font-size: 13px !important;
+            box-shadow: none !important;
+            transition: all 0.2s ease-in-out;
         }
 
         .dt-buttons>.dt-button:focus:not(.disabled) {
@@ -270,8 +272,37 @@
 
         /* Hover effect */
         .dt-buttons>.dt-button:hover {
-            opacity: 0.8;
+            background-color: #f8f9fa !important;
+            border-color: #ced4da !important;
+            color: #000 !important;
         }
+
+        /* Custom btn modal close Bootstrap */
+        .btn-icon-only.btn-close-custom {
+            background: none;
+            border: none;
+            padding: 8px 12px;
+            color: #ce232d;
+            font-size: 20px;
+            transition: color 0.3s ease;
+        }
+
+        .btn-icon-only.btn-close-custom:hover {
+            color: rgb(165, 19, 33);
+            cursor: pointer;
+        }
+
+        /* logo */
+        .brand-link:hover .brand-text {
+            color: rgb(165, 19, 33) !important;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        /* #consultations-table {
+            width: 100% !important;
+            table-layout: fixed;
+        } */
     </style>
 
     <link rel="stylesheet" href="{{ asset('css/post.css') }}">
@@ -362,6 +393,14 @@
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.colVis.min.js"></script>
 
+    {{-- <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            window.LTE = window.LTE || {};
+            if (typeof window.LTE.Layout !== "undefined") {
+                window.LTE.Layout.init();
+            }
+        });
+    </script> --}}
     {{-- @stack('scripts') --}}
 
     @yield('scripts')

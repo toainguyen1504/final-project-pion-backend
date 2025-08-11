@@ -8,12 +8,12 @@ use App\Models\User;
 use App\Models\Role;
 
 class UserSeeder extends Seeder
-{
+{ 
     public function run(): void
     {
         $roles = Role::pluck('id', 'name'); // ['admin' => 1, 'staff' => 2, ...]
 
-        // 2 nhân viên
+        // 3 staffs
         User::firstOrCreate(['email' => 'staff1@pion.vn'], [
             'name' => 'Staff One',
             'password' => Hash::make('Staff@1123'),
@@ -26,7 +26,14 @@ class UserSeeder extends Seeder
             'role_id' => $roles['staff']
         ]);
 
-        // 2 giáo viên
+        // Staff ADS
+        User::firstOrCreate(['email' => 'adminads@pion.vn'], [
+            'name' => 'Staff ADS',
+            'password' => Hash::make('Adminads110825'),
+            'role_id' => $roles['staffads']
+        ]);
+
+        // 2 teachers
         User::firstOrCreate(['email' => 'teacher1@pion.vn'], [
             'name' => 'Cô Rita',
             'password' => Hash::make('Teacher@1123'),
@@ -39,7 +46,7 @@ class UserSeeder extends Seeder
             'role_id' => $roles['teacher']
         ]);
 
-        // 2 phụ huynh
+        // 2 parents
         User::firstOrCreate(['email' => 'parent1@pion.vn'], [
             'name' => 'Phụ huynh An',
             'password' => Hash::make('Parent@1123'),

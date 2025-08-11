@@ -1,6 +1,12 @@
 *
 !.gitignore
 
+/vendor/
+/node_modules/
+.env
+.env.production
+
+/storage/app/google/*.json
 # Ignore upload folders
 /public/uploads/
 /storage/app/public/uploads/

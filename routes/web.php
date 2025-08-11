@@ -44,13 +44,21 @@ Route::name('admin.')
         Route::resource('categories', CategoryController::class);
         Route::resource('news', NewsController::class)->except(['show']);
 
-        // Form Consultation
-        Route::resource('consultations', ConsultationController::class)->only(['index', 'destroy']);
+        // Form Consultation 
+        // Route::resource('consultations', ConsultationController::class)->only(['index']);
 
         // Select template before create news
         Route::get('news/select-template', [NewsController::class, 'selectTemplate'])->name('news.selectTemplate');
     });
 
+// only staff ads
+Route::name('admin.')
+    ->middleware(['auth', 'role:staffads'])
+    ->group(function () {
+        // Dashboard
+        Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+        Route::get('consultations', [ConsultationController::class, 'index'])->name('consultations.index');
+    });
 
 // only admin (super)
 Route::name('admin.')
