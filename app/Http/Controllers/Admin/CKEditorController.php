@@ -23,7 +23,7 @@ class CKEditorController extends Controller
 
             $cleanName = ImageService::generateCleanFilename($file->getClientOriginalName());
 
-            $uploadPath = public_path('uploads/news');
+            $uploadPath = public_path('uploads/posts');
             ImageService::ensureDirectoryExists($uploadPath);
 
             $file->move($uploadPath, $cleanName);
@@ -31,7 +31,7 @@ class CKEditorController extends Controller
             return response()->json([
                 'uploaded' => 1,
                 'fileName' => $cleanName,
-                'url' => asset('uploads/news/' . $cleanName)
+                'url' => asset('uploads/posts/' . $cleanName)
             ]);
         }
 

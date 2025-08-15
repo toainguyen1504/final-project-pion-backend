@@ -14,16 +14,17 @@ return new class extends Migration
         Schema::create('courses', function (Blueprint $table) {
             $table->id();
 
-            $table->string('title');                  // Tên khoá học
-            $table->text('description');              // Mô tả chi tiết
-            $table->decimal('price', 10, 2);          // Giá học phí
+            $table->string('title');                  // Course name
+            $table->text('description');              // Detailed course description
+            $table->decimal('price', 10, 2);          // Tuition fee
 
-            $table->string('type')->nullable();       // Loại khoá: online, offline, hybrid...
-            $table->string('level')->nullable();      // Trình độ: cơ bản, nâng cao, chuyên sâu...
-            $table->string('duration')->nullable();   // Thời lượng: 8 tuần, 60 giờ...
-            $table->integer('max_enrollments')->nullable(); // Số lượng học viên tối đa
+            $table->string('type')->nullable();       // Course type: online, offline, hybrid...
+            $table->string('level')->nullable();      // Level: beginner, advanced, intensive...
+            $table->string('duration')->nullable();   // Duration: 8 weeks, 60 hours...
+            $table->integer('max_enrollments')->nullable(); // Maximum number of students
 
-            $table->unsignedBigInteger('user_id');    // Người tạo khoá học (admin, teacher...)
+            $table->unsignedBigInteger('user_id');    // Course creator (admin, teacher...)
+
 
             $table->timestamps();
 

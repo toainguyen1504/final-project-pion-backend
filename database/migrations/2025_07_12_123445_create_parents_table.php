@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('parents', function (Blueprint $table) {
             $table->id();
 
-            $table->decimal('balance', 12, 2)->default(0); // Số dư tài khoản phụ huynh
-            $table->unsignedBigInteger('user_id')->unique(); // Mỗi phụ huynh ứng với 1 user
+            $table->decimal('balance', 12, 2)->default(0);
+            $table->unsignedBigInteger('user_id')->unique();
 
             $table->timestamps();
 

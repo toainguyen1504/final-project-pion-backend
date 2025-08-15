@@ -1,4 +1,3 @@
-<!--begin::Header-->
 <nav class="app-header navbar navbar-expand bg-body">
     <div class="container-fluid">
         <ul class="navbar-nav">
@@ -8,17 +7,17 @@
                 </a>
             </li>
             {{-- <li class="nav-item d-none d-md-block"><a href="#" class="nav-link">Home</a></li>
-            <li class="nav-item d-none d-md-block"><a href="/admin" class="nav-link">News</a></li> --}}
+            <li class="nav-item d-none d-md-block"><a href="/admin" class="nav-link">Posts</a></li> --}}
         </ul>
         <ul class="navbar-nav ms-auto">
-            {{-- Nút tìm kiếm --}}
+            {{--Search --}}
             {{-- <li class="nav-item">
                 <a class="nav-link" data-widget="navbar-search" href="#" role="button">
                     <i class="bi bi-search"></i>
                 </a>
             </li> --}}
 
-            {{-- Tin nhắn từ form đăng kí --}}
+            {{-- messages template--}}
             {{-- <li class="nav-item dropdown">
                 <a class="nav-link" data-bs-toggle="dropdown" href="#">
                     <i class="bi bi-chat-text"></i>
@@ -65,7 +64,10 @@
                         <img src="{{ $avatar }}" class="rounded-circle shadow" alt="User Image" />
                         <p>
                             {{ $user->name ?? 'Tài khoản' }} - {{ $user->role->name ?? 'Không rõ vai trò' }}
-                            <small>Thành viên từ {{ $user->created_at?->format('m/Y') }}</small>
+                            <small>Thành viên từ @if ($user && $user->created_at)
+                                    {{ $user->created_at->format('m/Y') }}
+                                @endif
+                            </small>
                         </p>
                     </li>
                     <li class="user-footer">
@@ -80,4 +82,3 @@
         </ul>
     </div>
 </nav>
-<!--end::Header-->

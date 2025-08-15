@@ -8,9 +8,9 @@ class Template extends Model
 {
     protected $fillable = ['name', 'slug', 'view_path', 'css_class', 'is_active'];
 
-    public function news()
+    public function posts()
     {
-        return $this->hasMany(News::class);
+        return $this->hasMany(Post::class);
     }
 
     public function previewImage()

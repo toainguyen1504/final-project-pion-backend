@@ -28,14 +28,14 @@
                 </div>
             </div>
 
-            <!-- News -->
+            <!-- Posts -->
             <div class="col-md-3 mb-4">
                 <div class="card shadow-sm">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <p class="text-muted mb-1">Tổng Tin tức</p>
-                                <h3 class="mb-0 font-weight-bold">{{ number_format($totalNews) }}</h3>
+                                <h3 class="mb-0 font-weight-bold">{{ number_format($totalPosts) }}</h3>
                             </div>
                             <div class="bg-primary text-white p-3 rounded-circle">
                                 <i class="fas fa-newspaper fa-lg"></i>
@@ -89,7 +89,7 @@
             </div> --}}
         </div>
 
-        {{-- Manage category and news - Hidden if it is staff ads --}}
+        {{-- Manage category and posts - Hidden if it is staff ads --}}
         @if (!Auth::user()?->hasRole('staffads'))
             <div class="row mb-4">
                 <!-- Top categories -->
@@ -103,14 +103,14 @@
                         </div>
                         <div class="list-group list-group-flush">
                             @forelse ($topCategories as $category)
-                                <a href="{{ route('admin.news.index') }}?category={{ $category->id }}"
+                                <a href="{{ route('admin.posts.index') }}?category={{ $category->id }}"
                                     class="list-group-item list-group-item-action d-flex align-items-center">
                                     <div class="bg-primary bg-opacity-10 text-primary p-3 rounded me-3">
                                         <i class="fas fa-folder"></i>
                                     </div>
                                     <div class="flex-grow-1">
                                         <div class="fw-semibold">{{ $category->name }}</div>
-                                        <small class="text-muted">{{ $category->news_count }} bài viết</small>
+                                        <small class="text-muted">{{ $category->posts_count }} bài viết</small>
                                     </div>
                                     <i class="fas fa-chevron-right text-primary"></i>
                                 </a>
@@ -125,26 +125,26 @@
                 </div>
 
 
-                <!-- Top news -->
+                <!-- Top posts -->
                 <div class="col-lg-6 mb-4 d-flex align-items-stretch">
                     <div class="card shadow-sm w-100">
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <h5 class="mb-0">Tin tức nổi bật</h5>
-                            <a href="{{ route('admin.news.index') }}"
+                            <a href="{{ route('admin.posts.index') }}"
                                 class="btn-link text-primary small text-nowrap ms-auto">Xem tất
                                 cả</a>
                         </div>
                         <div class="card-body">
-                            @forelse ($latestNews as $news)
+                            @forelse ($latestPosts as $posts)
                                 <div class="mb-4 border-bottom pb-3">
-                                    <h6 class="fw-semibold">{{ $news->title }}</h6>
+                                    <h6 class="fw-semibold">{{ $posts->title }}</h6>
                                     <small class="text-muted">
-                                        {{ $news->created_at->diffForHumans() }} -
+                                        {{ $posts->created_at->diffForHumans() }} -
                                         <span
-                                            class="text-primary">{{ $news->category->name ?? 'Không có danh mục' }}</span>
+                                            class="text-primary">{{ $posts->category->name ?? 'Không có danh mục' }}</span>
                                     </small>
                                     <p class="mt-2 text-muted">
-                                        {{ \Illuminate\Support\Str::limit(strip_tags($news->content->content_html ?? ''), 120) }}
+                                        {{ \Illuminate\Support\Str::limit(strip_tags($posts->content->content_html ?? ''), 120) }}
                                     </p>
                                 </div>
                             @empty

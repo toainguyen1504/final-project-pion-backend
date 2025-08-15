@@ -5,51 +5,51 @@ namespace App\Http\Controllers\Admin;
 // use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreNewsRequest;
-use App\Models\News;
+use App\Http\Requests\PostRequest;
+use App\Models\Post;
 use App\Models\Category;
 use App\Models\Template;
-use App\Models\NewsContent;
+use App\Models\PostContent;
 use App\Services\ImageService;
 
-class NewsController extends Controller
+class PostController extends Controller
 {
     public function index()
     {
-        $news = News::with('content')->latest()->paginate(10);
-        return view('admin.news.index', compact('news'));
+        $posts = Post::with('content')->latest()->paginate(10);
+        return view('admin.posts.index', compact('posts'));
     }
 
     // select Template
     public function selectTemplate()
     {
         $templates = Template::where('is_active', true)->get();
-        return view('admin.news.select-template', compact('templates'));
+        return view('admin.posts.select-template', compact('templates'));
     }
 
 
     public function create()
     {
         $categories = Category::all();
-        return view('admin.news.create', compact('categories'));
+        return view('admin.posts.create', compact('categories'));
     }
 
-    public function store(StoreNewsRequest $request)
+    public function store(PostRequest $request)
     {
-        // /** @var StoreNewsRequest $request */
+        // /** @var PostRequest $request */
         try {
-            $news = News::create([
+            $posts = Post::create([
                 'title'       => $request->title,
                 'user_id'     => Auth::id(),
                 'category_id' => $request->category_id,
             ]);
 
-            NewsContent::create([
-                'news_id'      => $news->id,
+            PostContent::create([
+                'post_id'      => $posts->id,
                 'content_html' => $request->input('content'),
             ]);
 
-            return redirect()->route('admin.news.index')->with('success', '🎉 Bài viết đã được xuất bản!');
+            return redirect()->route('admin.posts.index')->with('success', '🎉 Bài viết đã được xuất bản!');
         } catch (\Exception $e) {
             return back()->with('error', '😢 Có lỗi xảy ra, vui lòng thử lại.')->withInput();
         }
@@ -57,18 +57,18 @@ class NewsController extends Controller
 
     public function edit($id)
     {
-        $news = News::with('content')->findOrFail($id);
+        $posts = Post::with('content')->findOrFail($id);
         $categories = Category::all();
 
-        return view('admin.news.edit', compact('news', 'categories'));
+        return view('admin.posts.edit', compact('posts', 'categories'));
     }
 
-    public function update(StoreNewsRequest $request, $id)
+    public function update(PostRequest $request, $id)
     {
         try {
-            $news = News::with('content')->findOrFail($id);
+            $posts = Post::with('content')->findOrFail($id);
 
-            $oldContent = $news->content->content_html ?? '';
+            $oldContent = $posts->content->content_html ?? '';
             $newContent = $request->input('content');
 
             $oldImages = ImageService::extractImagePaths($oldContent);
@@ -79,16 +79,16 @@ class NewsController extends Controller
                 ImageService::deleteIfExists($src);
             }
 
-            $news->update([
+            $posts->update([
                 'title'       => $request->title,
                 'category_id' => $request->category_id,
             ]);
 
-            $newsContent = $news->content ?? new NewsContent(['news_id' => $news->id]);
-            $newsContent->content_html = $newContent;
-            $newsContent->save();
+            $postsContent = $posts->content ?? new PostContent(['post_id' => $posts->id]);
+            $postsContent->content_html = $newContent;
+            $postsContent->save();
 
-            return redirect()->route('admin.news.index')->with('success', 'Cập nhật bài viết thành công!');
+            return redirect()->route('admin.posts.index')->with('success', 'Cập nhật bài viết thành công!');
         } catch (\Exception $e) {
             return back()->with('error', 'Cập nhật thất bại!')->withInput();
         }
@@ -97,16 +97,16 @@ class NewsController extends Controller
     public function destroy($id)
     {
         try {
-            $news = News::with('content')->findOrFail($id);
+            $posts = Post::with('content')->findOrFail($id);
 
-            if ($news->content && $news->content->content_html) {
-                $images = ImageService::extractImagePaths($news->content->content_html);
+            if ($posts->content && $posts->content->content_html) {
+                $images = ImageService::extractImagePaths($posts->content->content_html);
                 foreach ($images as $src) {
                     ImageService::deleteIfExists($src);
                 }
             }
 
-            $news->delete();
+            $posts->delete();
 
             return back()->with('success', '🗑️ Bài viết và ảnh liên quan đã được xóa!');
         } catch (\Exception $e) {

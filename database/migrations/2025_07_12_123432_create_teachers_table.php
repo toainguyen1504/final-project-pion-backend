@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('teachers', function (Blueprint $table) {
             $table->id();
 
-            $table->string('subject');       // Môn giảng dạy
-            $table->string('nationality');   // Quốc tịch
-            $table->tinyInteger('experience'); // Số năm kinh nghiệm
+            $table->string('subject');
+            $table->string('nationality');
+            $table->tinyInteger('experience');
             $table->unsignedBigInteger('user_id')->unique();
 
             $table->timestamps();

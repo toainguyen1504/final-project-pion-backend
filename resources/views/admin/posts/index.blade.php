@@ -6,21 +6,16 @@
             <h1 class="mb-0 fs-2">Quản lý bài viết</h1>
         </div>
         <div class="col-md-6 d-flex justify-content-end">
-            <a href="{{ route('admin.news.create') }}"
+            <a href="{{ route('admin.posts.create') }}"
                 class="btn btn-dark d-flex align-items-center justify-content-center gap-2" style="width: 40%;">
                 <i class="fas fa-plus"></i>
                 <span>Thêm bài viết mới</span>
             </a>
-            {{-- <a href="{{ route('admin.news.selectTemplate') }}"
-                class="btn btn-dark d-flex align-items-center justify-content-center gap-2" style="width: 40%;">
-                <i class="fas fa-plus"></i>
-                <span>Thêm bài viết mới</span>
-            </a> --}}
         </div>
     </div>
 
     <div class="table-responsive">
-        <table class="table table-bordered align-middle table-striped table-hover py-2" id="news-table">
+        <table class="table table-bordered align-middle table-striped table-hover py-2" id="posts-table">
             <thead class="table-light">
                 <tr>
                     <th class="text-center" style="width: 50px;">STT</th>
@@ -33,13 +28,13 @@
                 </tr>
             </thead>
             <tbody>
-                @forelse ($news as $index => $post)
+                @forelse ($posts as $index => $post)
                     <tr>
                         <td class="text-center">{{ $index + 1 }}</td>
 
                         <td class="text-truncate" style="max-width: 240px;">
                             <a href="#" class="title-link-custom" data-bs-toggle="modal"
-                                data-bs-target="#modalViewNews"
+                                data-bs-target="#modalViewPost"
                                 data-content="{{ $post->content?->content_html ?? '[Chưa có nội dung]' }}"
                                 data-title="{{ $post->title }}"
                                 data-category="{{ optional($post->category)->name ?? 'Không có danh mục' }}"
@@ -61,10 +56,10 @@
 
                         <td>
                             <div class="d-flex justify-content-center gap-2 flex-wrap">
-                                <a href="{{ route('admin.news.edit', $post->id) }}"
+                                <a href="{{ route('admin.posts.edit', $post->id) }}"
                                     class="btn btn-warning btn-sm py-1 px-3">Sửa</a>
                                 <button type="button" class="btn btn-danger btn-sm py-1 px-3" data-bs-toggle="modal"
-                                    data-bs-target="#modalDeleteNews" data-id="{{ $post->id }}"
+                                    data-bs-target="#modalDeletePost" data-id="{{ $post->id }}"
                                     data-title="{{ $post->title }}">
                                     Xóa
                                 </button>
@@ -83,8 +78,8 @@
         </table>
     </div>
 
-    {{-- MODAL view content --}}
-    <div class="modal fade" id="modalViewNews" tabindex="-1" aria-hidden="true">
+    {{-- View content modal--}}
+    <div class="modal fade" id="modalViewPost" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-xl modal-dialog-scrollable">
             <div class="modal-content border-0 shadow">
                 <div class="modal-header border-0 mx-auto" style="width: 794px;">
@@ -103,11 +98,11 @@
     </div>
 
 
-    <!-- Modal xác nhận xóa bài viết -->
-    <div class="modal fade" id="modalDeleteNews" tabindex="-1" aria-hidden="true">
+    <!-- Confirm delete post modal -->
+    <div class="modal fade" id="modalDeletePost" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog" style="margin-top: 80px;">
             <div class="modal-content border-0 shadow">
-                <form method="POST" id="delete-news-form">
+                <form method="POST" id="delete-post-form">
                     @csrf
                     @method('DELETE')
 
@@ -137,9 +132,9 @@
 
 
 @section('scripts')
-    {{-- Mở modal xem trước --}}
+    {{-- Open preview modal --}}
     <script>
-        const modalView = document.getElementById('modalViewNews');
+        const modalView = document.getElementById('modalViewPost');
 
         modalView.addEventListener('show.bs.modal', function(event) {
             const button = event.relatedTarget;
@@ -158,25 +153,25 @@
         });
     </script>
 
-    {{-- Mở modal xóa --}}
+    {{-- Open delete modal  --}}
     <script>
-        const deleteModal = document.getElementById('modalDeleteNews');
+        const deleteModal = document.getElementById('modalDeletePost');
         deleteModal.addEventListener('show.bs.modal', function(event) {
             const button = event.relatedTarget;
             const postId = button.getAttribute('data-id');
             const title = button.getAttribute('data-title');
 
-            const form = document.getElementById('delete-news-form');
-            form.action = `/news/${postId}`;
+            const form = document.getElementById('delete-post-form');
+            form.action = `/posts/${postId}`;
 
             document.getElementById('delete-title').textContent = title;
         });
     </script>
 
-    {{-- Script News DataTables --}}
+    {{-- Script Posts DataTables --}}
     <script>
         $(document).ready(function() {
-            $('#news-table').DataTable({
+            $('#posts-table').DataTable({
                 lengthMenu: [
                     [6, 12, 18, -1],
                     [6, 12, 18, "Tất cả"]

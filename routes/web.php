@@ -4,22 +4,22 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Admin\CategoryController;
-use App\Http\Controllers\Admin\NewsController;
+use App\Http\Controllers\Admin\PostController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\CKEditorController;
 use App\Http\Controllers\Admin\ConsultationController;
-use App\Models\News;
+use App\Models\Post;
 
 // CLIENT
 Route::get('/preview/posts', function () {
-    $posts = \App\Models\News::with('category')->latest()->get();
+    $posts = Post::with('category')->latest()->get();
     return view('preview.post-list', compact('posts'));
 })->name('preview.post.list');
 
 Route::get('/preview/posts/{id}', function ($id) {
-    $posts = \App\Models\News::latest()->limit(10)->get();
-    $post = News::with('category')->findOrFail($id);
+    $posts = Post::latest()->limit(10)->get();
+    $post = Post::with('category')->findOrFail($id);
     return view('preview.post-detail', compact('post', 'posts'));
 })->name('preview.post.detail');
 
@@ -33,51 +33,42 @@ Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLink
 
 // =================================================================================
 // =================================================================================
-// allow admin and staff
-Route::name('admin.')
-    ->middleware(['auth', 'role:admin,staff'])
-    ->group(function () {
-        // Dashboard
-        Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+// Dashboard
+Route::get('/', [DashboardController::class, 'index'])
+    ->middleware(['auth'])
+    ->name('admin.dashboard');
 
-        // News and category
+// admin + staff + staffads: CRUD posts, categories, consultations (access all - users)
+Route::middleware(['auth', 'role:admin,staff,staffads'])
+    ->name('admin.')
+    ->group(function () {
         Route::resource('categories', CategoryController::class);
-        Route::resource('news', NewsController::class)->except(['show']);
-
-        // Form Consultation 
-        // Route::resource('consultations', ConsultationController::class)->only(['index']);
-
-        // Select template before create news
-        Route::get('news/select-template', [NewsController::class, 'selectTemplate'])->name('news.selectTemplate');
+        Route::resource('posts', PostController::class)->except(['show']);
+        Route::resource('consultations', ConsultationController::class)->only(['index']);
+        Route::get('posts/select-template', [PostController::class, 'selectTemplate'])->name('posts.selectTemplate');
     });
 
-// only staff ads
-Route::name('admin.')
-    ->middleware(['auth', 'role:staffads'])
-    ->group(function () {
-        // Dashboard
-        Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
-        Route::get('consultations', [ConsultationController::class, 'index'])->name('consultations.index');
-    });
+// staffads: only access CRUD posts, categories, consultations
+// Route::middleware(['auth', 'role:staffads'])
+//     ->prefix('admin')
+//     ->name('admin.staffads.')
+//     ->group(function () {
+//         // Route::resource('categories', CategoryController::class)->only(['index']);
+//         // Route::resource('posts', PostController::class)->only(['index']);
+//         // Route::resource('consultations', ConsultationController::class)->only(['index']);
+//         Route::resource('categories', CategoryController::class);
+//         Route::resource('posts', PostController::class)->except(['show']);
+//         Route::resource('consultations', ConsultationController::class)->only(['index']);
+//     });
 
-// only admin (super)
-Route::name('admin.')
-    ->middleware(['auth', 'role:admin'])
+// ONLY admin: CRUD users
+Route::middleware(['auth', 'role:admin'])
+    ->name('admin.')
     ->group(function () {
         Route::resource('users', UserController::class);
     });
 
-// CKEditor upload route
+// ✅ CKEditor upload
 Route::post('/ckeditor/upload', [CKEditorController::class, 'upload'])
     ->middleware('auth')
     ->name('ckeditor.upload');
-
-// ====================================================
-// ================Example NOTE when use Route::resource====================================
-// GET	/admin/categories	-> index -> admin.categories.index
-// GET	/admin/categories/create	-> create ->	admin.categories.create
-// POST	/admin/categories	-> store	-> admin.categories.store
-// GET	/admin/categories/{id} ->	show ->	admin.categories.show
-// GET	/admin/categories/{id}/edit ->	edit ->	admin.categories.edit
-// PUT/PATCH	/admin/categories/{id} ->	update ->	admin.categories.update
-// DELETE	/admin/categories/{id} ->	destroy ->	admin.categories.destroy

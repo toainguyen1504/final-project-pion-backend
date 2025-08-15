@@ -27,7 +27,7 @@
                             </h5> --}}
                             <p class="text-muted mb-3">Slug: <code>{{ $template->slug }}</code></p>
 
-                            <a href="{{ route('admin.news.create', ['template_id' => $template->id]) }}"
+                            <a href="{{ route('admin.posts.create', ['template_id' => $template->id]) }}"
                                 class="btn btn-dark mt-auto">
                                 Sử dụng mẫu này
                             </a>
@@ -56,7 +56,7 @@
                 </div>
 
                 <div class="modal-footer">
-                    <a href="{{ route('admin.news.create', ['template_id' => $template->id]) }}" class="btn btn-primary">
+                    <a href="{{ route('admin.posts.create', ['template_id' => $template->id]) }}" class="btn btn-primary">
                         Sử dụng mẫu này
                     </a>
                 </div>

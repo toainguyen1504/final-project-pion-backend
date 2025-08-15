@@ -3,14 +3,14 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\News;
+use App\Models\Post;
 use Illuminate\Http\Request;
 
-class NewsApiController extends Controller
+class PostApiController extends Controller
 {
     public function index()
     {
-        $posts = News::with('category')->latest()->get();
+        $posts = Post::with('category')->latest()->get();
 
         return response()->json([
             'status' => 'success',
@@ -21,7 +21,7 @@ class NewsApiController extends Controller
     public function show($id)
     {
         try {
-            $posts = News::with('category')->findOrFail($id);
+            $posts = Post::with('category')->findOrFail($id);
 
             return response()->json([
                 'status' => 'success',

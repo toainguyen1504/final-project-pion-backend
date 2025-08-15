@@ -13,9 +13,10 @@ return new class extends Migration
     {
         Schema::create('permissions', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique();         // Ví dụ: view_post, delete_user
-            $table->string('label')->nullable();      // Tên hiển thị: Xem bài viết, xóa (khóa) người dùng
-            $table->text('description')->nullable();  // Mô tả chi tiết quyền
+            $table->string('name')->unique();         // e.g., view_post, delete_user
+            $table->string('label')->nullable();      // Display name: View post, delete (ban) user
+            $table->text('description')->nullable();  // Detailed description of the permission
+
             $table->timestamps();
         });
     }

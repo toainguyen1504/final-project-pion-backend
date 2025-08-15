@@ -51,15 +51,14 @@
             @csrf
             <div class="mb-3 text-start">
                 <label for="email" class="form-label">Địa chỉ Email</label>
-                <input type="email" name="email" class="form-control" required autofocus>
+                <input type="email" name="email" class="form-control" id="email" required autofocus>
             </div>
             <div class="mb-3 text-start">
                 <label for="password" class="form-label">Mật khẩu</label>
-                <input type="password" name="password" class="form-control" required>
+                <input type="password" name="password" class="form-control" id="password" required>
             </div>
             <button type="submit" class="btn btn-danger w-100">Đăng nhập</button>
             <div class="mt-3">
-                {{-- Ghi nhớ đăng nhập --}}
                 <a href="{{ route('password.request') }}" class="text-dark">Quên mật khẩu?</a>
             </div>
         </form>

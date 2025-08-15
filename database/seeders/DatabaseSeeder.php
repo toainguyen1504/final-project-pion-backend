@@ -11,14 +11,14 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Gọi các seeder cần thiết
+        // Call
         $this->call([
             RoleSeeder::class,
             AdminSeeder::class,
             UserSeeder::class,
             CategorySeeder::class,
             TemplateSeeder::class,
-            NewsSeeder::class,
+            PostSeeder::class,
         ]);
     }
 }

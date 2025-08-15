@@ -1,11 +1,11 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\NewsApiController;
+use App\Http\Controllers\Api\PostApiController;
 use App\Http\Controllers\Api\ConsultationApiController;
 
-Route::get('/posts', [NewsApiController::class, 'index']);
-Route::get('/posts/{id}', [NewsApiController::class, 'show']);
+Route::get('/posts', [PostApiController::class, 'index']);
+Route::get('/posts/{id}', [PostApiController::class, 'show']);
 
 Route::prefix('consultations')->group(function () {
     // rate limit 2 requests / 1 minutes
