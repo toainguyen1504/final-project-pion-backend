@@ -10,18 +10,26 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\CKEditorController;
 use App\Http\Controllers\Admin\ConsultationController;
 use App\Models\Post;
+use App\Models\Category;
 
 // CLIENT
-Route::get('/preview/posts', function () {
+Route::get('/client', function () {
     $posts = Post::with('category')->latest()->get();
-    return view('preview.post-list', compact('posts'));
-})->name('preview.post.list');
+    $categories = Category::all();
 
-Route::get('/preview/posts/{id}', function ($id) {
+    return view('pages.client.master', compact('posts', 'categories'));
+})->name('client');
+
+Route::get('/client/posts', function () {
+    $posts = Post::with('category')->latest()->get();
+    return view('pages.client.posts.post-list', compact('posts'));
+})->name('client.post.list');
+
+Route::get('/client/posts/{id}', function ($id) {
     $posts = Post::latest()->limit(10)->get();
     $post = Post::with('category')->findOrFail($id);
-    return view('preview.post-detail', compact('post', 'posts'));
-})->name('preview.post.detail');
+    return view('pages.client.posts.post-detail', compact('post', 'posts'));
+})->name('client.post.detail');
 
 // Route Login  
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');

@@ -13,12 +13,12 @@ class UserController extends Controller
     public function index()
     {
         $users = User::with('role')->latest()->get();
-        return view('admin.users.index', compact('users'));
+        return view('pages.admin.users.index', compact('users'));
     }
 
     public function create()
     {
-        return view('admin.users.create');
+        return view('pages.admin.users.create');
     }
 
     public function store(Request $request)
@@ -43,7 +43,7 @@ class UserController extends Controller
 
     public function edit(User $user)
     {
-        return view('admin.users.edit', compact('user'));
+        return view('pages.admin.users.edit', compact('user'));
     }
 
     public function update(Request $request, User $user)
@@ -51,13 +51,12 @@ class UserController extends Controller
         $request->validate([
             'name'  => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
-            'password' => 'nullable|min:6', // Cho phép bỏ trống
+            'password' => 'nullable|min:6',
         ]);
 
         $user->name  = $request->name;
         $user->email = $request->email;
 
-        // Chỉ cập nhật mật khẩu nếu người dùng nhập
         if ($request->filled('password')) {
             $user->password = Hash::make($request->password);
         }

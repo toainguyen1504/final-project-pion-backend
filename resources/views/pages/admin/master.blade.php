@@ -202,3 +202,5 @@
         @endif --}}
     </div>
 @endsection
+
+@stack('scripts-admin')

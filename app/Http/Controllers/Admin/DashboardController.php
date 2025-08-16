@@ -27,7 +27,7 @@ class DashboardController extends Controller
             ->take(3)
             ->get();
 
-        return view('admin.master', [
+        return view('pages.admin.master', [
             'totalPosts' => $totalPosts,
             'totalCategories' => $totalCategories,
             'totalConsultations' => $totalConsultations,

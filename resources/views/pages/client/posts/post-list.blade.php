@@ -45,7 +45,7 @@
                                 Danh mục: {{ optional($post->category)->name ?? 'Không có' }}<br>
                                 Ngày đăng: {{ $post->created_at->format('d/m/Y') }}
                             </p>
-                            <a href="{{ route('preview.post.detail', $post->id) }}"
+                            <a href="{{ route('client.post.detail', $post->id) }}"
                                 class="btn btn-outline-danger btn-sm">
                                 Xem chi tiết
                             </a>

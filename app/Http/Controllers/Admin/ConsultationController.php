@@ -15,6 +15,6 @@ class ConsultationController extends Controller
     {
         $consultations = Consultation::latest()->get();
 
-        return view('admin.consultations.index', compact('consultations'));
+        return view('pages.admin.consultations.index', compact('consultations'));
     }
 }

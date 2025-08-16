@@ -1,4 +1,4 @@
-@extends('layouts.error')
+@extends('layouts.shared.404')
 
 @section('title', 'Không tìm thấy trang')
 

@@ -15,7 +15,7 @@ class CategoryController extends Controller
     public function index()
     {
         $categories = Category::latest()->get();
-        return view('admin.categories.index', compact('categories'));
+        return view('pages.admin.categories.index', compact('categories'));
     }
 
     public function store(CategoryRequest $request)
@@ -38,7 +38,7 @@ class CategoryController extends Controller
     public function edit($id)
     {
         $category = Category::findOrFail($id);
-        return view('admin.categories.edit', compact('category'));
+        return view('pages.admin.categories.edit', compact('category'));
     }
 
     public function update(CategoryRequest $request, $id)

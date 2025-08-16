@@ -303,17 +303,132 @@
             width: 100% !important;
             table-layout: fixed;
         } */
+
+        /*  Customize posts UI */
+        .sidebar-right.fs-6 a,
+        .sidebar-right.fs-6 span,
+        .sidebar-right .category-item label,
+        #category-search {
+            font-size: 14px;
+        }
+
+        .title-section .fs-6 span,
+        .title-section .fs-6 a,
+        .title-section .fs-6 label,
+        .title-section .fs-6 input {
+            font-size: 14px;
+        }
+
+        /* customize modal */
+        .custom-modal .modal-dialog {
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .custom-modal .modal-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .custom-modal .modal-header,
+        .custom-modal .modal-footer {
+            flex-shrink: 0;
+            position: sticky;
+            z-index: 1;
+            background-color: #fff;
+        }
+
+        .custom-modal .modal-header {
+            top: 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .custom-modal .modal-footer {
+            bottom: 0;
+            border-top: 1px solid #dee2e6;
+        }
+
+        .custom-modal .modal-body {
+            overflow-y: auto;
+            overflow-x: hidden;
+            flex-grow: 1;
+            padding: 1rem;
+        }
+
+
+        /* Focus keyword */
+        #keyword-input {
+            background: transparent;
+        }
+
+        .keyword-tag {
+            background-color: #fbbf24;
+            color: #1f2937;
+            padding: 4px 8px;
+            border-radius: 20px;
+            margin-right: 6px;
+            margin-bottom: 6px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+        }
+
+        .keyword-tag .remove-tag {
+            margin-left: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        #keyword-container {
+            cursor: text;
+        }
+
+        /* Check list */
+        .accordion-toggle {
+            background-color: #fff;
+            border: none;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        .chevron-icon {
+            transition: transform 0.3s ease;
+            font-size: 14px;
+            color: #6c757d;
+        }
+
+        .rotate {
+            transform: rotate(180deg);
+        }
+
+        .collapse {
+            display: none;
+        }
+
+        .collapse.show {
+            display: block;
+        }
+
+        .list-group-item {
+            font-size: 14px;
+            padding: 8px 16px;
+        }
+
+        /* End customize posts UI */
     </style>
 
-    <link rel="stylesheet" href="{{ asset('css/post.css') }}">
+    <link rel="stylesheet" href="{{ asset('adminAssets/post-css/template-news.css') }}">
 
     @stack('styles')
 </head>
 
 <body class="layout-fixed sidebar-expand-lg sidebar-mini bg-body-tertiary">
     <div class="app-wrapper">
-        @include('layouts.components.header')
-        @include('layouts.components.sidebar')
+        <x-admin.blocks.header />
+        <x-admin.blocks.sidebar />
 
         <main class="app-main px-5 py-4">
             @if (session('success') || session('error'))
@@ -334,7 +449,7 @@
             @yield('content') <!-- Đây là nơi nội dung của các view con sẽ được chèn vào -->
         </main>
 
-        @include('layouts.components.footer')
+        <x-admin.blocks.footer />
     </div>
 
     <!--begin::Script-->
@@ -393,16 +508,7 @@
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.colVis.min.js"></script>
 
-    {{-- <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            window.LTE = window.LTE || {};
-            if (typeof window.LTE.Layout !== "undefined") {
-                window.LTE.Layout.init();
-            }
-        });
-    </script> --}}
-    {{-- @stack('scripts') --}}
-
+    {{-- search @section('scripts') để biết page nào đang dùng @yield để tối ưu luôn --}}
     @yield('scripts')
     <!--end::Script-->
 </body>

@@ -15,6 +15,13 @@
         <!-- Phần tiêu đề -->
         <h2 class="mb-4">📚 All Blogs - Pion Academy</h2>
 
+        <!-- Nút xem tất cả bài viết -->
+        <div class="text-end mb-4">
+            <a href="{{ route('client.post.list') }}" class="btn btn-primary">
+                Xem tất cả bài viết
+            </a>
+        </div>
+
         <!-- Danh mục -->
         <div class="mb-4">
             <h5>Danh mục</h5>

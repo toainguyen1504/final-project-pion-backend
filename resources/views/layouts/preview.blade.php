@@ -13,7 +13,7 @@
     {{-- awesome ICON --}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-    <link rel="stylesheet" href="{{ asset('css/post.css') }}">
+    <link rel="stylesheet" href="{{ asset('adminAssets/post-css/template-news.css') }}">
 
     @yield('styles')
 

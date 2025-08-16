@@ -34,7 +34,7 @@
                 <ul class="nav flex-column small">
                     @foreach ($posts as $item)
                         <li class="mb-1">
-                            <a href="{{ route('preview.post.detail', $item->id) }}" class="nav-link text-dark d-block">
+                            <a href="{{ route('client.post.detail', $item->id) }}" class="nav-link text-dark d-block">
                                 {{ \Illuminate\Support\Str::limit($item->title, 60) }}
                             </a>
                         </li>
@@ -44,7 +44,7 @@
                 <hr>
 
                 {{-- Nút quay lại --}}
-                <a href="{{ route('preview.post.list') }}"
+                <a href="{{ route('client.post.list') }}"
                     class="btn btn-outline-danger btn-sm d-inline-flex align-items-center gap-1">
                     <i class="bi bi-arrow-left-circle"></i> Quay về danh sách bài viết
                 </a>

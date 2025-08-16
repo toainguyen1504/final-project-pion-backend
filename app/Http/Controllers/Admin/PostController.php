@@ -17,21 +17,21 @@ class PostController extends Controller
     public function index()
     {
         $posts = Post::with('content')->latest()->paginate(10);
-        return view('admin.posts.index', compact('posts'));
+        return view('pages.admin.posts.index', compact('posts'));
     }
 
     // select Template
     public function selectTemplate()
     {
         $templates = Template::where('is_active', true)->get();
-        return view('admin.posts.select-template', compact('templates'));
+        return view('pages.admin.posts.select-template', compact('templates'));
     }
 
 
     public function create()
     {
         $categories = Category::all();
-        return view('admin.posts.create', compact('categories'));
+        return view('pages.admin.posts.create', compact('categories'));
     }
 
     public function store(PostRequest $request)
@@ -60,7 +60,7 @@ class PostController extends Controller
         $posts = Post::with('content')->findOrFail($id);
         $categories = Category::all();
 
-        return view('admin.posts.edit', compact('posts', 'categories'));
+        return view('pages.admin.posts.edit', compact('posts', 'categories'));
     }
 
     public function update(PostRequest $request, $id)
