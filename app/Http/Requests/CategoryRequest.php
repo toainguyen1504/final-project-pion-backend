@@ -3,19 +3,19 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-   use Illuminate\Contracts\Validation\Validator;
-    use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class CategoryRequest extends FormRequest
 {
     public function authorize()
     {
-        return true; // Cho phép sử dụng request này
+        return true;
     }
 
     public function rules()
     {
-        $id = $this->route('id'); // Lấy ID từ route để xử lý update
+        $id = $this->route('id');
 
         return [
             'name' => 'required|string|max:50|unique:categories,name' . ($id ? ',' . $id : ''),
@@ -35,9 +35,22 @@ class CategoryRequest extends FormRequest
     public function failedValidation(Validator $validator)
     {
         $modal = $this->routeIs('categories.update') ? 'modalEditCategory' : 'modalAddCategory';
+
+        // Check if the form is submitted from the create post page
+        if ($this->has('from_post_create')) {
+            $redirect = redirect()
+                ->route('admin.posts.create')
+                ->withErrors($validator, 'category')
+                ->withInput()
+                ->with('openModal', $modal);
+
+            throw new HttpResponseException($redirect);
+        }
+
+        // Default: redirect to the category management page
         $redirect = redirect()
             ->route('admin.categories.index')
-            ->withErrors($validator)
+            ->withErrors($validator, 'category')
             ->withInput()
             ->with('openModal', $modal);
 

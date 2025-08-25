@@ -36,18 +36,25 @@ class PostController extends Controller
 
     public function store(PostRequest $request)
     {
-        // /** @var PostRequest $request */
         try {
-            $posts = Post::create([
+            $post = Post::create([
                 'title'       => $request->title,
                 'user_id'     => Auth::id(),
-                'category_id' => $request->category_id,
+                'category_id' => null, // or category_ids[0] - main category
+                'slug' => $request->slug ?? null,
+                'seo_title'   => $request->seo_title,
+                'seo_description' => $request->seo_description,
+                'seo_keywords'    => implode(',', $request->input('seo_keywords', [])),
             ]);
 
             PostContent::create([
-                'post_id'      => $posts->id,
+                'post_id'      => $post->id,
                 'content_html' => $request->input('content'),
             ]);
+
+            // Assign multiple categories
+            $categoryIds = $request->input('category_ids', []);
+            $post->categories()->sync($categoryIds);
 
             return redirect()->route('admin.posts.index')->with('success', '🎉 Bài viết đã được xuất bản!');
         } catch (\Exception $e) {

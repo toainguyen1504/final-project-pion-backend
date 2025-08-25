@@ -66,40 +66,7 @@
     </div>
 
     <!-- Modal add category -->
-    <div class="modal fade" id="modalAddCategory" tabindex="-1" aria-labelledby="modalAddCategoryLabel" aria-hidden="true">
-        <div class="modal-dialog" style="margin-top: 80px;">
-            <div class="modal-content">
-                <form action="{{ route('admin.categories.store') }}" method="POST">
-                    @csrf
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="modalAddCategoryLabel">Thêm danh mục</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
-                    </div>
-                    <div class="modal-body">
-                        {{-- show errs --}}
-                        @if ($errors->any())
-                            <div class="alert alert-danger mb-3">
-                                <ul class="mb-0 small">
-                                    @foreach ($errors->all() as $error)
-                                        <li>{{ $error }}</li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        @endif
-                        <div class="mb-5">
-                            <label for="name" class="form-label">Tên danh mục</label>
-                            <input type="text" name="name" class="form-control" required maxlength="50">
-                        </div>
-
-                    </div>
-                    <div class="modal-footer py-2">
-                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Hủy</button>
-                        <button type="submit" class="btn btn-dark px-5">Lưu</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+    <x-admin.modals.add-category />
 
     <!-- Modal edit category -->
     <div class="modal fade" id="modalEditCategory" tabindex="-1" aria-labelledby="modalEditCategoryLabel"
@@ -172,7 +139,7 @@
     </div>
 @endsection
 
-@section('scripts')
+@push('scripts')
     {{-- pull data into form edit --}}
     <script>
         const modalEdit = document.getElementById('modalEditCategory');
@@ -210,40 +177,6 @@
                 const current = input.value.trim();
                 submitBtn.disabled = (current === originalName || current === '');
             });
-        });
-    </script>
-
-
-    {{-- Open modal Delete --}}
-    <script>
-        const modalDelete = document.getElementById('modalConfirmDelete');
-        modalDelete.addEventListener('show.bs.modal', function(event) {
-            const button = event.relatedTarget;
-            const id = button.getAttribute('data-id');
-            const form = document.getElementById('deleteCategoryForm');
-            form.action = `/categories/${id}`;
-        });
-    </script>
-
-    {{-- toast message --}}
-    <script>
-        const toastElList = [].slice.call(document.querySelectorAll('.toast'));
-        toastElList.map(function(toastEl) {
-            new bootstrap.Toast(toastEl, {
-                delay: 3000
-            }).show();
-        });
-    </script>
-
-    {{-- Delete errs when modal Add is closed --}}
-    <script>
-        const modalAdd = document.getElementById('modalAddCategory');
-        modalAdd.addEventListener('hidden.bs.modal', function() {
-            modalAdd.querySelectorAll('.alert-danger').forEach(el => el.remove());
-
-            const input = modalAdd.querySelector('input[name="name"]');
-            input?.classList.remove('is-invalid');
-            input && (input.value = '');
         });
     </script>
 
@@ -285,6 +218,17 @@
         });
     </script>
 
+    {{-- Open modal Delete --}}
+    <script>
+        const modalDelete = document.getElementById('modalConfirmDelete');
+        modalDelete.addEventListener('show.bs.modal', function(event) {
+            const button = event.relatedTarget;
+            const id = button.getAttribute('data-id');
+            const form = document.getElementById('deleteCategoryForm');
+            form.action = `/categories/${id}`;
+        });
+    </script>
+
     {{-- open modal again if err --}}
     @if (session('openModal') === 'modalEditCategory' && session('editingId'))
         <script>
@@ -303,4 +247,16 @@
             });
         </script>
     @endif
-@endsection
+
+    {{-- Delete errs when modal Add is closed --}}
+    <script>
+        const modalAdd = document.getElementById('modalAddCategory');
+        modalAdd.addEventListener('hidden.bs.modal', function() {
+            modalAdd.querySelectorAll('.alert-danger').forEach(el => el.remove());
+
+            const input = modalAdd.querySelector('input[name="name"]');
+            input?.classList.remove('is-invalid');
+            input && (input.value = '');
+        });
+    </script>
+@endpush

@@ -22,7 +22,7 @@
 
                     <!-- title -->
                     <div class="mb-4">
-                        <input type="text" name="title" id="title-input" class="form-control border-0 fs-4 fw-bold"
+                        <input type="text" name="title" id="post-title" class="form-control border-0 fs-4 fw-bold"
                             placeholder="Tiêu đề bài viết..." value="{{ old('title', $posts->title) }}" required>
                     </div>
 
@@ -86,17 +86,6 @@
                                 <span>Update</span>
                             </button>
 
-                            <!-- scroll to top btn -->
-                            {{-- <button type="button" class="floating-btn floating-top" data-bs-toggle="tooltip"
-                                data-bs-placement="left" data-bs-trigger="hover" title="Cuộn lên đầu trang"
-                                onclick="window.scrollTo({ top: 0, behavior: 'smooth' });">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                    class="bi bi-chevron-double-up" viewBox="0 0 16 16">
-                                    <path fill-rule="evenodd"
-                                        d="M7.646 2.146a.5.5 0 0 1 .708 0l5 5a.5.5 0 0 1-.708.708L8 2.707 3.354 7.854a.5.5 0 1 1-.708-.708l5-5zM7.646 7.146a.5.5 0 0 1 .708 0l5 5a.5.5 0 0 1-.708.708L8 7.707l-4.646 4.647a.5.5 0 0 1-.708-.708l5-5z" />
-                                </svg>
-                                <span>Top</span>
-                            </button> --}}
                         </div>
                     </div>
 
@@ -124,9 +113,7 @@
     </div>
 @endsection
 
-@section('scripts')
-    <script src="https://cdn.ckeditor.com/ckeditor5/41.2.0/classic/ckeditor.js"></script>
-
+@push('scripts')
     <script>
         let editorInstance;
 
@@ -195,7 +182,7 @@
 
                 if (previewBtn) {
                     previewBtn.addEventListener('click', () => {
-                        const title = document.querySelector('#title-input').value.trim();
+                        const title = document.querySelector('#post-title').value.trim();
                         const category = document.querySelector('#category-select');
                         const categoryName = category.options[category.selectedIndex]?.text || '';
                         const content = editorInstance.getData();
@@ -215,7 +202,7 @@
         // Check change
         document.addEventListener('DOMContentLoaded', function() {
             const form = document.getElementById('edit-form');
-            const titleInput = document.getElementById('title-input');
+            const titleInput = document.getElementById('post-title');
             const categorySelect = document.getElementById('category-select');
             const updateButton = document.querySelector('.floating-submit');
 
@@ -261,4 +248,5 @@
             });
         });
     </script>
-@endsection
+    
+@endpush

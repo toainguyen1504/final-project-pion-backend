@@ -4,7 +4,6 @@
 
 @section('content')
     <div class="container-fluid py-3">
-        {{-- <td class="text-center">{{ \Carbon\Carbon::parse($item->created_at)->format('d/m/Y H:i') }}</td> --}}
         <h2 class="mb-3">Danh sách tư vấn</h2>
 
         <div class="table-responsive">
@@ -18,7 +17,6 @@
                         <th style="min-width: 240px;">Nội dung cần tư vấn</th>
                         <th class="text-center" style="min-width: 140px;">Trạng thái</th>
                         <th class="text-center" style="min-width: 160px;">Thời gian</th>
-                        {{-- <th class="text-center" style="min-width: 160px;">Cập nhật</th> --}}
                         <th class="text-center" style="min-width: 160px;">Hành động</th>
                     </tr>
                 </thead>
@@ -31,7 +29,6 @@
                                 {{ $item->user_name ?? $item->guest_name }}</td>
                             <td class="text-center">{{ $item->user_phone ?? $item->guest_phone }}</td>
                             <td class="text-center">{{ $item->user_email ?? $item->guest_email }}</td>
-                            {{-- <td>{{ $item->request_content }}</td> --}}
                             <td class="text-truncate" style="max-width: 224px;" title="{{ $item->request_content }}">
                                 {{ $item->request_content }}
                             </td>
@@ -41,7 +38,6 @@
                                 </span>
                             </td>
                             <td class="text-center">{{ $item->created_at->format('d/m/Y H:i:s') }}</td>
-                            {{-- <td class="text-center">{{ $item->updated_at->format('d/m/Y H:i:s') }}</td> --}}
 
                             <td class="text-center">
                                 <div class="d-flex justify-content-center gap-2 flex-wrap">
@@ -99,7 +95,7 @@
     </div>
 @endsection
 
-@section('scripts')
+@push('scripts')
     {{-- Script Categories DataTables --}}
     <script>
         $.fn.dataTable.ext.errMode = 'none'; //off warming when no data
@@ -205,4 +201,4 @@
         });
     </script>
 
-@endsection
+@endpush

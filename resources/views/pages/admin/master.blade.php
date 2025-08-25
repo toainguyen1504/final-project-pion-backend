@@ -124,7 +124,6 @@
                     </div>
                 </div>
 
-
                 <!-- Top posts -->
                 <div class="col-lg-6 mb-4 d-flex align-items-stretch">
                     <div class="card shadow-sm w-100">
@@ -202,5 +201,3 @@
         @endif --}}
     </div>
 @endsection
-
-@stack('scripts-admin')

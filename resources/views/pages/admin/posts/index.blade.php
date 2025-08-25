@@ -130,8 +130,7 @@
     </div>
 @endsection
 
-
-@section('scripts')
+@push('scripts')
     {{-- Open preview modal --}}
     <script>
         const modalView = document.getElementById('modalViewPost');
@@ -190,4 +189,4 @@
             });
         });
     </script>
-@endsection
+@endpush

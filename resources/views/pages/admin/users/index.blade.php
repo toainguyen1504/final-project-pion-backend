@@ -116,7 +116,7 @@
 @endsection
 
 
-@section('scripts')
+@push('scripts')
     <script>
         const deleteModal = document.getElementById('modalDeleteUser');
         deleteModal.addEventListener('show.bs.modal', function(event) {
@@ -152,4 +152,4 @@
             });
         });
     </script>
-@endsection
+@endpush

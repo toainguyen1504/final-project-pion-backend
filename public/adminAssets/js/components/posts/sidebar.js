@@ -1,0 +1,328 @@
+// Publish section
+document.addEventListener("DOMContentLoaded", function () {
+    // DOM elements
+    const statusSelect = document.getElementById("status-select");
+    const statusLabel = document.getElementById("status-label");
+    const hiddenStatus = document.getElementById("hidden_status");
+
+    const visibilitySelect = document.getElementById("visibility-select");
+    const visibilityLabel = document.getElementById("visibility-label");
+    const hiddenVisibility = document.getElementById("hidden_visibility");
+
+    const publishInput = document.querySelector(
+        '#edit-date input[type="datetime-local"]'
+    );
+    const publishLabel = document.getElementById("publish-label");
+    const hiddenPublishAt = document.getElementById("hidden_publish_at");
+
+    // Set min/max date
+    const now = new Date();
+    publishInput.min = now.toISOString().slice(0, 16);
+
+    const maxDate = new Date();
+    maxDate.setMonth(maxDate.getMonth() + 2);
+    publishInput.max = maxDate.toISOString().slice(0, 16);
+
+    const triggerBadge = document.querySelector(".seo-score-box");
+    const targetBadge = document.getElementById("seo-score-badge");
+
+    // DEFAULT VALUE
+    const initialStatus = hiddenStatus.value || "draft";
+    const initialVisibility = hiddenVisibility.value || "private";
+
+    updateStatusUI(initialStatus);
+    updateVisibilityUI(initialVisibility);
+
+    // Utility functions
+    function updateStatusUI(value) {
+        const map = {
+            published: { text: "Đã xuất bản", class: "text-success" },
+            draft: { text: "Bản nháp", class: "text-dark" },
+            pending: { text: "Đang chờ xét duyệt", class: "text-warning" },
+        };
+        const { text, class: cls } = map[value] || {};
+        statusSelect.value = value;
+        statusLabel.textContent = text;
+        statusLabel.className = cls;
+        hiddenStatus.value = value;
+    }
+
+    function updateVisibilityUI(value) {
+        const map = {
+            public: { text: "Công khai", class: "text-success" },
+            private: { text: "Riêng tư", class: "text-dark" },
+            password: { text: "Mật khẩu bảo vệ", class: "text-info" },
+            scheduled_public: {
+                text: "Công khai theo lịch",
+                class: "text-success",
+            },
+        };
+        const { text, class: cls } = map[value] || {};
+        visibilitySelect.value = value;
+        visibilityLabel.textContent = text;
+        visibilityLabel.className = cls;
+        hiddenVisibility.value = value;
+    }
+
+    function syncVisibilityWithStatus(statusValue) {
+        const hasScheduledDate =
+            hiddenPublishAt.value &&
+            new Date(hiddenPublishAt.value) > new Date();
+        if (hasScheduledDate) {
+            updateVisibilityUI("scheduled_public");
+            console.log(
+                "Giữ visibility là scheduled_public vì đã có lịch đăng"
+            );
+            return;
+        }
+
+        const visibilityValue =
+            statusValue === "published" ? "public" : "private";
+        updateVisibilityUI(visibilityValue);
+        document.querySelector(
+            '[data-target="#edit-visibility"]'
+        ).style.display = "none";
+    }
+
+    function formatDateForVN(dateObj) {
+        return new Intl.DateTimeFormat("vi-VN", {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+            hour: "numeric",
+            minute: "numeric",
+            hour12: true,
+        }).format(dateObj);
+    }
+
+    // Event bindings
+    document.querySelectorAll(".edit-toggle").forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+            e.preventDefault();
+            document.querySelector(btn.dataset.target).classList.toggle("show");
+        });
+    });
+
+    document.querySelectorAll(".cancel-toggle").forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+            e.preventDefault();
+            document.querySelector(btn.dataset.target).classList.remove("show");
+        });
+    });
+
+    document
+        .querySelector('[data-action="save-status"]')
+        .addEventListener("click", () => {
+            const statusValue = statusSelect.value;
+            updateStatusUI(statusValue);
+            syncVisibilityWithStatus(statusValue);
+            document.querySelector("#edit-status").classList.remove("show");
+            console.log("statusValue:", statusValue);
+            console.log("visibilityValue:", visibilitySelect.value);
+        });
+
+    document
+        .querySelector('[data-action="save-visibility"]')
+        .addEventListener("click", () => {
+            updateVisibilityUI(visibilitySelect.value);
+            document.querySelector("#edit-visibility").classList.remove("show");
+            console.log("visibilityValue:", visibilitySelect.value);
+        });
+
+    console.log("Giá trị status hiện tại:", statusSelect.value);
+
+    document.getElementById("save-schedule").addEventListener("click", () => {
+        const selectedDate = publishInput.value;
+        if (!selectedDate) return;
+
+        const dateObj = new Date(selectedDate);
+        publishLabel.textContent = formatDateForVN(dateObj);
+        hiddenPublishAt.value = selectedDate;
+
+        if (dateObj > new Date()) {
+            updateVisibilityUI("scheduled_public");
+
+            if (["draft", "pending"].includes(statusSelect.value)) {
+                updateStatusUI("published");
+            }
+        }
+
+        document.querySelector("#edit-date").classList.remove("show");
+        console.log("Đã lên lịch đăng lúc:", selectedDate);
+        console.log("🔒 Dữ liệu gửi về backend:");
+        console.log("hiddenStatus:", hiddenStatus.value);
+        console.log("hiddenVisibility:", hiddenVisibility.value);
+        console.log("hiddenPublishAt:", hiddenPublishAt.value);
+    });
+    // End processing scheduled tasks
+
+    // Handle moving to trash
+    document.querySelector(".trash-link").addEventListener("click", (e) => {
+        e.preventDefault();
+
+        updateStatusUI("archived");
+        hiddenStatus.value = "archived";
+
+        document.querySelector(".trash-link").classList.add("d-none");
+        document.querySelector(".trash-status").classList.remove("d-none");
+
+        statusLabel.textContent = "Đã bỏ vào thùng rác";
+        statusLabel.className = "text-danger";
+    });
+
+    // Handle restore
+    document.querySelector(".restore-link").addEventListener("click", (e) => {
+        e.preventDefault();
+
+        updateStatusUI(initialStatus);
+        hiddenStatus.value = initialStatus;
+
+        document.querySelector(".trash-link").classList.remove("d-none");
+        document.querySelector(".trash-status").classList.add("d-none");
+    });
+
+    // highlight Badge when click seo-score-box
+    if (triggerBadge && targetBadge) {
+        triggerBadge.addEventListener("click", function () {
+            targetBadge.scrollIntoView({
+                behavior: "smooth",
+                block: "center",
+            });
+
+            //highlight
+            targetBadge.classList.add("highlight-seo");
+            setTimeout(() => {
+                targetBadge.classList.remove("highlight-seo");
+            }, 1500);
+        });
+    }
+
+    // Category
+    const searchInput = document.getElementById("category-search");
+    const categoryItems = document.querySelectorAll(".category-item");
+
+    if (!searchInput || categoryItems.length === 0) return;
+
+    // Function to remove Vietnamese diacritics
+    function normalizeVietnamese(str) {
+        return str
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .toLowerCase();
+    }
+
+    searchInput.addEventListener("input", function () {
+        const keyword = normalizeVietnamese(this.value);
+
+        categoryItems.forEach((item) => {
+            const label = item.querySelector("label").textContent;
+            const normalizedLabel = normalizeVietnamese(label);
+
+            item.style.display = normalizedLabel.includes(keyword)
+                ? "block"
+                : "none";
+        });
+    });
+
+    // thumbnail
+    const input = document.getElementById("thumbnail-input");
+    const previewImage = document.getElementById("thumbnail-preview-img");
+    const previewContainer = document.getElementById(
+        "thumbnail-preview-container"
+    );
+    const placeholder = document.getElementById("thumbnail-placeholder");
+    const removeBtn = document.getElementById("remove-thumbnail");
+
+    const cropperModal = new bootstrap.Modal(
+        document.getElementById("cropperModal")
+    );
+    const cropperImage = document.getElementById("cropper-image");
+
+    let cropper;
+
+    // binding
+    input.addEventListener("change", function () {
+        const file = this.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                cropperImage.onload = function () {
+                    cropperModal.show();
+
+                    cropper = new Cropper(cropperImage, {
+                        aspectRatio: 1200 / 630, // size OG
+                        viewMode: 1,
+                        autoCropArea: 1,
+                        responsive: true,
+                        movable: true,
+                        zoomable: true,
+                        scalable: false,
+                        cropBoxResizable: true,
+                    });
+                };
+
+                cropperImage.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    document.getElementById("rotate-left").addEventListener("click", () => {
+        if (cropper) cropper.rotate(-90);
+    });
+
+    document.getElementById("rotate-right").addEventListener("click", () => {
+        if (cropper) cropper.rotate(90);
+    });
+
+    document
+        .getElementById("crop-confirm")
+        .addEventListener("click", function () {
+            if (!cropper) {
+                return;
+            }
+
+            // img (1200x630)
+            const canvas = cropper.getCroppedCanvas({
+                width: 1200,
+                height: 630,
+            });
+
+            if (!canvas) {
+                console.warn("Không thể lấy canvas từ cropper.");
+                return;
+            }
+
+            const dataUrl = canvas.toDataURL("image/jpeg");
+
+            previewImage.src = dataUrl;
+            previewContainer.classList.remove("d-none");
+            placeholder.classList.add("d-none");
+
+            cropper.destroy();
+            cropper = null;
+            cropperModal.hide();
+
+        });
+
+    document
+        .getElementById("cropperModal")
+        .addEventListener("hidden.bs.modal", function () {
+            if (cropper) {
+                cropper.destroy();
+                cropper = null;
+            }
+
+            input.value = "";
+            cropperImage.src = ""; // Reset img in modal
+        });
+
+    removeBtn.addEventListener("click", function (e) {
+        e.preventDefault();
+        input.value = "";
+        previewImage.src = "";
+        previewContainer.classList.add("d-none");
+        placeholder.classList.remove("d-none");
+    });
+});

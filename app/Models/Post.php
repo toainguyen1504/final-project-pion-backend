@@ -26,16 +26,18 @@ class Post extends Model
     protected static function booted()
     {
         static::creating(function ($post) {
-            $baseTitle = $post->seo_title ?: $post->title;
-            $slug = Str::slug($baseTitle);
+            if (empty($post->slug)) {
+                $baseTitle = $post->seo_title ?: $post->title;
+                $slug = Str::slug($baseTitle);
 
-            // Check for duplicate slug
-            $count = static::where('slug', 'LIKE', "{$slug}%")->count();
-            if ($count > 0) {
-                $slug .= '-' . ($count + 1);
+                // Check for duplicate slug
+                $count = static::where('slug', 'LIKE', "{$slug}%")->count();
+                if ($count > 0) {
+                    $slug .= '-' . ($count + 1);
+                }
+
+                $post->slug = $slug;
             }
-
-            $post->slug = $slug;
         });
     }
 
@@ -53,6 +55,11 @@ class Post extends Model
     {
         return $this->belongsTo(Category::class);
     }
+    public function categories()
+    {
+        return $this->belongsToMany(Category::class, 'category_post');
+    }
+
 
     public function template()
     {

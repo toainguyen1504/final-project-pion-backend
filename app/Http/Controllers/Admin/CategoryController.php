@@ -26,10 +26,25 @@ class CategoryController extends Controller
                 'slug' => Str::slug($request->name)
             ]);
 
-            return redirect()->route('admin.categories.index')->with('success', 'Thêm danh mục thành công!');
+            // If sent from the create post page
+            if ($request->has('from_post_create')) {
+                return redirect()
+                    ->route('admin.posts.create')
+                    ->with('success', 'Thêm danh mục thành công!');
+            }
+
+            // Default: from the category management page
+            return redirect()
+                ->route('admin.categories.index')
+                ->with('success', 'Thêm danh mục thành công!');
         } catch (\Exception $e) {
-            return redirect()->route('admin.categories.index')
-                ->with('error', 'Thêm danh mục thất bại. Vui lòng thử lại.')
+            $redirect = $request->has('from_post_create')
+                ? redirect()->route('admin.posts.create')
+                : redirect()->route('admin.categories.index');
+
+            return $redirect
+                ->withInput()
+                ->withErrors(['name' => 'Thêm danh mục thất bại. Vui lòng thử lại.'], 'category')
                 ->with('openModal', 'modalAddCategory');
         }
     }
@@ -58,7 +73,6 @@ class CategoryController extends Controller
                 ->with('editingId', $id);
         }
     }
-
 
     public function destroy($id)
     {

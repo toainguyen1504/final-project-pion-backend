@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
 
             $table->string('title');                  // Post title shown to users
+            $table->text('sapo_text')->nullable(); // plain text intro to show meta desc in FE
             $table->string('slug')->unique();         // SEO-friendly URL - slug follow seo_title
             $table->unsignedBigInteger('user_id');    // Author
             $table->unsignedBigInteger('category_id')->nullable();
@@ -26,8 +27,9 @@ return new class extends Migration
             $table->string('seo_keywords')->nullable();     // Focus keywords (comma-separated)
             $table->json('seo_meta')->nullable();           // Extended SEO (Open Graph, Twitter Card...)
 
-            // Status & scheduling
+            // Status & visibility & scheduling
             $table->enum('status', ['draft', 'pending', 'published', 'archived'])->default('draft');
+            $table->enum('visibility', ['public', 'private', 'scheduled_public'])->default('private');
             $table->timestamp('publish_at')->nullable();    // For scheduling
 
             // Main featured image (relation to medias table)
