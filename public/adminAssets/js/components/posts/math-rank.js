@@ -41,7 +41,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // Synchronize 3 SEO attributes: slug, title, description
     function syncHiddenFields(title, slug, sapo) {
         document.getElementById("hidden_seo_title").value = title;
-        document.getElementById("hidden_slug").value = slugify(slug);
+        document.getElementById("hidden_slug").value = window.slugify(slug);
         document.getElementById("hidden_seo_description").value = sapo;
     }
 
@@ -82,7 +82,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (titleInput) {
         titleInput.addEventListener("input", function () {
             const title = this.value.trim();
-            const slug = slugify(title);
+            const slug = window.slugify(title);
             const sapo = sapoInput?.value.trim() || "";
 
             normalizedTitleInput = normalizeText(this.value);
@@ -102,7 +102,7 @@ document.addEventListener("DOMContentLoaded", function () {
         sapoInput.addEventListener("input", function () {
             const title =
                 document.getElementById("post-title")?.value.trim() || "";
-            const slug = slugify(title);
+            const slug = window.slugify(title);
             const sapo = this.value.trim();
 
             if (!isSeoEditedManually) {
@@ -374,18 +374,18 @@ document.addEventListener("DOMContentLoaded", function () {
         return str.trim().replace(/\s+/g, " ");
     }
 
-    function slugify(str) {
-        return str
-            .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "")
-            .replace(/đ/g, "d")
-            .replace(/Đ/g, "D")
-            .replace(/[^a-zA-Z0-9\s-]/g, "")
-            .trim()
-            .replace(/\s+/g, "-")
-            .replace(/-+/g, "-")
-            .toLowerCase();
-    }
+    // function window.slugify(str) {
+    //     return str
+    //         .normalize("NFD")
+    //         .replace(/[\u0300-\u036f]/g, "")
+    //         .replace(/đ/g, "d")
+    //         .replace(/Đ/g, "D")
+    //         .replace(/[^a-zA-Z0-9\s-]/g, "")
+    //         .trim()
+    //         .replace(/\s+/g, "-")
+    //         .replace(/-+/g, "-")
+    //         .toLowerCase();
+    // }
 
     function cleanEmptyLines(content) {
         return content
@@ -396,7 +396,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function updateMainPreview(title, slug, desc) {
-        const normalizedSlug = slugify(slug);
+        const normalizedSlug = window.slugify(slug);
 
         document.getElementById("preview_title").textContent =
             title || "Đây là title mẫu khi bạn chưa có dữ liệu...";
@@ -407,7 +407,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function updateModalPreview(title, slug, desc) {
-        const normalizedSlug = slugify(slug);
+        const normalizedSlug = window.slugify(slug);
         const slugColor = getSlugColor(slug);
 
         document.getElementById("preview_title_modal").textContent =
@@ -1177,7 +1177,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function getSlugColor(slug) {
-        const normalizedSlug = slugify(slug);
+        const normalizedSlug = window.slugify(slug);
         const slugLength = normalizedSlug.length;
         const slugWords = normalizedSlug.split("-").filter(Boolean).length;
 
@@ -1210,7 +1210,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function getSlugScore(slug, fullScore = 4) {
-        const normalizedSlug = slugify(slug);
+        const normalizedSlug = window.slugify(slug);
         const slugLength = normalizedSlug.length;
         const slugWords = normalizedSlug.split("-").filter(Boolean).length;
 
@@ -1260,14 +1260,14 @@ document.addEventListener("DOMContentLoaded", function () {
     function updatePreview() {
         document.getElementById("preview_title_modal").textContent =
             normalizeText(document.getElementById("seo_title").value);
-        document.getElementById("preview_slug_modal").textContent = slugify(
+        document.getElementById("preview_slug_modal").textContent = window.slugify(
             document.getElementById("seo_slug").value
         );
         document.getElementById("preview_description_modal").textContent =
             normalizeText(document.getElementById("seo_description").value);
     }
 
-   // Attach event listeners to the SEO inputs
+    // Attach event listeners to the SEO inputs
     function initSeoFields() {
         [
             { id: "seo_title", bar: "titleBar", max: 60 },
@@ -1279,7 +1279,7 @@ document.addEventListener("DOMContentLoaded", function () {
             let customColor = null;
 
             if (id === "seo_slug") {
-                const normalizedSlug = slugify(input.value);
+                const normalizedSlug = window.slugify(input.value);
                 valueLength = normalizedSlug.length;
                 customColor = getSlugColor(input.value);
             } else {
@@ -1308,7 +1308,7 @@ document.addEventListener("DOMContentLoaded", function () {
             document.getElementById("hidden_seo_title")?.value || ""
         ).toLowerCase();
 
-        const slug = slugify(
+        const slug = window.slugify(
             document
                 .getElementById("hidden_slug")
                 ?.value.trim()
@@ -1388,7 +1388,7 @@ document.addEventListener("DOMContentLoaded", function () {
             focusKeyword && desc.includes(focusKeyword) ? 1 : 0;
 
         const scoreSlugKeyword =
-            focusKeyword && slug.includes(slugify(focusKeyword)) ? 1 : 0;
+            focusKeyword && slug.includes(window.slugify(focusKeyword)) ? 1 : 0;
 
         const basicChecks = [
             focusKeyword

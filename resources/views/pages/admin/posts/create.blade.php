@@ -40,7 +40,7 @@
 
                         <!-- Add medias -->
                         <div class="mb-3 d-flex gap-2">
-                            <button type="button" class="btn btn-outline-secondary btn-sm">
+                            <button type="button" class="btn btn-outline-secondary btn-sm" id="openMediaLibrary">
                                 📎 Thêm Media
                             </button>
                         </div>
@@ -52,6 +52,9 @@
                                 <textarea name="content" class="seo_content" id="editor">{{ old('seo_content') }}</textarea>
                             </div>
                         </div>
+
+                        <input type="hidden" name="featured_media_id" id="featuredMediaInput">
+
 
                         <!-- Hidden SEO section -->
                         <input type="hidden" name="seo_title" id="hidden_seo_title">
@@ -75,6 +78,9 @@
 
             <!-- Sidebar Section -->
             <x-admin.posts.sidebar :categories="$categories" />
+
+              <!--  Media Library Modal (have modal Edit Metadata) -->
+            <x-admin.modals.media-library />
 
         </div>
     </div>
@@ -105,6 +111,8 @@
         <script src="{{ asset('adminAssets/js/components/posts/math-rank.js') }}"></script>
 
         <script src="{{ asset('adminAssets/js/components/posts/sidebar.js') }}"></script>
+
+        <script src="{{ asset('adminAssets/js/components/medias/media-library.js') }}"></script>
 
         <script>
             //========== submit form========= 

@@ -6,6 +6,7 @@
     <title>PION ADMIN @yield('title')</title>
     <link rel="icon" type="image/x-icon" href="{{ asset('adminAssets/favicon/favicon.ico') }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <!--Fonts-->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/source-sans-3@5.0.12/index.css"
@@ -73,6 +74,7 @@
             color: #fff !important;
             padding-left: 16px;
             padding-right: 16px;
+            transition: background-color 0.3s;
         }
 
         .btn-yes:hover {
@@ -83,13 +85,14 @@
         .btn-cancel {
             background-color: transparent !important;
             color: #ce232d !important;
-            border-color: inherit !important;
+            border: 1px solid #ce232d;
+            transition: background-color 0.3s;
         }
 
         .btn-cancel:hover {
             background-color: rgb(206 35 45 / 6%) !important;
+            border: 1px solid #ce232d;
         }
-
 
         /* End Common */
 
@@ -401,6 +404,8 @@
             }
         });
     </script>
+
+    <script src="{{ asset('adminAssets/js/slugify.js') }}"></script>
 
     @stack('scripts')
 </body>

@@ -66,8 +66,13 @@ class Post extends Model
         return $this->belongsTo(Template::class);
     }
 
-    public function images()
+    public function media()
     {
-        return $this->morphMany(Image::class, 'imageable');
+        return $this->morphMany(Media::class, 'mediaable');
+    }
+
+    public function featuredMedia()
+    {
+        return $this->belongsTo(Media::class, 'featured_media_id');
     }
 }
