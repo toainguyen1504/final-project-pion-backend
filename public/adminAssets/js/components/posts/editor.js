@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", function () {
             "|",
             "bulletedList",
             "|",
-            "uploadImage",
+            // "uploadImage",
             "|",
             "undo",
             "redo",

@@ -7,19 +7,18 @@ document.addEventListener("DOMContentLoaded", function () {
     );
     const libraryTab = document.querySelector("#library-tab");
 
-    openMediaBtn.addEventListener("click", function () {
-        loadMediaList(); // call Ajax to load img
-        mediaModal.show();
-    });
-
-    // form seo img data
+    // Form metadata
     const form = document.getElementById("editMetadataForm");
     const titleInput = form.querySelector('input[name="title"]');
     const captionInput = form.querySelector('textarea[name="caption"]');
     const descriptionInput = form.querySelector('textarea[name="description"]');
-    const regex = /^[\p{L}\p{N}\s]+$/u;
+    regex = /^[\p{L}\p{N}\s.,!?'"-]+$/u;
 
-    // check valid
+    let selectedMediaId = null;
+
+    /** ==========================
+     *  Helpers
+     * ========================== */
     function validateField(input, required = false) {
         const value = input.value.trim();
         const isEmpty = value === "";
@@ -29,11 +28,65 @@ document.addEventListener("DOMContentLoaded", function () {
             input.classList.add("is-invalid");
             return false;
         }
-
         input.classList.remove("is-invalid");
         return true;
     }
 
+    function validateAllFields() {
+        const isTitleValid = validateField(titleInput, true);
+        const isCaptionValid = validateField(captionInput, true);
+        const isDescriptionValid = validateField(descriptionInput, false);
+
+        return isTitleValid && isCaptionValid && isDescriptionValid;
+    }
+
+    function formatBytes(bytes) {
+        if (typeof bytes !== "number") return null;
+        const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
+        if (bytes === 0) return "0 Bytes";
+        const i = Math.floor(Math.log(bytes) / Math.log(1024));
+        const value = bytes / Math.pow(1024, i);
+        return `${value.toFixed(2)} ${sizes[i]}`;
+    }
+
+    function resetPreview() {
+        document.getElementById("previewImage").querySelector("img").src =
+            defaultImageUrl;
+        // selectedMediaId = null;
+        form.title.value = "";
+        form.caption.value = "";
+        form.description.value = "";
+        document.getElementById("fileName").textContent = "Đang cập nhật...";
+        document.getElementById("uploadDate").textContent = "Đang cập nhật...";
+        document.getElementById("fileSize").textContent = "Đang cập nhật...";
+        document.getElementById("imageDimensions").textContent =
+            "Đang cập nhật...";
+    }
+
+    function fillMetadata(media) {
+        selectedMediaId = media.id;
+
+        const original = media.meta?.variants?.original || {};
+
+        form.title.value = media.title || "";
+        form.caption.value = media.caption || "";
+        form.description.value = media.description || "";
+
+        document.getElementById("fileName").textContent =
+            media.meta?.filename || "Đang cập nhật...";
+        document.getElementById("uploadDate").textContent =
+            media.created_at || "Đang cập nhật...";
+        document.getElementById("fileSize").textContent =
+            formatBytes(original.size) || "Đang cập nhật...";
+        document.getElementById("imageDimensions").textContent =
+            original.width && original.height
+                ? `${original.width} x ${original.height}px`
+                : "Đang cập nhật...";
+    }
+
+    /** ==========================
+     *  Load media list
+     * ========================== */
     function loadMediaList() {
         const grid = document.getElementById("mediaGrid");
         grid.innerHTML = "";
@@ -41,7 +94,17 @@ document.addEventListener("DOMContentLoaded", function () {
         fetch("/api/media")
             .then((res) => res.json())
             .then((data) => {
-                const mediaItems = data.data || data; // if use paginate
+                const mediaItems = data.data || data;
+
+                if (!mediaItems.length) {
+                    grid.innerHTML = `
+                    <div class="col-12 text-center text-muted py-5">
+                        <i class="fas fa-image fa-2x mb-3 d-block"></i>
+                        <p class="mb-0">Thư viện chưa có ảnh nào được tải lên.</p>
+                    </div>
+                `;
+                    return;
+                }
 
                 mediaItems.forEach((media) => {
                     const col = document.createElement("div");
@@ -49,29 +112,37 @@ document.addEventListener("DOMContentLoaded", function () {
                     col.dataset.id = media.id;
                     col.dataset.url = media.url;
                     col.innerHTML = `
-                        <div class="card h-100 border position-relative">
-                            <img src="${media.url}" class="card-img-top" alt="${media.title}">
-                          
-                            <div class="selected-overlay d-none position-absolute top-0 end-0 p-1">
-                            <i class="fa-solid fa-circle-check text-success fa-lg"></i>
-                            </div>
+                    <div class="card h-100 border position-relative">
+                        <div class="d-flex align-items-center justify-content-center" style="height: 96px; overflow: hidden;">
+                            <img src="${media.url}" class="object-fit-cover" alt="${media.title}" style="max-height: 100%; max-width: 100%;">
                         </div>
-                    `;
+                        <div class="selected-overlay d-none">
+                            <i class="fa-solid fa-check fa-lg"></i>
+                        </div>
+                    </div>
+                `;
                     grid.appendChild(col);
                 });
             })
             .catch((err) => {
-                console.error("Lỗi khi tải media:", err);
+                grid.innerHTML = `
+                <div class="col-12 text-center text-danger py-5">
+                    <i class="fas fa-exclamation-triangle fa-2x mb-3 d-block"></i>
+                    <p class="mb-0">Không thể tải thư viện ảnh. Vui lòng thử lại sau.</p>
+                </div>
+            `;
             });
     }
-    // End load media list
 
-    // Upload new imgs
+    /** ==========================
+     *  Upload media
+     * ========================== */
     const input = document.getElementById("mediaUploadInput");
     const chooseBtn = document.getElementById("chooseFileBtn");
     const uploadBtn = document.getElementById("uploadMediaBtn");
-
     const fileList = document.getElementById("selectedFileList");
+    const uploadStatus = document.getElementById("uploadStatus");
+    document.getElementById("deleteImageBtn").disabled = true;
 
     input.addEventListener("change", function () {
         fileList.innerHTML = "";
@@ -79,11 +150,9 @@ document.addEventListener("DOMContentLoaded", function () {
         if (input.files.length > 0) {
             chooseBtn.classList.add("d-none");
             uploadBtn.classList.remove("d-none");
-
-            // show file when choose
             Array.from(input.files).forEach((file) => {
                 const li = document.createElement("li");
-                li.textContent = `📁 ${file.name}`;
+                li.innerHTML = `<i class="fas fa-image me-2 text-secondary"></i> ${file.name}`;
                 fileList.appendChild(li);
             });
         } else {
@@ -92,13 +161,15 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    // when express "Tải lên"
     uploadBtn.addEventListener("click", function () {
         const files = input.files;
         if (!files.length) {
-            showToast("⚠️ Vui lòng chọn ít nhất một tập tin.", "bg-danger");
+            showToast("Vui lòng chọn ít nhất một tập tin.", "bg-danger");
             return;
         }
+
+        uploadStatus.classList.remove("d-none");
+        uploadBtn.disabled = true; // disable btn to avoid spam
 
         const formData = new FormData();
         let validFileCount = 0;
@@ -106,30 +177,22 @@ document.addEventListener("DOMContentLoaded", function () {
         for (let file of files) {
             if (!file.type.startsWith("image/")) {
                 showToast(`❌ "${file.name}" không phải là ảnh.`, "bg-danger");
-                chooseBtn.classList.remove("d-none");
-                uploadBtn.classList.add("d-none");
                 continue;
             }
-
             if (file.size > 10 * 1024 * 1024) {
-                showToast(
-                    `❌ "${file.name}" vượt quá dung lượng cho phép (10MB).`,
-                    "bg-danger"
-                );
-                chooseBtn.classList.remove("d-none");
-                uploadBtn.classList.add("d-none");
+                showToast(`❌ "${file.name}" vượt quá 10MB.`, "bg-danger");
                 continue;
             }
-
-            const nameWithoutExt = file.name.replace(/\.[^/.]+$/, "");
-            const slug = window.slugify(nameWithoutExt);
+            const slug = window.slugify(file.name.replace(/\.[^/.]+$/, ""));
             formData.append("files[]", file);
             formData.append("slugs[]", slug);
             validFileCount++;
         }
 
         if (validFileCount === 0) {
-            return; // Don't file → no fetch
+            uploadStatus.classList.add("d-none");
+            uploadBtn.disabled = false;
+            return;
         }
 
         const csrfToken = document
@@ -148,165 +211,261 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (!res.ok) throw new Error("Upload thất bại.");
                 return res.json();
             })
-            .then((data) => {
-                console.log("Upload thành công:", data);
+            .then(() => {
                 showToast("🎉 Tải lên thành công!", "bg-success");
-
-                if (typeof loadMediaList === "function") {
-                    loadMediaList();
-                }
-
-                // Reset UI
+                loadMediaList();
                 input.value = "";
                 fileList.innerHTML = "";
                 chooseBtn.classList.remove("d-none");
                 uploadBtn.classList.add("d-none");
-
-                if (libraryTab) {
-                    new bootstrap.Tab(libraryTab).show();
-                }
+                if (libraryTab) new bootstrap.Tab(libraryTab).show();
             })
-            .catch((err) => {
-                console.error(err);
+            .catch(() => {
                 showToast("❌ Có lỗi xảy ra khi tải lên.", "bg-danger");
                 chooseBtn.classList.remove("d-none");
                 uploadBtn.classList.add("d-none");
+            })
+            .finally(() => {
+                uploadStatus.classList.add("d-none");
+                uploadBtn.disabled = false;
             });
     });
 
-    // End upload new imgs
-
-    // Click media item
+    /** ==========================
+     *  Click media item
+     * ========================== */
     document.addEventListener("click", function (e) {
         const item = e.target.closest(".media-item");
         if (!item) return;
 
+        // Unselect
         if (item.classList.contains("selected")) {
             item.classList.remove("selected");
-
-            // Reset preview
-            document.getElementById("previewImage").querySelector("img").src =
-                defaultImageUrl;
-
-            // Reset metadata
-            const form = document.getElementById("editMetadataForm");
-            form.media_id.value = "";
-            form.title.value = "";
-            form.caption.value = "";
-            form.description.value = "";
-
-            document.getElementById("fileName").textContent =
-                "Đang cập nhật...";
-            document.getElementById("uploadDate").textContent =
-                "Đang cập nhật...";
-            document.getElementById("fileSize").textContent =
-                "Đang cập nhật...";
-            document.getElementById("imageDimensions").textContent =
-                "Đang cập nhật...";
-
+            resetPreview();
             return;
         }
 
-        document.querySelectorAll(".media-item").forEach((el) => {
-            el.classList.remove("selected");
-        });
-
+        // Select new
+        document
+            .querySelectorAll(".media-item")
+            .forEach((el) => el.classList.remove("selected"));
         item.classList.add("selected");
+        selectedMediaId = item.dataset.id;
 
-        const mediaId = item.dataset.id;
         const imageUrl = item.dataset.url;
-
-        // show preview
         document.getElementById("previewImage").querySelector("img").src =
             imageUrl;
 
-        // Get metadata from server
-        fetch(`/media-library/${mediaId}`, {
-            headers: {
-                Accept: "application/json",
-            },
+        fetch(`/api/media/${item.dataset.id}`, {
+            headers: { Accept: "application/json" },
         })
             .then((res) => {
                 if (!res.ok) throw new Error("Không thể lấy metadata.");
                 return res.json();
             })
             .then((media) => {
-                const form = document.getElementById("editMetadataForm");
-                form.media_id.value = media.id;
-                form.title.value = media.title || "";
-                form.caption.value = media.caption || "";
-                form.description.value = media.description || "";
-
-                document.getElementById("fileName").textContent =
-                    media.file_name || "Đang cập nhật...";
-                document.getElementById("uploadDate").textContent =
-                    media.created_at || "Đang cập nhật...";
-                document.getElementById("fileSize").textContent =
-                    media.size || "Đang cập nhật...";
-                document.getElementById("imageDimensions").textContent =
-                    media.dimensions || "Đang cập nhật...";
+                selectedMediaData = media; // save object
+                fillMetadata(media);
+                document.getElementById("deleteImageBtn").disabled = false;
             })
-            .catch((err) => {
-                console.error("Lỗi khi lấy metadata:", err);
-                showToast("❌ Không thể tải thông tin ảnh.", "bg-danger");
-            });
+            .catch(() =>
+                showToast("❌ Không thể tải thông tin ảnh.", "bg-danger")
+            );
     });
 
-    // Realtime validation
-    [titleInput, captionInput, descriptionInput].forEach((input) => {
-        input.addEventListener("input", () =>
-            validateField(input, input !== descriptionInput)
-        );
-    });
+    /** ==========================
+     *  Delete media
+     * ========================== */
+    document
+        .getElementById("deleteImageBtn")
+        .addEventListener("click", function () {
+            if (!selectedMediaId || !selectedMediaData) {
+                showToast("⚠️ Vui lòng chọn ảnh để xóa.", "bg-warning");
+                return;
+            }
 
-    // handle insert img to content editor
+            if (!confirm("Bạn có chắc muốn xóa ảnh này vĩnh viễn?")) return;
+
+            fetch(`/api/media/${selectedMediaId}`, {
+                method: "DELETE",
+                headers: {
+                    Accept: "application/json",
+                },
+            })
+                .then((res) => {
+                    if (!res.ok) throw new Error("Xóa thất bại.");
+                    return res.json();
+                })
+                .then(() => {
+                    showToast("🗑️ Đã xóa ảnh thành công!", "bg-success");
+                    resetPreview();
+                    loadMediaList();
+                    selectedMediaId = null;
+                    selectedMediaData = null;
+                    document.getElementById("deleteImageBtn").disabled = true;
+                })
+                .catch(() => {
+                    showToast("❌ Có lỗi khi xóa ảnh.", "bg-danger");
+                });
+        });
+
+    /** ==========================
+     *  Insert into editor
+     * ========================== */
     document
         .getElementById("insertToEditorBtn")
         .addEventListener("click", () => {
-            const imageUrl = document
-                .getElementById("previewImage")
-                .querySelector("img").src;
-            const title = titleInput.value.trim();
-            const caption = captionInput.value.trim();
-            const description = descriptionInput.value.trim();
-            const alt = caption;
+            if (!selectedMediaId || !selectedMediaData) {
+                showToast("Vui lòng chọn ảnh!", "bg-danger");
+                return;
+            }
 
-            const isTitleValid = validateField(titleInput, true);
-            const isCaptionValid = validateField(captionInput, true);
-            const isDescriptionValid = validateField(descriptionInput, false);
+            if (!validateAllFields()) return;
 
-            if (!isTitleValid || !isCaptionValid || !isDescriptionValid) return;
+            const medium = selectedMediaData.meta?.variants?.medium;
+            if (!medium || !medium.path) {
+                showToast(
+                    "❌ Không tìm thấy phiên bản medium của ảnh.",
+                    "bg-danger"
+                );
+                return;
+            }
 
+            const imageUrl = `/storage/${medium.path}`;
             const html = `
-            <figure class="image">
-                <img src="${imageUrl}" alt="${alt}" title="${title}" data-description="${description}" />
-                ${caption ? `<figcaption>${caption}</figcaption>` : ""}
-            </figure>
-        `;
+                    <figure class="image">
+                        <img src="${imageUrl}" 
+                            alt="${captionInput.value.trim()}" 
+                            title="${titleInput.value.trim()}" 
+                            width="${medium.width}" 
+                            height="${medium.height}" 
+                            data-description="${descriptionInput.value.trim()}" />
+                        ${
+                            captionInput.value.trim()
+                                ? `<figcaption>${captionInput.value.trim()}</figcaption>`
+                                : ""
+                        }
+                    </figure>
+                `;
 
-            editorInstance.model.change((writer) => {
+            editorInstance.model.change(() => {
                 const viewFragment = editorInstance.data.processor.toView(html);
                 const modelFragment = editorInstance.data.toModel(viewFragment);
                 editorInstance.model.insertContent(modelFragment);
             });
 
-            const modalEl = document.getElementById("mediaLibraryModal");
-            const modalInstance = bootstrap.Modal.getInstance(modalEl);
-            modalInstance.hide();
+            bootstrap.Modal.getInstance(
+                document.getElementById("mediaLibraryModal")
+            ).hide();
         });
+
+    /** ==========================
+     *  handle thumbnail when click btn 'Chọn làm ảnh đại diện'
+     * ========================== */
+    document
+        .getElementById("insertToThumbnailBtn")
+        .addEventListener("click", function () {
+            if (!selectedMediaId || !selectedMediaData) {
+                showToast(
+                    "Vui lòng chọn ảnh để làm ảnh đại diện.",
+                    "bg-warning"
+                );
+                return;
+            }
+
+            if (!validateAllFields()) return;
+
+            const imageUrl = selectedMediaData.url;
+            const captionText = captionInput.value.trim();
+
+            // render to thumbnail preview
+            const thumbnailImg = document.getElementById(
+                "thumbnail-preview-img"
+            );
+            thumbnailImg.src = imageUrl;
+            thumbnailImg.alt = captionText || "Thumbnail preview";
+
+            document
+                .getElementById("thumbnail-preview-container")
+                .classList.remove("d-none");
+            document
+                .getElementById("thumbnail-placeholder")
+                .classList.add("d-none");
+
+            // hidden input
+            document.getElementById("featured_media_id").value =
+                selectedMediaId;
+
+            // close modal
+            const modal = bootstrap.Modal.getInstance(
+                document.getElementById("mediaLibraryModal")
+            );
+            modal.hide();
+        });
+
+    /** ==========================
+     *  Tab toggle
+     * ========================== */
+    const sidebar = document.getElementById("mediaSidebar");
+    const insertBtn = document.getElementById("insertToEditorBtn");
+
+    document.querySelectorAll('button[data-bs-toggle="tab"]').forEach((btn) => {
+        btn.addEventListener("shown.bs.tab", function (event) {
+            const targetId = event.target.getAttribute("data-bs-target");
+            if (targetId === "#upload") {
+                sidebar.classList.add("d-none");
+                insertBtn.disabled = true;
+            } else if (targetId === "#library") {
+                sidebar.classList.remove("d-none");
+                insertBtn.disabled = false;
+            }
+        });
+    });
+
+    /** ==========================
+     *  Open modal
+     * ========================== */
+    openMediaBtn.addEventListener("click", function () {
+        resetPreview();
+        loadMediaList();
+        mediaModal.show();
+        openMediaBtn.style.display = "none";
+    });
+
+    /** ==========================
+     *  Hidden modal
+     * ========================== */
+    document
+        .getElementById("mediaLibraryModal")
+        .addEventListener("hidden.bs.modal", function () {
+            openMediaBtn.style.display = "block";
+        });
+
+    /** ==========================
+     *  Realtime validation
+     * ========================== */
+    [titleInput, captionInput, descriptionInput].forEach((input) => {
+        input.addEventListener("input", () =>
+            validateField(input, input !== descriptionInput)
+        );
+    });
 });
 
-function showToast(message, bgClass = "bg-success") {
-    const toastBody = document.querySelector("#toast-message .toast-body");
-    const toastEl = document.querySelector("#toast-message .toast");
+/** ==========================
+ *  Toast helper
+ * ========================== */
+function showToast(message, bgClass = "bg-primary") {
+    const toastEl = document.getElementById("liveToast");
+    const toastBody = document.getElementById("toast-body");
 
     toastBody.textContent = message;
 
+    // Reset color
     toastEl.classList.remove(
         "bg-success",
         "bg-danger",
         "bg-warning",
-        "bg-info"
+        "bg-primary"
     );
     toastEl.classList.add(bgClass);
 

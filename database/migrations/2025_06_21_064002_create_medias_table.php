@@ -33,7 +33,7 @@ return new class extends Migration
             $table->string('external_id')->nullable();
 
             // Extra metadata in JSON (dimensions, duration, file size, etc.)
-            $table->json('meta')->nullable();
+            $table->json('meta')->nullable()->default(json_encode([]));
 
             // SEO & descriptive fields
             $table->string('title')->nullable();       // Media title

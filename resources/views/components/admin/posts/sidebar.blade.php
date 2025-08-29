@@ -58,7 +58,7 @@
             right: 44px !important;
         }
 
-        .avatar-post {
+        .thumbnail-og {
             position: relative;
         }
 
@@ -75,7 +75,8 @@
         .thumbnail-wrapper {
             position: relative;
             width: 100%;
-            aspect-ratio: 1200 / 630;   /* ~1.91:1 */
+            aspect-ratio: 1200 / 630;
+            /* ~1.91:1 */
             overflow: hidden;
             border-radius: 8px;
             background-color: #f8f9fa;
@@ -304,75 +305,23 @@
         <x-admin.modals.add-category :fromPostCreate="true" />
     </div>
 
-    <!-- Thumbnail -->
-    <div class="mb-4 avatar-post">
+    <div class="mb-4 thumbnail-og">
         <div class="thumbnail-inner">
-            <label class="form-label fw-bold">Ảnh đại diện (Thumbnail)</label>
-            <div class="border rounded p-3 bg-light position-relative">
-                <!-- Preview -->
-                <div id="thumbnail-preview-container"
-                    class="{{ old('thumbnail') || (isset($post) && $post->thumbnail) ? '' : 'd-none' }} thumbnail-preview">
+            <p class="form-label fw-bold">Preview Thumbnail</p>
 
-                    <!-- btn X -->
-                    <a href="#" id="remove-thumbnail" class="position-absolute text-danger"
-                        style="top: 8px; right: 8px; z-index: 2;">
-                        <i class="fas fa-times-circle fa-lg"></i>
-                    </a>
-
-                    <label for="thumbnail-input" style="cursor: pointer;">
-                        <div class="thumbnail-wrapper">
-                            <img id="thumbnail-preview-img" src="{{ old('thumbnail') ?? ($post->thumbnail ?? '') }}"
-                                alt="Ảnh đại diện">
-                        </div>
-                    </label>
-                    <p class="text-muted mt-2 mb-1 text-center">Nhấn vào ảnh để sửa hoặc cập nhật</p>
-                </div>
-
-                <!-- Placeholder -->
-                <label for="thumbnail-input" id="thumbnail-placeholder"
-                    class="{{ old('thumbnail') || (isset($post) && $post->thumbnail) ? 'd-none' : '' }}"
-                    style="cursor: pointer; width: 100%;">
-                    <div class="thumbnail-placeholder-box">
-                        <span class="text-muted">Nhấn để chọn ảnh đại diện</span>
-                    </div>
-                </label>
-
-                <input type="file" name="thumbnail" id="thumbnail-input" class="d-none" accept="image/*">
+            <!-- Placeholder -->
+            <div id="thumbnail-placeholder" class="border rounded p-3 text-muted text-center">
+                Chưa chọn ảnh thumbnail, click nút Media để chọn ảnh đại diện...
             </div>
-            <small class="text-muted">Ảnh sẽ được hiển thị ở danh sách bài viết và khi chia sẻ lên MXH (Facebook, Zalo,
-                LinkedIn, Twitter/X …)</small>
-        </div>
 
-        <!-- Edit img modal -->
-        <div class="modal-wrapper">
-            <div class="modal edit-image fade" id="cropperModal" tabindex="-1" aria-hidden="true">
-                <div class="modal-dialog modal-lg">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">Chỉnh sửa ảnh đại diện</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                aria-label="Đóng"></button>
-                        </div>
-
-                        <div class="modal-body">
-                            <div class="cropper-container-wrapper">
-                                <img id="cropper-image" />
-                            </div>
-                        </div>
-
-                        <div class="modal-footer d-flex justify-content-end align-items-center gap-2 flex-wrap">
-                            <span> OG (1200×630)</span>
-                            <button id="rotate-left" class="btn btn-outline-secondary">
-                                <i class="fas fa-undo"></i>
-                            </button>
-                            <button id="rotate-right" class="btn btn-outline-secondary">
-                                <i class="fas fa-redo"></i>
-                            </button>
-                            <button id="crop-confirm" class="btn btn-primary">Lưu ảnh</button>
-                        </div>
-                    </div>
-                </div>
+            <!-- Preview img -->
+            <div id="thumbnail-preview-container" class="mt-2 d-none">
+                <img id="thumbnail-preview-img" class="img-fluid rounded" src="" alt="Thumbnail preview" />
             </div>
+
+            <small class="text-muted">
+                Ảnh sẽ được hiển thị ở danh sách bài viết và khi chia sẻ lên MXH (Facebook, Zalo, LinkedIn, Twitter/X …)
+            </small>
         </div>
     </div>
 </div>

@@ -32,10 +32,28 @@
         /* overlay tick */
         .selected-overlay {
             z-index: 2;
+            background-color: #1E3A8A;
         }
 
         .media-item.selected .selected-overlay {
-            display: block !important;
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            width: 24px;
+            height: 24px;
+            padding: 4px;
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .selected-overlay i {
+            color: #FFF !important;
+        }
+
+        #deleteImageBtn:disabled {
+            opacity: 0.5;
+            pointer-events: none;
         }
     </style>
 @endpush
@@ -78,23 +96,30 @@
                     <div class="tab-pane fade flex-grow-1 p-4" id="upload" role="tabpanel">
                         <div class="upload-area border rounded-3 p-4 text-center position-relative" id="uploadArea">
                             <i class="fa-solid fa-cloud-arrow-up fa-2x text-primary mb-3"></i>
-                            <h5 class="mb-2">Thả các tập tin để tải lên hoặc</h5>
+                            <h5 class="mb-2">Nhấn để tải lên ngay!</h5>
 
-                            <!-- Label chọn tập tin -->
-                            <label for="mediaUploadInput" class="btn btn-outline-primary px-4 py-2" id="chooseFileBtn">
+                            <!-- Label -->
+                            <label for="mediaUploadInput" class=" mt-3 fs-6 btn btn-outline-primary px-5 py-4"
+                                id="chooseFileBtn">
                                 Chọn tập tin
                             </label>
 
-                            <!-- Nút tải lên (ẩn ban đầu) -->
-                            <button id="uploadMediaBtn" class="btn btn-yes px-4 py-2 d-none">
-                                <i class="fa-solid fa-file-arrow-up"></i>
-                                <span>Tải lên</span>
+                            <!-- Button -->
+                            <button id="uploadMediaBtn" class="btn btn-yes px-5 py-4 d-none mt-3">
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="fa-solid fa-file-arrow-up fa-lg"></i>
+                                    <span class="fs-6">Tải lên</span>
+                                </div>
                             </button>
+
+                            <div id="uploadStatus" class="mt-3 text-primary fw-semibold d-none">
+                                <i class="fa-solid fa-spinner fa-spin me-2"></i> Đang tải lên...
+                            </div>
 
                             <p class="text-muted mt-2 small">Kích thước tập tin tải lên tối đa: <strong>10MB</strong>
                             </p>
 
-                            <!-- Input file ẩn -->
+                            <!-- Input file hidden -->
                             <input type="file" id="mediaUploadInput" class="d-none" multiple>
                             <ul id="selectedFileList" class="list-unstyled mt-3 text-start small"></ul>
                         </div>
@@ -108,7 +133,7 @@
                         <div id="previewImage" class="mb-3 text-left"
                             data-default="{{ asset('adminAssets/img/avatar_default.jpg') }}">
                             <img src="{{ asset('adminAssets/img/avatar_default.jpg') }}" alt="IMG"
-                                class="img-fluid rounded border" style="max-height: 100px;">
+                                class="img-fluid rounded border" style="max-height: 116px;">
                         </div>
 
                         <!-- File Info -->
@@ -119,9 +144,9 @@
                             <div><strong>Kích thước ảnh:</strong> <span id="imageDimensions">Đang cập nhật...</span>
                             </div>
 
+                            {{-- <button type="button" class="btn btn-link p-0 edit-image" id="editImageBtn">Sửa
+                                ảnh (resize - crop)</button> --}}
                             <div class="mt-2 d-flex gap-3">
-                                <button type="button" class="btn btn-link p-0 edit-image" id="editImageBtn">Sửa
-                                    ảnh</button>
                                 <button type="button" class="btn btn-link p-0 delete-image text-danger"
                                     id="deleteImageBtn">Xóa vĩnh
                                     viễn</button>
@@ -130,8 +155,6 @@
 
                         <!-- Metadata Form -->
                         <form id="editMetadataForm">
-                            <input type="hidden" name="media_id" id="editMediaId">
-
                             <div class="mb-3 row">
                                 <label for="title" class="col-sm-4 col-form-label text-end fs-7">Tiêu đề</label>
                                 <div class="col-sm-8">
@@ -157,22 +180,20 @@
                                     <small class="invalid-feedback">Vui lòng nhập mô tả hợp lệ (chỉ chữ và số).</small>
                                 </div>
                             </div>
-
-                            {{-- <div>
-                                <button type="submit" class="btn mb-5 py-2 btn-yes w-100">Lưu thông tin</button>
-                            </div> --}}
                         </form>
                     </div>
                 </div>
             </div>
 
             <div class="modal-footer">
-                {{-- <button class="btn btn-cancel d-flex align-items-center gap-2 me-2" data-bs-dismiss="modal">
-                    <i class="fa-solid fa-xmark"></i>
-                    <span>Đóng</span>
-                </button> --}}
-                <button class="btn btn-yes px-4 d-flex align-items-center gap-2" id="insertToEditorBtn">
-                    <i class="fa-solid fa-check"></i>
+                <button class="btn btn-outline-primary px-2 d-flex align-items-center gap-2 me-3"
+                    id="insertToThumbnailBtn">
+                    <i class="fa-solid fa-image"></i>
+                    <span>Chọn làm ảnh thumbnail</span>
+                </button>
+
+                <button class="btn btn-yes px-5 d-flex align-items-center gap-2" id="insertToEditorBtn">
+                    <i class="fa-solid fa-pen-to-square"></i>
                     <span>Chèn vào bài viết</span>
                 </button>
             </div>

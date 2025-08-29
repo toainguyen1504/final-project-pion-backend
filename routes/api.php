@@ -8,7 +8,11 @@ use App\Http\Controllers\Api\ConsultationApiController;
 Route::get('/posts', [PostApiController::class, 'index']);
 Route::get('/posts/{id}', [PostApiController::class, 'show']);
 
-Route::apiResource('media', MediaApiController::class);
+// Media
+Route::apiResource('media', MediaApiController::class)->parameters([
+    'media' => 'media'
+]);
+Route::post('/media/{media}/resize', [MediaApiController::class, 'resize'])->name('media.resize');
 
 Route::prefix('consultations')->group(function () {
     // rate limit 2 requests / 1 minutes

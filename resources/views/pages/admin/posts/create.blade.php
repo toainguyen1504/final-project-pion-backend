@@ -1,5 +1,65 @@
 @extends('layouts.app')
 
+@push('styles')
+    <style>
+        /* floating btn */
+        .floating-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            height: 3em;
+            min-width: 112px;
+            background: #fff;
+            border: none;
+            border-radius: 999px;
+            cursor: pointer;
+            letter-spacing: 0.5px;
+            font-weight: 500;
+            box-shadow: 3px 3px 10px #d1d1d1, -3px -3px 10px #ffffff;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: #333;
+        }
+
+        .floating-btn svg {
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+
+        .floating-btn:hover {
+            box-shadow: 6px 6px 20px #d1d1d1, -6px -6px 20px #ffffff;
+            transform: translateY(-3px);
+        }
+
+        .floating-btn:hover svg {
+            transform: translateX(-4px);
+        }
+
+        /* màu cho từng nút */
+        .floating-media {
+            position: fixed;
+            top: 80px;
+            right: 356px;
+            z-index: 1002;
+            background: #E0E7FF;
+            color: #1E3A8A;
+        }
+
+        .floating-media:hover {
+            background: #D6DEFF;
+        }
+
+        .floating-btn:disabled,
+        .floating-btn.disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            pointer-events: none;
+            filter: grayscale(0.6);
+        }
+    </style>
+@endpush
+
 @section('content')
     <div class="container-fluid bg-light py-4">
 
@@ -38,23 +98,17 @@
                                 chèn ảnh tại đây.</small>
                         </div>
 
-                        <!-- Add medias -->
-                        <div class="mb-3 d-flex gap-2">
-                            <button type="button" class="btn btn-outline-secondary btn-sm" id="openMediaLibrary">
-                                📎 Thêm Media
-                            </button>
-                        </div>
-
                         <!-- content CKEditor -->
-                        <div class="mb-4">
+                        <div class="mb-4 content_wrapper">
                             <div class="border rounded"
-                                style="padding: 0 12px; min-height: 540px; max-height: 640px; overflow-y: auto;">
+                                style="padding: 0 12px; min-height: 560px; max-height: 660px; overflow-y: auto;">
                                 <textarea name="content" class="seo_content" id="editor">{{ old('seo_content') }}</textarea>
                             </div>
                         </div>
 
-                        <input type="hidden" name="featured_media_id" id="featuredMediaInput">
-
+                        <!-- Hidden input to submit id img -->
+                        <input type="hidden" name="featured_media_id" id="featured_media_id"
+                            value="{{ old('featured_media_id') ?? ($post->featured_media_id ?? '') }}">
 
                         <!-- Hidden SEO section -->
                         <input type="hidden" name="seo_title" id="hidden_seo_title">
@@ -79,18 +133,31 @@
             <!-- Sidebar Section -->
             <x-admin.posts.sidebar :categories="$categories" />
 
-              <!--  Media Library Modal (have modal Edit Metadata) -->
+            <!--  Media Library Modal (have modal Edit Metadata) -->
             <x-admin.modals.media-library />
 
         </div>
     </div>
 
-    <div id="toast-message" class="position-fixed bottom-0 end-0 p-3" style="z-index: 1055;">
-        <div class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive"
-            aria-atomic="true">
+    <!-- Add medias -->
+    <div class="mb-3 d-flex gap-2">
+        <button type="button" class="floating-btn floating-media" id="openMediaLibrary" title="Thêm media vào bài viết">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <path
+                    d="M14 2H2a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2zM2 3h12a1 1 0 0 1 1 1v5.586l-2.5-2.5a1 1 0 0 0-1.414 0L8 10l-1.5-1.5a1 1 0 0 0-1.414 0L2 12V4a1 1 0 0 1 1-1zm0 10v-.586l4-4 1.5 1.5a1 1 0 0 0 1.414 0L12 7.414l3 3V12a1 1 0 0 1-1 1H2z" />
+                <circle cx="4.5" cy="5.5" r="1.5" />
+            </svg>
+
+            <span>Media</span>
+        </button>
+    </div>
+
+    <div id="toast-message" class="position-fixed top-0 end-0 p-3" style="z-index: 1055;">
+        <div class="toast align-items-center text-white bg-primary border-0" role="alert" aria-live="assertive"
+            aria-atomic="true" data-bs-autohide="true" data-bs-delay="2000" id="liveToast">
             <div class="d-flex">
-                <div class="toast-body fw-bold">
-                    {{-- This is toast message --}}
+                <div class="toast-body fw-bold" id="toast-body">
+                    <!-- Nội dung sẽ được gán bằng JS -->
                 </div>
                 <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
                     aria-label="Close"></button>
@@ -121,8 +188,8 @@
                 const categoryContainer = document.getElementById("category-hidden-container");
                 const publishBtn = document.querySelector(".publish-submit");
 
+                // handle submit
                 if (!form || !categoryContainer || !publishBtn) return;
-
                 publishBtn.addEventListener("click", function() {
                     categoryContainer.innerHTML = "";
 
@@ -137,7 +204,7 @@
                         categoryContainer.appendChild(hiddenInput);
                     });
 
-                    console.log("✅ Categories pushed:", [...checkedCategories].map(c => c.value));
+                    console.log(" Categories pushed:", [...checkedCategories].map(c => c.value));
 
                     // send data
                     form.requestSubmit();
@@ -163,6 +230,20 @@
                         input?.classList.remove('is-invalid');
                         input && (input.value = '');
                     });
+                }
+            });
+        </script>
+
+        <script>
+            const mediaBtn = document.querySelector('.floating-media');
+
+            window.addEventListener('scroll', () => {
+                const scrollY = window.scrollY;
+
+                if (scrollY >= 332) {
+                    mediaBtn.style.top = '16px';
+                } else {
+                    mediaBtn.style.top = '80px';
                 }
             });
         </script>
