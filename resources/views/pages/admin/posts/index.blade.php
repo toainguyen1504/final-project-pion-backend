@@ -8,7 +8,7 @@
         <div class="col-md-6 d-flex justify-content-end">
             <a href="{{ route('admin.posts.create') }}"
                 class="btn btn-dark d-flex align-items-center justify-content-center gap-2" style="width: 40%;">
-                <i class="fas fa-plus"></i>
+                <i class="fa-solid fa-pen-to-square"></i>
                 <span>Thêm bài viết mới</span>
             </a>
         </div>
@@ -20,7 +20,7 @@
                 <tr>
                     <th class="text-center" style="width: 50px;">STT</th>
                     <th style="min-width: 200px;">Tiêu đề</th>
-                    <th style="max-width: 160px;">Danh mục</th>
+                    <th style="max-width: 160px;">Chuyên mục chính</th>
                     <th class="text-center" style="max-width: 140px;">Người tạo</th>
                     <th class="text-center" style="width: 140px;">Ngày tạo</th>
                     <th class="text-center" style="width: 140px;">Cập nhật</th>
@@ -78,7 +78,7 @@
         </table>
     </div>
 
-    {{-- View content modal--}}
+    {{-- View content modal --}}
     <div class="modal fade" id="modalViewPost" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-xl modal-dialog-scrollable">
             <div class="modal-content border-0 shadow">

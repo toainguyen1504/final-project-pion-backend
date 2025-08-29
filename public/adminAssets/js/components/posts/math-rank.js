@@ -1097,8 +1097,6 @@ document.addEventListener("DOMContentLoaded", function () {
             const focusKeyword = keywords[0];
             const secondaryKeywords = keywords.slice(1);
 
-            console.log(">>>>check title input:", normalizedTitleInput);
-
             // Basic SEO
             const basicScore = calculateBasicScore({
                 title,
@@ -1132,12 +1130,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 keyword: focusKeyword,
             });
 
-            console.log("🎯 Tổng points SEO:", {
-                basicScore,
-                secondaryScore,
-                additionalScore,
-                readabilityScore,
-            });
 
             totalScore =
                 basicScore +

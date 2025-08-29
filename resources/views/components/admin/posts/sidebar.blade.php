@@ -28,6 +28,10 @@
             opacity: 1;
             cursor: pointer;
             transition: opacity 0.4s ease;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
         }
 
         .seo-score-box:hover {
@@ -51,6 +55,8 @@
             padding: 6px 16px;
             font-weight: 600;
             font-size: 14px;
+            width: 100%;
+            border-radius: 0;
         }
 
         /* Thumbnail */
@@ -161,7 +167,12 @@
 <div style="width: 280px;" class="sidebar-right flex-shrink-0 fs-6">
     <!-- Publish Section -->
     <div class="mb-4">
-        <label class="form-label fw-bold">Đăng bài</label>
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <label class="form-label fw-bold mb-0">Đăng bài</label>
+            <a href="{{ route('admin.posts.index') }}" class="btn btn-sm btn-link">
+                Về trang quản lý bài viết
+            </a>
+        </div>
         <div class="border rounded p-3 bg-light">
 
             <!-- Preview -->
@@ -230,26 +241,34 @@
             <!-- Publish -->
             <div class="mb-2">
                 <div class="d-flex justify-content-between">
-                    <span>Đã đăng lúc: <strong id="publish-label" class="fw-medium">Thứ 7, 2022 lúc
-                            11:52</strong></span>
+                    <span>
+                        Thời gian đăng:
+                        {{-- <strong id="publish-label" class="fw-medium">
+                            {{ $post->publish_at ? \Carbon\Carbon::parse($post->publish_at)->format('d/m/Y H:i') : '--time--' }}
+                        </strong> --}}
+                        <strong id="publish-label" data-raw="{{ optional($post)->publish_at ?? now() }}">
+                            {{ optional($post)->publish_at ?? '--time--' }}
+                        </strong>
+                    </span>
 
-                    <a href="#" class="text-decoration-none edit-toggle"
+                    <a href="#" class="text-decoration-none edit-toggle ms-1"
                         data-target="#edit-date">Chỉnh&nbsp;sửa</a>
                 </div>
                 <div class="mt-2 collapse" id="edit-date">
-                    <input type="datetime-local" class="form-control form-control-sm mb-2">
+                    <input type="datetime-local" class="form-control form-control-sm mb-2"
+                        value="{{ optional($post)->publish_at ? $post->publish_at : '' }}">
                     <button class="btn btn-sm btn-yes me-2" id="save-schedule">OK</button>
                     <button class="btn btn-sm btn-cancel cancel-toggle" data-target="#edit-date">Hủy</button>
                 </div>
             </div>
 
             <div class="mb-2">
-                <span class="seo-score-badge seo-score-box"> </span>
+                <span id="seo-score-box" class="seo-score-badge seo-score-box"> </span>
             </div>
 
             <!-- Actions -->
             <div class="d-flex justify-content-between mt-3 align-items-center" id="trash-actions">
-                <div class="d-flex align-items-center">
+                {{-- <div class="d-flex align-items-center">
                     <a href="#" class="trash-link">Bỏ vào thùng rác</a>
 
                     <!-- Trash status -->
@@ -257,10 +276,11 @@
                         <span class="text-danger me-1 flex-grow-1 text-wrap">Đã bỏ vào thùng rác</span>
                         <a href="#" class="restore-link flex-shrink-0">Khôi phục</a>
                     </div>
-                </div>
+                </div> --}}
 
                 <!-- Actions publish post-->
-                <button type="button" class="flex-shrink-0 publish-submit btn btn-yes">Cập nhật</button>
+                <button id="publish-submit" type="button" class="flex-shrink-0 px-4 publish-submit btn btn-yes">Cập
+                    nhật</button>
             </div>
         </div>
     </div>
@@ -285,7 +305,7 @@
                 <div class="form-check category-item px-4">
                     <input class="form-check-input" type="checkbox" value="{{ $category->id }}"
                         id="category-{{ $category->id }}"
-                        {{ in_array($category->id, old('category_ids', [])) ? 'checked' : '' }}>
+                        {{ in_array($category->id, old('category_ids', $selectedCategoryIds ?? [])) ? 'checked' : '' }}>
                     <label class="form-check-label" for="category-{{ $category->id }}">
                         {{ $category->name }}
                     </label>
@@ -308,15 +328,19 @@
     <div class="mb-4 thumbnail-og">
         <div class="thumbnail-inner">
             <p class="form-label fw-bold">Preview Thumbnail</p>
+            @php
+                $hasThumbnail = isset($thumbnailMedia);
+            @endphp
 
-            <!-- Placeholder -->
-            <div id="thumbnail-placeholder" class="border rounded p-3 text-muted text-center">
-                Chưa chọn ảnh thumbnail, click nút Media để chọn ảnh đại diện...
+            <div id="thumbnail-preview-container" class="mt-2 {{ $hasThumbnail ? '' : 'd-none' }}">
+                <img id="thumbnail-preview-img" class="img-fluid rounded"
+                    src="{{ $hasThumbnail ? asset($thumbnailMedia->getVariantPath('og')) : '' }}"
+                    alt="{{ $hasThumbnail ? $thumbnailMedia->alt ?? 'Thumbnail preview' : '' }}" />
             </div>
 
-            <!-- Preview img -->
-            <div id="thumbnail-preview-container" class="mt-2 d-none">
-                <img id="thumbnail-preview-img" class="img-fluid rounded" src="" alt="Thumbnail preview" />
+            <div id="thumbnail-placeholder"
+                class="border rounded p-3 text-muted text-center {{ $hasThumbnail ? 'd-none' : '' }}">
+                Chưa chọn ảnh thumbnail, click nút Media để chọn ảnh đại diện...
             </div>
 
             <small class="text-muted">

@@ -18,8 +18,8 @@
                 <label for="password" class="form-label">Mật khẩu</label>
                 <input type="password" name="password" class="form-control" required>
             </div>
-            <button type="submit" class="btn btn-success">Tạo quản trị viên</button>
-            <a href="{{ route('admin.users.index') }}" class="btn btn-secondary">Quay lại</a>
+            <a href="{{ route('admin.users.index') }}" class="btn btn-outline-danger">Quay lại</a>
+            <button type="submit" class="btn btn-dark ms-2 px-4">Tạo quản trị viên</button>
         </form>
     </div>
 @endsection

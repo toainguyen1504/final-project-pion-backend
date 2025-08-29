@@ -102,7 +102,7 @@
                         <div class="mb-4 content_wrapper">
                             <div class="border rounded"
                                 style="padding: 0 12px; min-height: 560px; max-height: 660px; overflow-y: auto;">
-                                <textarea name="content" class="seo_content" id="editor">{{ old('seo_content') }}</textarea>
+                                <textarea name="content" class="seo_content" id="editor">{{ old('content') }}</textarea>
                             </div>
                         </div>
 
@@ -131,7 +131,7 @@
             </div>
 
             <!-- Sidebar Section -->
-            <x-admin.posts.sidebar :categories="$categories" />
+            <x-admin.posts.sidebar :categories="$categories" :post="$post" />
 
             <!--  Media Library Modal (have modal Edit Metadata) -->
             <x-admin.modals.media-library />
@@ -173,13 +173,10 @@
             window.ckUploadUrl = "{{ route('ckeditor.upload') . '?_token=' . csrf_token() }}";
         </script>
 
-        <script src="{{ asset('adminAssets/js/components/posts/editor.js') }}"></script>
-
-        <script src="{{ asset('adminAssets/js/components/posts/math-rank.js') }}"></script>
-
-        <script src="{{ asset('adminAssets/js/components/posts/sidebar.js') }}"></script>
-
         <script src="{{ asset('adminAssets/js/components/medias/media-library.js') }}"></script>
+        <script src="{{ asset('adminAssets/js/components/posts/editor.js') }}"></script>
+        <script src="{{ asset('adminAssets/js/components/posts/math-rank.js') }}"></script>
+        <script src="{{ asset('adminAssets/js/components/posts/sidebar.js') }}"></script>
 
         <script>
             //========== submit form========= 
@@ -203,8 +200,6 @@
                         hiddenInput.value = checkbox.value;
                         categoryContainer.appendChild(hiddenInput);
                     });
-
-                    console.log(" Categories pushed:", [...checkedCategories].map(c => c.value));
 
                     // send data
                     form.requestSubmit();

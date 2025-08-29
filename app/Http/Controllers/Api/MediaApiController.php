@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\PostContent;
 use App\Models\Media;
 use App\Services\MediaProcessor;
 use Illuminate\Http\Request;
@@ -126,17 +127,45 @@ class MediaApiController extends Controller
     // Delete media (DELETE /api/media/{id})
     public function destroy(Media $media)
     {
-        $variants = $media->meta['variants'] ?? [];
+        try {
+            // check img (is used in posts)
+            $usedPaths = collect($media->meta['variants'] ?? [])
+                ->pluck('path')
+                ->filter()
+                ->map(fn($path) => Storage::url($path));
 
-        foreach ($variants as $variant) {
-            if (!empty($variant['path']) && Storage::disk('public')->exists($variant['path'])) {
-                Storage::disk('public')->delete($variant['path']);
+            $isUsed = PostContent::where(function ($query) use ($usedPaths) {
+                foreach ($usedPaths as $path) {
+                    $query->orWhere('content_html', 'LIKE', '%' . $path . '%');
+                }
+            })->exists();
+
+            if ($isUsed) {
+                return response()->json([
+                    'error' => 'Ảnh đang được sử dụng trong bài viết. Không thể xóa.',
+                ], 400);
             }
+
+            // delete
+            foreach ($media->meta['variants'] ?? [] as $variant) {
+                if (!empty($variant['path'])) {
+                    Storage::disk('public')->delete($variant['path']);
+                }
+            }
+
+            $media->delete();
+
+            return response()->json(['message' => '🗑️ Media đã được xóa thành công']);
+        } catch (\Throwable $e) {
+            Log::error('Xóa media thất bại', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTrace(),
+            ]);
+
+            return response()->json([
+                'error' => 'Lỗi server khi xóa media',
+            ], 500);
         }
-
-        $media->delete();
-
-        return response()->json(['message' => 'Deleted']);
     }
 
     // Resize (custom)

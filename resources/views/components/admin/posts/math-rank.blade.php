@@ -132,7 +132,7 @@
     <div class="focus-keyword mb-4">
         <label class="form-label fw-bold d-flex justify-content-between align-items-center">
             Focus Keyword
-            <span id="seo-score-badge" class="seo-score-badge"></span>
+            <span id="seo-score-target" class="seo-score-badge"></span>
         </label>
 
         <div id="keyword-wrapper" class="keyword-wrapper">

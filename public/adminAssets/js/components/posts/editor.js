@@ -57,10 +57,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
             const form = document.getElementById("postForm");
             const titleInput = document.getElementById("post-title");
-            const publishButton = document.querySelector(".publish-submit");
+            const publishButton = document.getElementById("publish-submit");
             const categoryCheckboxes = document.querySelectorAll(
                 ".category-item input[type='checkbox']"
             );
+            const sapoInput = document.getElementById("sapo_text");
+            const thumbnailInput = document.getElementById("featured_media_id");
 
             publishButton.disabled = true;
 
@@ -69,6 +71,8 @@ document.addEventListener("DOMContentLoaded", function () {
             const originalCategories = Array.from(categoryCheckboxes)
                 .filter((cb) => cb.checked)
                 .map((cb) => cb.value);
+            const originalSapo = sapoInput?.value.trim() || "";
+            const originalThumbnailId = thumbnailInput?.value || "";
 
             function getCurrentCategories() {
                 return Array.from(categoryCheckboxes)
@@ -80,6 +84,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 const currentTitle = titleInput?.value.trim() || "";
                 const currentContent = editor.getData().trim();
                 const currentCategories = getCurrentCategories();
+                const currentSapo = sapoInput?.value.trim() || "";
+                const currentThumbnailId = thumbnailInput?.value || "";
 
                 const hasTitleChanged = currentTitle !== originalTitle;
                 const hasContentChanged = currentContent !== originalContent;
@@ -88,9 +94,16 @@ document.addEventListener("DOMContentLoaded", function () {
                     !originalCategories.every((id) =>
                         currentCategories.includes(id)
                     );
+                const hasSapoChanged = currentSapo !== originalSapo;
+                const hasThumbnailChanged =
+                    currentThumbnailId !== originalThumbnailId;
 
                 const hasChanges =
-                    hasTitleChanged || hasContentChanged || hasCategoryChanged;
+                    hasTitleChanged ||
+                    hasContentChanged ||
+                    hasCategoryChanged ||
+                    hasSapoChanged ||
+                    hasThumbnailChanged;
 
                 publishButton.disabled = !hasChanges;
             }
@@ -120,12 +133,12 @@ document.addEventListener("DOMContentLoaded", function () {
                         );
 
                     previewContent.innerHTML = `
-                <h1 class="fw-bold mb-3">${title}</h1>
-                <div class="text-muted mb-4 fst-italic">Chuyên mục: ${selectedCategoryNames.join(
-                    ", "
-                )}</div>
-                <div class="post-content">${content}</div>
-            `;
+                        <h1 class="fw-bold mb-3">${title}</h1>
+                        <div class="text-muted mb-4 fst-italic">Chuyên mục: ${selectedCategoryNames.join(
+                            ", "
+                        )}</div>
+                        <div class="post-content">${content}</div>
+                    `;
                 });
             }
 
@@ -134,6 +147,8 @@ document.addEventListener("DOMContentLoaded", function () {
             categoryCheckboxes.forEach((cb) =>
                 cb.addEventListener("change", checkChanges)
             );
+            sapoInput?.addEventListener("input", checkChanges);
+            thumbnailInput?.addEventListener("change", checkChanges);
 
             checkChanges();
         })

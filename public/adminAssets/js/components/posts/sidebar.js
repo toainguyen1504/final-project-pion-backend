@@ -23,12 +23,23 @@ document.addEventListener("DOMContentLoaded", function () {
     maxDate.setMonth(maxDate.getMonth() + 2);
     publishInput.max = maxDate.toISOString().slice(0, 16);
 
-    const triggerBadge = document.querySelector(".seo-score-box");
-    const targetBadge = document.getElementById("seo-score-badge");
+    const triggerBadge = document.getElementById("seo-score-box");
+    const targetBadge = document.getElementById("seo-score-target");
 
     // DEFAULT VALUE
     const initialStatus = hiddenStatus.value || "draft";
     const initialVisibility = hiddenVisibility.value || "private";
+    const label = document.getElementById("publish-label");
+
+    let previousStatus = hiddenStatus.value;
+    let previousVisibility = initialVisibility;
+
+    // set time published
+    const raw = label.dataset.raw;
+    if (raw) {
+        const date = new Date(raw);
+        label.textContent = formatDateForVN(date);
+    }
 
     updateStatusUI(initialStatus);
     updateVisibilityUI(initialVisibility);
@@ -70,9 +81,6 @@ document.addEventListener("DOMContentLoaded", function () {
             new Date(hiddenPublishAt.value) > new Date();
         if (hasScheduledDate) {
             updateVisibilityUI("scheduled_public");
-            console.log(
-                "Giữ visibility là scheduled_public vì đã có lịch đăng"
-            );
             return;
         }
 
@@ -118,8 +126,6 @@ document.addEventListener("DOMContentLoaded", function () {
             updateStatusUI(statusValue);
             syncVisibilityWithStatus(statusValue);
             document.querySelector("#edit-status").classList.remove("show");
-            console.log("statusValue:", statusValue);
-            console.log("visibilityValue:", visibilitySelect.value);
         });
 
     document
@@ -127,11 +133,10 @@ document.addEventListener("DOMContentLoaded", function () {
         .addEventListener("click", () => {
             updateVisibilityUI(visibilitySelect.value);
             document.querySelector("#edit-visibility").classList.remove("show");
-            console.log("visibilityValue:", visibilitySelect.value);
         });
 
-    console.log("Giá trị status hiện tại:", statusSelect.value);
 
+    // publish
     document.getElementById("save-schedule").addEventListener("click", () => {
         const selectedDate = publishInput.value;
         if (!selectedDate) return;
@@ -149,38 +154,44 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         document.querySelector("#edit-date").classList.remove("show");
-        console.log("Đã lên lịch đăng lúc:", selectedDate);
-        console.log("🔒 Dữ liệu gửi về backend:");
-        console.log("hiddenStatus:", hiddenStatus.value);
-        console.log("hiddenVisibility:", hiddenVisibility.value);
-        console.log("hiddenPublishAt:", hiddenPublishAt.value);
     });
     // End processing scheduled tasks
 
     // Handle moving to trash
-    document.querySelector(".trash-link").addEventListener("click", (e) => {
-        e.preventDefault();
+    // document.querySelector(".trash-link").addEventListener("click", (e) => {
+    //     e.preventDefault();
 
-        updateStatusUI("archived");
-        hiddenStatus.value = "archived";
+    //     // Save previous status (visibility)
+    //     previousStatus = hiddenStatus.value;
+    //     previousVisibility = hiddenVisibility.value;
 
-        document.querySelector(".trash-link").classList.add("d-none");
-        document.querySelector(".trash-status").classList.remove("d-none");
+    //     updateStatusUI("archived");
+    //     updateVisibilityUI("private");
 
-        statusLabel.textContent = "Đã bỏ vào thùng rác";
-        statusLabel.className = "text-danger";
-    });
+    //     hiddenStatus.value = "archived";
+    //     hiddenVisibility.value = "private";
+
+    //     document.querySelector(".trash-link").classList.add("d-none");
+    //     document.querySelector(".trash-status").classList.remove("d-none");
+
+    //     statusLabel.textContent = "Đã bỏ vào thùng rác";
+    //     statusLabel.className = "text-danger";
+    // });
 
     // Handle restore
-    document.querySelector(".restore-link").addEventListener("click", (e) => {
-        e.preventDefault();
+    // document.querySelector(".restore-link").addEventListener("click", (e) => {
+    //     e.preventDefault();
 
-        updateStatusUI(initialStatus);
-        hiddenStatus.value = initialStatus;
+    //     // Restore previous status and visibility
+    //     updateStatusUI(previousStatus);
+    //     updateVisibilityUI(previousVisibility);
 
-        document.querySelector(".trash-link").classList.remove("d-none");
-        document.querySelector(".trash-status").classList.add("d-none");
-    });
+    //     hiddenStatus.value = previousStatus;
+    //     hiddenVisibility.value = previousVisibility;
+
+    //     document.querySelector(".trash-link").classList.remove("d-none");
+    //     document.querySelector(".trash-status").classList.add("d-none");
+    // });
 
     // highlight Badge when click seo-score-box
     if (triggerBadge && targetBadge) {
@@ -188,6 +199,7 @@ document.addEventListener("DOMContentLoaded", function () {
             targetBadge.scrollIntoView({
                 behavior: "smooth",
                 block: "center",
+                inline: "nearest",
             });
 
             //highlight

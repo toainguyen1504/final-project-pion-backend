@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const titleInput = form.querySelector('input[name="title"]');
     const captionInput = form.querySelector('textarea[name="caption"]');
     const descriptionInput = form.querySelector('textarea[name="description"]');
-    regex = /^[\p{L}\p{N}\s.,!?'"-]+$/u;
+    regex = /^[\p{L}\p{N}\s.,!?'"-—]+$/u;
 
     let selectedMediaId = null;
 
@@ -292,11 +292,13 @@ document.addEventListener("DOMContentLoaded", function () {
                     Accept: "application/json",
                 },
             })
-                .then((res) => {
-                    if (!res.ok) throw new Error("Xóa thất bại.");
-                    return res.json();
-                })
-                .then(() => {
+                .then(async (res) => {
+                    const data = await res.json();
+
+                    if (!res.ok) {
+                        throw new Error(data.error || "Xóa thất bại.");
+                    }
+
                     showToast("🗑️ Đã xóa ảnh thành công!", "bg-success");
                     resetPreview();
                     loadMediaList();
@@ -304,8 +306,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     selectedMediaData = null;
                     document.getElementById("deleteImageBtn").disabled = true;
                 })
-                .catch(() => {
-                    showToast("❌ Có lỗi khi xóa ảnh.", "bg-danger");
+                .catch((err) => {
+                    showToast(`❌ ${err.message}`, "bg-danger");
                 });
         });
 
@@ -400,6 +402,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const modal = bootstrap.Modal.getInstance(
                 document.getElementById("mediaLibraryModal")
             );
+
             modal.hide();
         });
 

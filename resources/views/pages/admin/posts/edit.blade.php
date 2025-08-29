@@ -1,252 +1,212 @@
 @extends('layouts.app')
 
+@push('styles')
+    <style>
+        /* floating btn */
+        .floating-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            height: 3em;
+            min-width: 112px;
+            background: #fff;
+            border: none;
+            border-radius: 999px;
+            cursor: pointer;
+            letter-spacing: 0.5px;
+            font-weight: 500;
+            box-shadow: 3px 3px 10px #d1d1d1, -3px -3px 10px #ffffff;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: #333;
+        }
+
+        .floating-btn svg {
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+
+        .floating-btn:hover {
+            box-shadow: 6px 6px 20px #d1d1d1, -6px -6px 20px #ffffff;
+            transform: translateY(-3px);
+        }
+
+        .floating-btn:hover svg {
+            transform: translateX(-4px);
+        }
+
+        .floating-media {
+            position: fixed;
+            top: 80px;
+            right: 356px;
+            z-index: 1002;
+            background: #E0E7FF;
+            color: #1E3A8A;
+        }
+
+        .floating-media:hover {
+            background: #D6DEFF;
+        }
+
+        .floating-btn:disabled,
+        .floating-btn.disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            pointer-events: none;
+            filter: grayscale(0.6);
+        }
+    </style>
+@endpush
+
 @section('content')
     <div class="container-fluid bg-light py-4">
-        <div class="d-flex">
-            <div class="bg-white shadow rounded px-5 py-4" style="width: 794px;">
-                <form action="{{ route('admin.posts.update', $posts->id) }}" method="POST" enctype="multipart/form-data"
-                    id="edit-form">
-                    @csrf
-                    @method('PUT')
+        <div class="d-flex gap-4 align-items-start">
+            <!-- Content Section -->
+            <div class="flex-grow-1" style="min-width: 794px;">
+                <div class="bg-white shadow rounded px-5 py-4" style="min-width: 794px;">
+                    <form id="postForm" action="{{ route('admin.posts.update', $post->id) }}" method="POST"
+                        enctype="multipart/form-data">
+                        @csrf
+                        @method('PUT')
 
-                    @if ($errors->any())
-                        <div class="alert alert-danger">
-                            <strong>😕 Oops! Có vẻ như bạn đã bỏ sót một vài thông tin quan trọng.</strong>
-                            <ul class="mb-0">
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
+                        @if ($errors->any())
+                            <div class="alert alert-danger">
+                                <strong>😕 Oops! Có vẻ như bạn đã bỏ sót một vài thông tin quan trọng.</strong>
+                                <ul class="mb-0">
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+
+                        <!-- Title -->
+                        <div class="mb-4">
+                            <input type="text" name="title" id="post-title" class="form-control border-0 fs-4 fw-bold"
+                                placeholder="Tiêu đề bài viết..." required value="{{ old('title', $post->title) }}">
                         </div>
-                    @endif
 
-                    <!-- title -->
-                    <div class="mb-4">
-                        <input type="text" name="title" id="post-title" class="form-control border-0 fs-4 fw-bold"
-                            placeholder="Tiêu đề bài viết..." value="{{ old('title', $posts->title) }}" required>
-                    </div>
-
-                    <!-- category -->
-                    <div class="mb-4">
-                        <label class="form-label">Danh mục</label>
-                        <select name="category_id" id="category-select" class="form-select fs-5" required>
-                            <option value="" disabled>Chọn danh mục...</option>
-                            @foreach ($categories as $category)
-                                <option value="{{ $category->id }}"
-                                    {{ old('category_id', $posts->category_id) == $category->id ? 'selected' : '' }}>
-                                    {{ $category->name }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <!-- content -->
-                    <div class="mb-4">
-                        <div class="border rounded"
-                            style="padding: 0 12px; min-height: 540px; max-height: 640px; overflow-y: auto;">
-                            <textarea name="content" id="editor">{{ old('content', $posts->content->content_html ?? '') }}</textarea>
+                        <!-- Intro (Sapo) -->
+                        <div class="mb-4">
+                            <label for="sapo_text" class="form-label fw-bold">📝 Giới thiệu ngắn (Intro / Sapo)</label>
+                            <textarea name="sapo_text" id="sapo_text" class="form-control" rows="4"
+                                placeholder="Nhập đoạn giới thiệu ngắn...">{{ old('sapo_text', $post->sapo_text) }}</textarea>
+                            <small class="text-muted">Đoạn sapo sẽ hiển thị ở đầu bài viết và tối ưu SEO.</small>
                         </div>
-                    </div>
 
-                    <!-- Floating buttons -->
-                    <div class="position-fixed" style="bottom: 120px; right: 92px; z-index: 1050;" id="floating-buttons">
-                        <div class="d-flex flex-column gap-3">
-                            <!-- Back btn-->
-                            <a href="{{ route('admin.posts.index') }}" class="floating-btn floating-back"
-                                data-bs-toggle="tooltip" data-bs-placement="left" title="Quay lại trang quản lý tin tức">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                    class="bi bi-arrow-left" viewBox="0 0 16 16">
-                                    <path fill-rule="evenodd"
-                                        d="M15 8a.5.5 0 0 1-.5.5H3.707l4.147 4.146a.5.5 0 0 1-.708.708l-5-5a.5.5 0 0 1 0-.708l5-5a.5.5 0 1 1 .708.708L3.707 7.5H14.5A.5.5 0 0 1 15 8z" />
-                                </svg>
-                                <span>Back</span>
-                            </a>
-
-                            <!-- preview btn -->
-                            <button type="button" class="floating-btn floating-preview" data-bs-toggle="modal"
-                                data-bs-target="#modalPreviewPost" data-bs-toggle="tooltip" data-bs-placement="left"
-                                title="Xem trước bài viết (chưa lưu)">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                    class="bi bi-eye" viewBox="0 0 16 16">
-                                    <path
-                                        d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zm-8 4a4 4 0 1 1 0-8 4 4 0 0 1 0 8z" />
-                                    <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z" />
-                                </svg>
-                                <span>Preview</span>
-                            </button>
-
-                            <!-- Edit btn -->
-                            <button type="submit" class="floating-btn floating-submit" data-bs-toggle="tooltip"
-                                data-bs-placement="left" title="Cập nhật bài viết (lưu)">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                    class="bi bi-send-check-fill" viewBox="0 0 16 16">
-                                    <path
-                                        d="M15.964.686a.5.5 0 0 0-.65-.65L.273 7.313a.5.5 0 0 0 .065.93l4.765 1.278 1.278 4.765a.5.5 0 0 0 .93.065l7.277-15.665zm-5.5 6.707l-4 4a.5.5 0 0 1-.708-.708l4-4a.5.5 0 0 1 .708.708z" />
-                                </svg>
-                                <span>Update</span>
-                            </button>
-
+                        <!-- Content CKEditor -->
+                        <div class="mb-4">
+                            <div class="border rounded"
+                                style="padding: 0 12px; min-height: 560px; max-height: 660px; overflow-y: auto;">
+                                <textarea name="content" id="editor">{{ old('content', $post->content->content_html ?? '') }}</textarea>
+                            </div>
                         </div>
-                    </div>
 
-                </form>
+                        <!-- Hidden input to submit id img -->
+                        <input type="hidden" name="featured_media_id" id="featured_media_id"
+                            value="{{ old('featured_media_id') ?? ($post->featured_media_id ?? '') }}">
+
+                        <!-- Hidden SEO fields -->
+                        <input type="hidden" name="seo_title" id="hidden_seo_title"
+                            value="{{ old('seo_title', $post->seo_title) }}">
+                        <input type="hidden" name="slug" id="hidden_slug" value="{{ old('slug', $post->slug) }}">
+                        <input type="hidden" name="seo_description" id="hidden_seo_description"
+                            value="{{ old('seo_description', $post->seo_description) }}">
+                        <input type="hidden" name="seo_keywords" id="hidden_keywords"
+                            value="{{ old('seo_keywords', $post->seo_keywords) }}">
+
+                        <!-- Hidden inputs for status & visibility -->
+                        <input type="hidden" name="status" id="hidden_status" value="{{ $post->status }}">
+                        <input type="hidden" name="visibility" id="hidden_visibility" value="{{ $post->visibility }}">
+                        <input type="hidden" name="publish_at" id="hidden_publish_at" value="{{ $post->publish_at }}">
+
+                        <!-- Hidden container for categories -->
+                        <div id="category-hidden-container"></div>
+                    </form>
+                </div>
+
+                <!-- SEO section -->
+                <x-admin.posts.math-rank />
             </div>
+
+            <!-- Sidebar -->
+            <x-admin.posts.sidebar :categories="$categories" :selectedCategoryIds="$selectedCategoryIds" :post="$post" :thumbnailMedia="$thumbnailMedia" />
+
+            <!-- Media Library Modal -->
+            <x-admin.modals.media-library />
         </div>
     </div>
 
-    <div class="modal fade" id="modalPreviewPost" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-xl modal-dialog-scrollable">
-            <div class="modal-content border-0 shadow">
-                <div class="modal-header border-0 mx-auto" style="width: 794px;">
-                    <h5 class="modal-title">📄 Xem trước bài viết</h5>
-                    <button type="button" class="btn-close red-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
-                </div>
-                <div class="modal-body p-0">
-                    <div class="post-content bg-white p-5 mx-auto"
-                        style="width: 794px; min-height: 1123px; border: 1px solid #dee2e6; border-radius: 4px;"
-                        id="preview-content">
-                        <!-- here is render content -->
-                    </div>
-                </div>
+    <!-- Floating Media Button -->
+    <div class="mb-3 d-flex gap-2">
+        <button type="button" class="floating-btn floating-media" id="openMediaLibrary" title="Thêm media vào bài viết">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <path
+                    d="M14 2H2a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2zM2 3h12a1 1 0 0 1 1 1v5.586l-2.5-2.5a1 1 0 0 0-1.414 0L8 10l-1.5-1.5a1 1 0 0 0-1.414 0L2 12V4a1 1 0 0 1 1-1zm0 10v-.586l4-4 1.5 1.5a1 1 0 0 0 1.414 0L12 7.414l3 3V12a1 1 0 0 1-1 1H2z" />
+                <circle cx="4.5" cy="5.5" r="1.5" />
+            </svg>
+            <span>Media</span>
+        </button>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast-message" class="position-fixed top-0 end-0 p-3" style="z-index: 1055;">
+        <div class="toast align-items-center text-white bg-primary border-0" role="alert" aria-live="assertive"
+            aria-atomic="true" data-bs-autohide="true" data-bs-delay="2000" id="liveToast">
+            <div class="d-flex">
+                <div class="toast-body fw-bold" id="toast-body"></div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                    aria-label="Close"></button>
             </div>
         </div>
     </div>
 @endsection
 
-@push('scripts')
-    <script>
-        let editorInstance;
+@once
+    @push('scripts')
+        <script>
+            window.ckUploadUrl = "{{ route('ckeditor.upload') . '?_token=' . csrf_token() }}";
+        </script>
 
-        ClassicEditor
-            .create(document.querySelector('#editor'), {
-                heading: {
-                    options: [{
-                            model: 'paragraph',
-                            title: 'Đoạn văn',
-                            class: 'ck-heading_paragraph'
-                        },
-                        {
-                            model: 'heading2',
-                            view: 'h2',
-                            title: 'H2 - Tiêu đề phụ (tự động đánh số 1,2,3...)',
-                            class: 'ck-heading_heading2'
-                        },
-                        {
-                            model: 'heading3',
-                            view: 'h3',
-                            title: 'H3 - Tiêu đề nhỏ (tự động dạng danh sách đánh dấu - icon)',
-                            class: 'ck-heading_heading3'
-                        }
-                    ]
-                },
-                toolbar: [
-                    'heading',
-                    '|',
-                    'bold', 'italic', 'link',
-                    '|',
-                    'bulletedList',
-                    '|',
-                    'uploadImage',
-                    '|',
-                    'undo', 'redo'
-                ],
-                removePlugins: ['MediaEmbed'],
-                image: {
-                    styles: ['alignCenter', 'alignLeft', 'alignRight'],
-                    resizeUnit: '%',
-                    toolbar: [
-                        'imageTextAlternative',
-                        '|',
-                        'imageStyle:alignLeft',
-                        'imageStyle:alignCenter',
-                        'imageStyle:alignRight'
-                    ]
-                },
-                ckfinder: {
-                    uploadUrl: '{{ route('ckeditor.upload') . '?_token=' . csrf_token() }}'
-                }
+        <script src="{{ asset('adminAssets/js/components/medias/media-library.js') }}"></script>
+        <script src="{{ asset('adminAssets/js/components/posts/editor.js') }}"></script>
+        <script src="{{ asset('adminAssets/js/components/posts/math-rank.js') }}"></script>
+        <script src="{{ asset('adminAssets/js/components/posts/sidebar.js') }}"></script>
 
-            })
-            .then(editor => {
-                editorInstance = editor;
-                console.log('CKEditor đã khởi tạo thành công');
+        <script>
+            // Submit form with categories
+            document.addEventListener("DOMContentLoaded", function() {
+                const form = document.getElementById("postForm");
+                const categoryContainer = document.getElementById("category-hidden-container");
+                const publishBtn = document.querySelector(".publish-submit");
 
-                //  Sync CKEditor content to the textarea before submitting
-                const form = document.getElementById('edit-form');
-                form.addEventListener('submit', function() {
-                    document.querySelector('#editor').value = editorInstance.getData();
-                });
+                if (!form || !categoryContainer || !publishBtn) return;
+                publishBtn.addEventListener("click", function() {
+                    categoryContainer.innerHTML = "";
 
-                const previewBtn = document.querySelector('[data-bs-target="#modalPreviewPost"]');
-                const previewContent = document.getElementById('preview-content');
+                    const checkedCategories = document.querySelectorAll(
+                        "#category-list input[type='checkbox']:checked");
 
-                if (previewBtn) {
-                    previewBtn.addEventListener('click', () => {
-                        const title = document.querySelector('#post-title').value.trim();
-                        const category = document.querySelector('#category-select');
-                        const categoryName = category.options[category.selectedIndex]?.text || '';
-                        const content = editorInstance.getData();
-
-                        previewContent.innerHTML = `
-                                    <h1 class="fw-bold mb-3">${title}</h1>
-                                    <div class="text-muted mb-4 fst-italic">Danh mục: ${categoryName}</div>
-                                    <div class="post-content">${content}</div>
-                                `;
+                    checkedCategories.forEach((checkbox) => {
+                        const hiddenInput = document.createElement("input");
+                        hiddenInput.type = "hidden";
+                        hiddenInput.name = "category_ids[]";
+                        hiddenInput.value = checkbox.value;
+                        categoryContainer.appendChild(hiddenInput);
                     });
-                }
-            })
-            .catch(error => {
-                console.error('Lỗi khi khởi tạo CKEditor:', error);
+
+                    form.requestSubmit();
+                });
             });
+        </script>
 
-        // Check change
-        document.addEventListener('DOMContentLoaded', function() {
-            const form = document.getElementById('edit-form');
-            const titleInput = document.getElementById('post-title');
-            const categorySelect = document.getElementById('category-select');
-            const updateButton = document.querySelector('.floating-submit');
-
-            // save original data
-            const originalTitle = titleInput.value.trim();
-            const originalCategory = categorySelect.value;
-            let originalContent = '';
-
-            //get data original CKEditor when editor ready
-            if (editorInstance) {
-                originalContent = editorInstance.getData().trim();
-            } else {
-                console.error('CKEditor chưa khởi tạo xong để lấy dữ liệu ban đầu.');
-            }
-
-            // function check changes
-            function checkChanges() {
-                const currentTitle = titleInput.value.trim();
-                const currentCategory = categorySelect.value;
-                const currentContent = editorInstance.getData().trim();
-
-                const hasChanges =
-                    currentTitle !== originalTitle ||
-                    currentCategory !== originalCategory ||
-                    currentContent !== originalContent;
-
-                updateButton.disabled = !hasChanges;
-            }
-
-            titleInput.addEventListener('input', checkChanges);
-            categorySelect.addEventListener('change', checkChanges);
-            editorInstance.model.document.on('change:data', checkChanges);
-
-            checkChanges();
-        });
-        // End check change
-
-        // Tooltip
-        document.addEventListener('DOMContentLoaded', function() {
-            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-            tooltipTriggerList.forEach(function(tooltipTriggerEl) {
-                new bootstrap.Tooltip(tooltipTriggerEl);
+        <script>
+            const mediaBtn = document.querySelector('.floating-media');
+            window.addEventListener('scroll', () => {
+                const scrollY = window.scrollY;
+                mediaBtn.style.top = scrollY >= 332 ? '16px' : '80px';
             });
-        });
-    </script>
-    
-@endpush
+        </script>
+    @endpush
+@endonce

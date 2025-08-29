@@ -12,6 +12,7 @@ class Post extends Model
 {
     protected $fillable = [
         'title',
+        'sapo_text',
         'user_id',
         'category_id',
         'seo_title',
@@ -19,6 +20,7 @@ class Post extends Model
         'seo_keywords',
         'seo_meta',
         'status',
+        'visibility',
         'publish_at',
         'featured_media_id'
     ];
