@@ -10,7 +10,8 @@ class PostApiController extends Controller
 {
     public function index()
     {
-        $posts = Post::with('category')->latest()->get();
+        // lấy cả category và content
+        $posts = Post::with(['category', 'content'])->latest()->get();
 
         return response()->json([
             'status' => 'success',
@@ -21,11 +22,11 @@ class PostApiController extends Controller
     public function show($id)
     {
         try {
-            $posts = Post::with('category')->findOrFail($id);
+            $post = Post::with(['category', 'content'])->findOrFail($id);
 
             return response()->json([
                 'status' => 'success',
-                'data' => $posts
+                'data' => $post
             ]);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([

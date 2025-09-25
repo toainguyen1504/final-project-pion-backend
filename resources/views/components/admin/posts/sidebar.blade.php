@@ -287,7 +287,7 @@
 
     <!-- category -->
     <div class="mb-4">
-        <label class="form-label fw-bold">Chuyên mục</label>
+        <label class="form-label required-label fw-bold">Chuyên mục</label>
 
         @error('category_ids')
             <div class="text-danger">{{ $message }}</div>

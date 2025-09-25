@@ -24,6 +24,7 @@
     --post-caption-color: #555;
     --post-caption-size: 14px;
     --post-icon-size: 19.2px;
+    --post-spacing-sm: 12px;
     --post-spacing-md: 16px;
     --post-spacing-lg: 32px;
     --post-indent-32: 32px;
@@ -40,6 +41,11 @@
 /* Paragraph */
 .post-content p {
     margin-bottom: 12px;
+}
+
+.post-content p i,
+.post-content p em {
+    text-align: left !important;
 }
 
 /* Headings */
@@ -80,6 +86,29 @@
     margin-right: 4px;
 }
 
+/* H3 độc lập vẫn có icon lá */
+.post-content h3:not(li h3)::before {
+    position: absolute;
+    top: 0;
+    left: calc(-1 * var(--post-indent-32));
+    font-family: "Font Awesome 6 Free";
+    content: "\f06c"; /* fa-leaf */
+    font-weight: 900;
+    font-size: var(--post-icon-size);
+    color: var(--post-primary);
+}
+
+/* H3 chung: giống như trong list */
+.post-content h3 {
+    position: relative;
+    font-size: var(--post-heading-3-size);
+    line-height: var(--post-line-height);
+    color: var(--post-subheading);
+    margin: 0 0 8px 0;
+    text-indent: var(--post-indent-32);
+    font-weight: 600;
+}
+
 /* ========== LISTS ========== */
 .post-content ul {
     list-style: none;
@@ -111,32 +140,42 @@
     top: 0;
     left: calc(-1 * var(--post-indent-32));
     font-family: "Font Awesome 6 Free";
-    content: "\f06c";
+    content: "\f06c"; /* fa-leaf */
     font-weight: 900;
     font-size: var(--post-icon-size);
     color: var(--post-primary);
 }
 
+.post-content h3 {
+    font-size: var(--post-heading-3-size);
+}
+
 .post-content h3 strong {
     font-weight: 500;
 }
-/* CASE 2: UL > LI (list thường, không có H3) */
-.post-content ul li:not(:has(h3)) {
+
+/* CASE 2: UL > LI (list thường, không có H3, H2) */
+.post-content ul:not(:has(h2)):not(:has(h3)) {
+    padding-left: 16px;
+}
+
+.post-content ul li:not(:has(h3)):not(:has(h2)) {
     font-size: var(--post-font-size);
     font-weight: 400;
     line-height: var(--post-line-height);
     color: var(--post-text);
     text-indent: var(--post-indent-24);
+    margin-bottom: var(--post-spacing-sm);
 }
 
-.post-content ul li:not(:has(h3))::before {
+.post-content ul li:not(:has(h3)):not(:has(h2))::before {
     position: absolute;
-    top: 0;
+    top: 5px;
     left: calc(-1 * var(--post-indent-24));
     font-family: "Font Awesome 6 Free";
-    content: "\f06c"; /* fa-leaf */
+    content: "\f111"; /* fa-circle */
     font-weight: 900;
-    font-size: var(--post-font-size);
+    font-size: 10px;
     color: var(--post-primary);
 }
 
@@ -154,12 +193,13 @@
 }
 
 /* CKEditor fallback: caption using <i> or <em> */
-.post-content i,
-.post-content em {
+.post-content .image i,
+.post-content .image em,
+.post-content .image .caption {
     display: block;
     text-align: center;
-    font-style: italic;
-    font-size: var(--post-caption-size);
-    color: var(--post-caption-color);
+    font-style: italic !important;
+    font-size: var(--post-caption-size) !important;
+    color: var(--post-caption-color) !important;
     margin-top: 4px;
 }

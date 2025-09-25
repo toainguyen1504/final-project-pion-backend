@@ -22,6 +22,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 },
             ],
         },
+        enterMode: "P",
+        shiftEnterMode: "BR",
+        autoParagraph: true,
         toolbar: [
             "heading",
             "|",
@@ -122,6 +125,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (previewBtn && previewContent) {
                 previewBtn.addEventListener("click", () => {
                     const title = titleInput?.value.trim() || "";
+                    const sapo = sapoInput?.value.trim() || "";
                     const content = editor.getData();
                     const selectedCategoryNames = Array.from(categoryCheckboxes)
                         .filter((cb) => cb.checked)
@@ -133,11 +137,14 @@ document.addEventListener("DOMContentLoaded", function () {
                         );
 
                     previewContent.innerHTML = `
-                        <h1 class="fw-bold mb-3">${title}</h1>
-                        <div class="text-muted mb-4 fst-italic">Chuyên mục: ${selectedCategoryNames.join(
-                            ", "
-                        )}</div>
-                        <div class="post-content">${content}</div>
+                        <div class="post-content">
+                            <h1 class="mb-3">${title}</h1>
+                            <div class="mb-4 text-muted fst-italic">Chuyên mục: ${selectedCategoryNames.join(
+                                ", "
+                            )}</div>
+                            <div class="mb-4 ">${sapo}</div>
+                            ${content}
+                        </div>
                     `;
                 });
             }

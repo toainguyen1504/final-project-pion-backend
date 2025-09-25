@@ -5,10 +5,10 @@ return [
     'paths' => ['api/*', 'sanctum/csrf-cookie'],
 
     'allowed_methods' => ['*'],
-    
-    'allowed_origins' => ['http://localhost:3000'],
 
-    // 'allowed_origins' => ['https://pion.edu.vn'], // Hoặc ['https://tenmienfe.com'] nếu cần bảo mật
+    // 'allowed_origins' => ['http://localhost:3000', 'https://pion.edu.vn'],
+
+    'allowed_origins' => ['https://pion.edu.vn'], // Hoặc ['https://tenmienfe.com'] nếu cần bảo mật
 
     'allowed_origins_patterns' => [],
 

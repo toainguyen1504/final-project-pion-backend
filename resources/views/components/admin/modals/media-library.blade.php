@@ -131,8 +131,8 @@
 
                         <!-- Preview Image -->
                         <div id="previewImage" class="mb-3 text-left"
-                            data-default="{{ asset('adminAssets/img/avatar_default.jpg') }}">
-                            <img src="{{ asset('adminAssets/img/avatar_default.jpg') }}" alt="IMG"
+                            data-default="{{ asset('adminAssets/img/no_image.png') }}">
+                            <img src="{{ asset('adminAssets/img/no_image.png') }}" alt="IMG"
                                 class="img-fluid rounded border" style="max-height: 116px;">
                         </div>
 
@@ -156,7 +156,7 @@
                         <!-- Metadata Form -->
                         <form id="editMetadataForm">
                             <div class="mb-3 row">
-                                <label for="title" class="col-sm-4 col-form-label text-end fs-7">Tiêu đề</label>
+                                <label for="title" class="col-sm-4 col-form-label required-label text-end fs-7">Tiêu đề</label>
                                 <div class="col-sm-8">
                                     <input type="text" name="title" id="title" class="form-control fs-7">
                                     <small class="invalid-feedback">Vui lòng nhập tiêu đề hợp lệ (chỉ chữ và
@@ -165,7 +165,7 @@
                             </div>
 
                             <div class="mb-3 row">
-                                <label for="caption" class="col-sm-4 col-form-label text-end fs-7">Chú thích</label>
+                                <label for="caption" class="col-sm-4 col-form-label required-label text-end fs-7">Chú thích</label>
                                 <div class="col-sm-8">
                                     <textarea name="caption" id="caption" class="form-control fs-7" rows="2"></textarea>
                                     <small class="invalid-feedback">Vui lòng nhập chú thích hợp lệ (chỉ chữ và

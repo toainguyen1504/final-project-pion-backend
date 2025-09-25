@@ -84,14 +84,13 @@
                         <!-- Title -->
                         <div class="mb-4">
                             <input type="text" name="title" id="post-title" class="form-control border-0 fs-4 fw-bold"
-                                placeholder="Tiêu đề bài viết..." required value="{{ old('title', $post->title) }}">
+                                placeholder="Tiêu đề bài viết..." value="{{ old('title', $post->title) }}">
                         </div>
 
                         <!-- Intro (Sapo) -->
                         <div class="mb-4">
-                            <label for="sapo_text" class="form-label fw-bold">📝 Giới thiệu ngắn (Intro / Sapo)</label>
                             <textarea name="sapo_text" id="sapo_text" class="form-control" rows="4"
-                                placeholder="Nhập đoạn giới thiệu ngắn...">{{ old('sapo_text', $post->sapo_text) }}</textarea>
+                                placeholder="Nhập đoạn giới thiệu ngắn (sapo)...">{{ old('sapo_text', $post->sapo_text) }}</textarea>
                             <small class="text-muted">Đoạn sapo sẽ hiển thị ở đầu bài viết và tối ưu SEO.</small>
                         </div>
 

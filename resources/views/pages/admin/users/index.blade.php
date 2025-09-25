@@ -21,10 +21,10 @@
         @endif
 
         <div class="table-responsive">
-            <table class="table table-bordered align-middle table-striped table-hover py-2" id="users-table">
+            <table class="table table-bordered align-middle table-striped table-hover" id="users-table">
                 <thead class="table-light">
                     <tr>
-                        <th>#</th>
+                        <th>STT</th>
                         <th>Họ tên</th>
                         <th>Email</th>
                         <th>Vai trò</th>
@@ -132,23 +132,66 @@
 
     {{-- Script users DataTables --}}
     <script>
+        $.fn.dataTable.ext.errMode = 'none'; //off warming when no data
+
         $(document).ready(function() {
-            $('#users-table').DataTable({
-                lengthMenu: [
-                    [6, 12, 18, -1],
-                    [6, 12, 18, "Tất cả"]
+            var table = $('#users-table').DataTable({
+                scrollX: true,
+
+                dom: '<"top"Blfr>t<"bottom"ip>',
+                buttons: [{
+                        extend: 'colvis',
+                        text: '<i class="fas fa-columns me-1"></i>&nbsp;Tùy chỉnh cột'
+                    },
+                    {
+                        text: '<i class="fas fa-list-ol me-1"></i>&nbsp;Số dòng',
+                        extend: 'collection',
+                        autoClose: true,
+                        buttons: [{
+                                text: '4 dòng',
+                                action: function() {
+                                    table.page.len(4).draw();
+                                }
+                            },
+                            {
+                                text: '6 dòng',
+                                action: function() {
+                                    table.page.len(6).draw();
+                                }
+                            },
+                            {
+                                text: '12 dòng',
+                                action: function() {
+                                    table.page.len(12).draw();
+                                }
+                            },
+                            {
+                                text: 'Tất cả',
+                                action: function() {
+                                    table.page.len(-1).draw();
+                                }
+                            }
+                        ]
+                    }
                 ],
+                fixedColumns: {
+                    leftColumns: 2,
+                    rightColumns: 1
+                },
                 pageLength: 6,
                 language: {
-                    url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json'
+                    url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json',
+                    info: "Đang hiển thị _START_ - _END_ trong tổng số _TOTAL_ dữ liệu",
+                    infoEmpty: "Không có dữ liệu để hiển thị",
+                    infoFiltered: "(lọc từ _MAX_ dữ liệu)"
                 },
                 paging: true,
-                lengthChange: true,
+                lengthChange: false, // hidden lengthMenu default
                 searching: true,
                 ordering: true,
                 info: true,
                 autoWidth: false,
-                responsive: true
+                responsive: false // off responsive to avoid conflict scrollX + FixedColumns
             });
         });
     </script>

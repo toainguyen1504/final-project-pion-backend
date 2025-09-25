@@ -302,10 +302,18 @@
             padding: 1rem;
         }
 
+        /* custom input */
+        .required-label::after {
+            content: " *";
+            color: rgb(165, 19, 33);
+            font-weight: bold;
+            margin-left: 4px;
+        }
+
         /* End customize posts UI */
     </style>
 
-    <link rel="stylesheet" href="{{ asset('adminAssets/post-css/template-news.css') }}">
+    <link rel="stylesheet" href="{{ asset('adminAssets/post-css/template-blog.css') }}">
 
     @stack('styles')
 </head>

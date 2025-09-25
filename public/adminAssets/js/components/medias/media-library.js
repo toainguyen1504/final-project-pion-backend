@@ -334,21 +334,18 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
             const imageUrl = `/storage/${medium.path}`;
+            const captionText = captionInput.value.trim();
             const html = `
-                    <figure class="image">
-                        <img src="${imageUrl}" 
-                            alt="${captionInput.value.trim()}" 
-                            title="${titleInput.value.trim()}" 
-                            width="${medium.width}" 
-                            height="${medium.height}" 
-                            data-description="${descriptionInput.value.trim()}" />
-                        ${
-                            captionInput.value.trim()
-                                ? `<figcaption>${captionInput.value.trim()}</figcaption>`
-                                : ""
-                        }
-                    </figure>
-                `;
+                <figure class="image">
+                    <img src="${imageUrl}" 
+                        alt="${captionText}" 
+                        title="${titleInput.value.trim()}" 
+                        width="${medium.width}" 
+                        height="${medium.height}" 
+                        data-description="${descriptionInput.value.trim()}" />
+                    <figcaption class="caption"><i>${captionText}</i></figcaption>
+                </figure>
+            `;
 
             editorInstance.model.change(() => {
                 const viewFragment = editorInstance.data.processor.toView(html);

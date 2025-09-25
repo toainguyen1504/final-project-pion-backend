@@ -15,52 +15,90 @@
     </div>
 
     <div class="table-responsive">
-        <table class="table table-bordered align-middle table-striped table-hover py-2" id="posts-table">
+        <table class="table table-bordered align-middle table-striped table-hover" id="posts-table">
             <thead class="table-light">
                 <tr>
                     <th class="text-center" style="width: 50px;">STT</th>
-                    <th style="min-width: 200px;">Tiêu đề</th>
-                    <th style="max-width: 160px;">Chuyên mục chính</th>
-                    <th class="text-center" style="max-width: 140px;">Người tạo</th>
-                    <th class="text-center" style="width: 140px;">Ngày tạo</th>
-                    <th class="text-center" style="width: 140px;">Cập nhật</th>
-                    <th class="text-center" style="width: 160px;">Hành động</th>
+                    <th style="min-width: 240px;">Tiêu đề</th>
+                    <th style="min-width: 240px;">Sapo</th>
+                    <th style="max-width: 160px; min-width: 120px">Chuyên mục</th>
+                    <th class="text-center" style="min-width: 120px;">Trạng thái</th>
+                    <th class="text-center" style="min-width: 120px;">Hiển thị</th>
+                    <th style="min-width: 160px;">Tiêu đề (SEO)</th>
+                    <th style="min-width: 160px;">Mô tả (SEO)</th>
+                    <th style="min-width: 160px;">Keyword (SEO)</th>
+                    <th class="text-center" style="min-width: 140px;">Ngày tạo</th>
+                    <th class="text-center" style="min-width: 140px;">Cập nhật</th>
+                    <th class="text-center" style="min-width: 160px;">Hành động</th>
                 </tr>
             </thead>
+
             <tbody>
                 @forelse ($posts as $index => $post)
                     <tr>
-                        <td class="text-center">{{ $index + 1 }}</td>
+                        <td class="text-center" style="width: 50px;">{{ $index + 1 }}</td>
 
-                        <td class="text-truncate" style="max-width: 240px;">
+                        <td class="text-truncate" style="min-width: 240px; max-width: 240px;"
+                            title="{{ $post->title ?? '------' }}">
                             <a href="#" class="title-link-custom" data-bs-toggle="modal"
                                 data-bs-target="#modalViewPost"
-                                data-content="{{ $post->content?->content_html ?? '[Chưa có nội dung]' }}"
-                                data-title="{{ $post->title }}"
-                                data-category="{{ optional($post->category)->name ?? 'Không có danh mục' }}"
-                                title="{{ $post->title }}">
-                                {{ \Illuminate\Support\Str::limit($post->title, 80) }}
+                                data-content="{{ $post->content?->content_html ?? '[Không có nội dung]' }}"
+                                data-title="{{ $post->title ?? '[Không có tiêu đề]' }}"
+                                data-sapo="{{ $post->sapo_text ?? '[Không có Sapo]' }}"
+                                data-category="{{ $post->categories->pluck('name')->implode(', ') ?: '[Không có danh mục]' }}">
+                                {{ \Illuminate\Support\Str::limit($post->title ?? '------', 80) }}
                             </a>
                         </td>
 
-                        <td class="text-truncate" style="max-width: 180px;" title="{{ optional($post->category)->name }}">
-                            {{ optional($post->category)->name ?? '-' }}
+                        <td class="text-truncate" style="min-width: 240px; max-width: 240px;"
+                            title="{{ $post->sapo_text ?? '------' }}">
+                            {{ \Illuminate\Support\Str::limit($post->sapo_text ?? '------', 80) }}
                         </td>
 
-                        <td class="text-truncate text-center" style="max-width: 140px;" title="{{ $post->user->name }}">
-                            {{ $post->user->name }}
+                        <td class="text-truncate" style="min-width: 120px; max-width: 160px;"
+                            title="{{ $post->categories->pluck('name')->implode(', ') ?: '------' }}">
+                            @php
+                                $categoryNames = $post->categories->pluck('name')->toArray();
+                                $categoryDisplay = implode(', ', $categoryNames);
+                            @endphp
+                            {{ \Illuminate\Support\Str::limit($categoryDisplay ?: '------', 50, '...') }}
                         </td>
 
-                        <td class="text-center">{{ $post->created_at->format('d/m/Y H:i') }}</td>
-                        <td class="text-center">{{ $post->updated_at->format('d/m/Y H:i') }}</td>
+                        <td class="text-center" style="min-width: 120px;">{{ ucfirst($post->status ?? '------') }}
+                        </td>
+                        <td class="text-center" style="min-width: 120px;">
+                            {{ ucfirst($post->visibility ?? '------') }}</td>
 
-                        <td>
+                        <td class="text-truncate" style="min-width: 160px; max-width: 240px;"
+                            title="{{ $post->seo_title ?? '------' }}">
+                            {{ \Illuminate\Support\Str::limit($post->seo_title ?? '------', 80) }}
+                        </td>
+
+                        <td class="text-truncate" style="min-width: 160px; max-width: 240px;"
+                            title="{{ $post->seo_description ?? '------' }}">
+                            {{ \Illuminate\Support\Str::limit($post->seo_description ?? '------', 80) }}
+                        </td>
+
+                        <td class="text-truncate" style="min-width: 160px; max-width: 240px;"
+                            title="{{ $post->seo_keywords ?? '------' }}">
+                            {{ \Illuminate\Support\Str::limit($post->seo_keywords ?? '------', 80) }}
+                        </td>
+
+                        <td class="text-center" style="min-width: 140px;">
+                            {{ $post->created_at ? $post->created_at->format('d/m/Y H:i') : '------' }}
+                        </td>
+
+                        <td class="text-center" style="min-width: 140px;">
+                            {{ $post->updated_at ? $post->updated_at->format('d/m/Y H:i') : '------' }}
+                        </td>
+
+                        <td class="text-center" style="min-width: 160px;">
                             <div class="d-flex justify-content-center gap-2 flex-wrap">
                                 <a href="{{ route('admin.posts.edit', $post->id) }}"
                                     class="btn btn-warning btn-sm py-1 px-3">Sửa</a>
                                 <button type="button" class="btn btn-danger btn-sm py-1 px-3" data-bs-toggle="modal"
                                     data-bs-target="#modalDeletePost" data-id="{{ $post->id }}"
-                                    data-title="{{ $post->title }}">
+                                    data-title="{{ $post->title ?? '------' }}">
                                     Xóa
                                 </button>
                             </div>
@@ -68,13 +106,14 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" class="text-center text-muted py-4">
+                        <td colspan="12" class="text-center text-muted py-4">
                             <i class="fas fa-newspaper fa-2x mb-2 d-block"></i>
-                            <span>Chưa có bài viết nào được đăng.</span>
+                            <span>Không có bài viết nào được đăng.</span>
                         </td>
                     </tr>
                 @endforelse
             </tbody>
+
         </table>
     </div>
 
@@ -142,10 +181,12 @@
 
             const title = button.getAttribute('data-title') || '[Không có tiêu đề]';
             const category = button.getAttribute('data-category') || '[Không có danh mục]';
+            const sapo = button.getAttribute('data-sapo') || '[Không có sapo]';
 
             container.innerHTML = `
-                <h1 class="mb-3 fw-bold">${title}</h1>
+                <h1 class="mb-3">${title}</h1>
                 <div class="text-muted fst-italic mb-4">Danh mục: ${category}</div>
+                <div class="mb-4">${sapo}</div>
                 ${html}
             `;
 
@@ -169,23 +210,66 @@
 
     {{-- Script Posts DataTables --}}
     <script>
+        $.fn.dataTable.ext.errMode = 'none'; //off warming when no data
+
         $(document).ready(function() {
-            $('#posts-table').DataTable({
-                lengthMenu: [
-                    [6, 12, 18, -1],
-                    [6, 12, 18, "Tất cả"]
+            var table = $('#posts-table').DataTable({
+                scrollX: true,
+
+                dom: '<"top"Blfr>t<"bottom"ip>',
+                buttons: [{
+                        extend: 'colvis',
+                        text: '<i class="fas fa-columns me-1"></i>&nbsp;Tùy chỉnh cột'
+                    },
+                    {
+                        text: '<i class="fas fa-list-ol me-1"></i>&nbsp;Số dòng',
+                        extend: 'collection',
+                        autoClose: true,
+                        buttons: [{
+                                text: '4 dòng',
+                                action: function() {
+                                    table.page.len(4).draw();
+                                }
+                            },
+                            {
+                                text: '6 dòng',
+                                action: function() {
+                                    table.page.len(6).draw();
+                                }
+                            },
+                            {
+                                text: '12 dòng',
+                                action: function() {
+                                    table.page.len(12).draw();
+                                }
+                            },
+                            {
+                                text: 'Tất cả',
+                                action: function() {
+                                    table.page.len(-1).draw();
+                                }
+                            }
+                        ]
+                    }
                 ],
+                fixedColumns: {
+                    leftColumns: 2,
+                    rightColumns: 1
+                },
                 pageLength: 6,
                 language: {
-                    url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json'
+                    url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json',
+                    info: "Đang hiển thị _START_ - _END_ trong tổng số _TOTAL_ dữ liệu",
+                    infoEmpty: "Không có dữ liệu để hiển thị",
+                    infoFiltered: "(lọc từ _MAX_ dữ liệu)"
                 },
                 paging: true,
-                lengthChange: true,
+                lengthChange: false, // hidden lengthMenu default
                 searching: true,
                 ordering: true,
                 info: true,
                 autoWidth: false,
-                responsive: true
+                responsive: false // off responsive to avoid conflict scrollX + FixedColumns
             });
         });
     </script>
