@@ -108,12 +108,12 @@
 
                         <!-- Hidden SEO fields -->
                         <input type="hidden" name="seo_title" id="hidden_seo_title"
-                            value="{{ old('seo_title', $post->seo_title) }}">
-                        <input type="hidden" name="slug" id="hidden_slug" value="{{ old('slug', $post->slug) }}">
+                            value="{{ $post->seo_title ?? '' }}">
+                        <input type="hidden" name="slug" id="hidden_slug" value="{{ $post->slug   ?? '' }}">
                         <input type="hidden" name="seo_description" id="hidden_seo_description"
-                            value="{{ old('seo_description', $post->seo_description) }}">
+                            value="{{ $post->seo_description ?? $post->sapo_text }}">
                         <input type="hidden" name="seo_keywords" id="hidden_keywords"
-                            value="{{ old('seo_keywords', $post->seo_keywords) }}">
+                            value="{{ $post->seo_keywords ?? '' }}">
 
                         <!-- Hidden inputs for status & visibility -->
                         <input type="hidden" name="status" id="hidden_status" value="{{ $post->status }}">
@@ -126,7 +126,7 @@
                 </div>
 
                 <!-- SEO section -->
-                <x-admin.posts.math-rank />
+                <x-admin.posts.math-rank :post="$post" :keywords="$keywords"/>
             </div>
 
             <!-- Sidebar -->

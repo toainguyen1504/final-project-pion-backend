@@ -78,6 +78,11 @@ class PostController extends Controller
         $categories = Category::all();
         $thumbnailMedia = null;
 
+        // keywords arr
+        $keywords = $post->seo_keywords
+            ? array_map('trim', explode(',', $post->seo_keywords))
+            : [];
+
         if ($post->featured_media_id) {
             $thumbnailMedia = Media::find($post->featured_media_id);
         }
@@ -85,7 +90,8 @@ class PostController extends Controller
         // get list ID selected categories
         $selectedCategoryIds = $post->categories->pluck('id')->toArray();
 
-        return view('pages.admin.posts.edit', compact('post', 'categories', 'selectedCategoryIds', 'thumbnailMedia'));
+        return view('pages.admin.posts.edit', 
+        compact('post', 'categories', 'selectedCategoryIds', 'thumbnailMedia', 'keywords'));
     }
 
     public function update(PostRequest $request, $id)

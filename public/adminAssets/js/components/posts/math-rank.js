@@ -13,18 +13,31 @@ document.addEventListener("DOMContentLoaded", function () {
     const btnSaveSnippet = document.querySelector("#snippetModal #btn-save");
 
     // Default placeholder values
-    const defaultTitle = "Tiêu đề bài viết sẽ hiển thị ở đây...";
-    const defaultSlug = "duong-dan-mac-dinh";
-    const defaultDesc = "Đoạn giới thiệu ngắn sẽ hiển thị ở đây...";
+    const defaultTitle =
+        document.getElementById("hidden_seo_title").value ||
+        "Tiêu đề bài viết sẽ hiển thị ở đây...";
+    const defaultSlug =
+        document.getElementById("hidden_slug").value || "duong-dan-mac-dinh";
+    const defaultDesc =
+        document.getElementById("hidden_seo_description").value ||
+        "Đoạn giới thiệu ngắn sẽ hiển thị ở đây...";
 
-    let normalizedTitleInput = "";
-    let rawHtml = "";
+    let normalizedTitleInput =
+        document.getElementById("hidden_seo_title").value || "";
+    let rawHtml = editorInstance.getData().trim() || "";
     let paragraphHtmls = [];
     let normalizedContentPost = "";
-    let isSeoEditedManually = false;
+
+    // true if have title, else false
+    let isSeoEditedManually = normalizedTitleInput.length > 0;
+
+    // extract content
+    extractContentFromEditor();
 
     // initial seo badge
-    updateSeoBadge(0);
+    refreshSeo();
+
+    
 
     // extract content CKEditor
     function extractContentFromEditor() {
@@ -197,7 +210,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const maxKeywords = 10;
     const maxKeywordLength = 60;
 
-    let keywords = [];
+    let keywords = keywordWrapper.dataset.keywords
+        ? keywordWrapper.dataset.keywords.split(",")
+        : [];
 
     // Display quantity limit notification
     const limitNotice = document.createElement("div");
@@ -209,7 +224,7 @@ document.addEventListener("DOMContentLoaded", function () {
     limitNotice.style.display = "none";
     keywordWrapper.parentElement.appendChild(limitNotice);
 
-    // TDisplay length limit notification
+    // Display length limit notification
     const lengthNotice = document.createElement("div");
     lengthNotice.textContent = `Keyword không được vượt quá ${maxKeywordLength} ký tự!`;
     lengthNotice.style.color = "#d9534f";
@@ -278,9 +293,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 errorNotice.style.display = "none";
 
                 // update hidden fields from modal snippet
-                const title = document.getElementById("seo_title").value;
+                const title =
+                    document.getElementById("seo_hidden_title").value ||
+                    document.getElementById("seo_title").value;
                 const slug = document.getElementById("seo_slug").value;
-                const sapo = document.getElementById("seo_description").value;
+                const sapo =
+                    document.getElementById("seo_hidden_description").value ||
+                    document.getElementById("seo_description").value;
 
                 syncHiddenFields(title, slug, sapo);
                 refreshSeo();
@@ -312,16 +331,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
             removeBtn.addEventListener("click", function () {
                 keywords = keywords.filter((k) => k !== kw);
+
+                // Re-render
                 renderKeywords();
                 limitNotice.style.display = "none";
                 lengthNotice.style.display = "none";
 
-                // update hidden fields from modal snippet
-                const title = document.getElementById("seo_title").value;
-                const slug = document.getElementById("seo_slug").value;
-                const sapo = document.getElementById("seo_description").value;
+                // only update hidden keywords
+                if (hiddenKeywords) {
+                    hiddenKeywords.value = keywords.join(",");
+                }
 
-                syncHiddenFields(title, slug, sapo);
                 refreshSeo();
             });
 
@@ -1130,7 +1150,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 keyword: focusKeyword,
             });
 
-
             totalScore =
                 basicScore +
                 secondaryScore +
@@ -1252,9 +1271,8 @@ document.addEventListener("DOMContentLoaded", function () {
     function updatePreview() {
         document.getElementById("preview_title_modal").textContent =
             normalizeText(document.getElementById("seo_title").value);
-        document.getElementById("preview_slug_modal").textContent = window.slugify(
-            document.getElementById("seo_slug").value
-        );
+        document.getElementById("preview_slug_modal").textContent =
+            window.slugify(document.getElementById("seo_slug").value);
         document.getElementById("preview_description_modal").textContent =
             normalizeText(document.getElementById("seo_description").value);
     }
@@ -1292,7 +1310,8 @@ document.addEventListener("DOMContentLoaded", function () {
         const focusKeyword = normalizeText(
             document
                 .querySelector(".keyword-tag")
-                ?.textContent.replace("×", "") || ""
+                ?.textContent.replace(/[×x]/g, "")
+                .trim() || ""
         ).toLowerCase();
 
         // SEO TITLE
@@ -1312,6 +1331,18 @@ document.addEventListener("DOMContentLoaded", function () {
         ).toLowerCase();
 
         rawHtml = editorInstance.getData().trim();
+
+        // --- Debug: console log data ---
+        // console.log("=== SEO Checklist Debug ===");
+        // console.log("Focus Keyword:", focusKeyword);
+        // console.log("Title:", title);
+        // console.log("Slug:", slug);
+        // console.log("Description:", desc);
+        // console.log(
+        //     "Content (first 100 chars):",
+        //     normalizedContentPost.slice(0, 100)
+        // );
+        // console.log("===========================");
 
         const basicList = document.getElementById("basic-seo-list");
         const additionalList = document.getElementById("additional-list");

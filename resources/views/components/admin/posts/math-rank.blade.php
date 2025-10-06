@@ -54,6 +54,43 @@
                 padding: 8px 0;
             }
 
+            /* Custom Keyword Tags */
+            .keyword-tags .keyword-tag {
+                display: inline-flex;
+                align-items: center;
+                padding: 6px 10px;
+                border-radius: 20px;
+                font-weight: normal;
+                margin-right: 6px;
+                margin-bottom: 6px;
+                cursor: default;
+            }
+
+            .keyword-tags .keyword-tag:first-child {
+                color: #fff;
+                /* background-color: #ffd142; */
+                background-color: #929292;
+            }
+
+            .keyword-tags .keyword-tag:not(:first-child) {
+                color: #333;
+                /* background-color: #fff3cd; */
+                background-color: rgb(200, 200, 199);
+            }
+
+            /* Remove button inside tag */
+            .keyword-tags .keyword-tag .remove-tag {
+                display: inline-block;
+                padding: 2px 4px;
+                margin-left: 6px;
+                cursor: pointer;
+                color: inherit;
+                font-style: normal;
+                font-weight: bold;
+
+            }
+
+
             /*End  Keywords */
 
             /* Check list */
@@ -118,10 +155,13 @@
     <div class="mb-4">
         <label class="form-label fw-bold">Preview</label>
         <div class="border rounded p-3 bg-light">
-            <p class="fs-6 text-muted mb-1" id="preview_slug">https://pion.edu.vn/duong-dan-mac-dinh</p>
-            <p class="fs-5 fw-bold title-primary mb-1" id="preview_title">Tiêu đề bài viết sẽ hiển thị ở đây...</p>
+            <p class="fs-6 text-muted mb-1" id="preview_slug">
+                {{ 'https://pion.edu.vn/tin-tuc/' . ($post->slug ?? 'duong-dan-mac-dinh') }} </p>
+            <p class="fs-5 fw-bold title-primary mb-1" id="preview_title">
+                {{ $post->seo_title ?? 'Tiêu đề bài viết sẽ hiển thị ở đây...' }}</p>
 
-            <p class="fs-6 text-secondary" id="preview_sapo">Đoạn giới thiệu ngắn sẽ hiển thị ở đây...</p>
+            <p class="fs-6 text-secondary" id="preview_sapo">
+                {{ $post->seo_description ?? 'Đoạn giới thiệu ngắn sẽ hiển thị ở đây...' }}</p>
             <button type="button" class="btn btn-yes mt-2" data-bs-toggle="modal" data-bs-target="#snippetModal">
                 Edit Snippet
             </button>
@@ -131,14 +171,28 @@
     <!-- Focus Keyword -->
     <div class="focus-keyword mb-4">
         <label class="form-label fw-bold d-flex justify-content-between align-items-center">
-            Focus Keyword
+            <div class="d-flex align-items-center gap-2">
+                Focus Keyword
+                <!-- Icon ? -->
+                <i class="fa-solid fa-circle-question text-secondary" tabindex="0" data-bs-toggle="popover"
+                    data-bs-trigger="focus" data-bs-placement="right"
+                    data-bs-content="Nhập keyword hợp lệ và nhấn enter để kích hoạt edit keyword!"
+                    style="cursor: pointer;"></i>
+            </div>
             <span id="seo-score-target" class="seo-score-badge"></span>
         </label>
 
-        <div id="keyword-wrapper" class="keyword-wrapper">
+        <div id="keyword-wrapper" class="keyword-wrapper"
+            data-keywords="{{ !empty($keywords) && count($keywords) > 0 ? implode(',', $keywords) : '' }}">
             <input type="text" id="keyword-input" class="keyword-input"
                 placeholder="Nhập từ khóa và nhấn Enter..." />
-            <div class="keyword-tags"></div>
+            <div class="keyword-tags">
+                @if (!empty($keywords) && count($keywords) > 0)
+                    @foreach ($keywords as $keyword)
+                        <span class="keyword-tag">{{ $keyword }}</span>
+                    @endforeach
+                @endif
+            </div>
         </div>
     </div>
     <!-- End Focus Keyword -->
@@ -240,7 +294,8 @@
                         </div>
 
                         <!-- Input -->
-                        <input type="text" class="form-control" id="seo_title" value="">
+                        <input type="text" class="form-control" id="seo_title"
+                            value="{{ old('seo_title', $post->title ?? '') }}">
                         <small class="text-muted">This is what will appear in the first line when this post shows up in
                             the search results.</small>
                     </div>
@@ -258,7 +313,8 @@
                             </div>
                         </div>
 
-                        <input type="text" class="form-control" id="seo_slug" value="">
+                        <input type="text" class="form-control" id="seo_slug"
+                            value="{{ old('seo_slug', $post->slug ?? '') }}">
                         <small class="text-muted">This is the unique URL of this page, displayed below the post title
                             in the search results.</small>
                     </div>
@@ -276,7 +332,7 @@
                             </div>
                         </div>
 
-                        <textarea class="form-control" rows="3" id="seo_description"></textarea>
+                        <textarea class="form-control" rows="3" id="seo_description">{{ old('seo_description', $post->description ?? '') }}</textarea>
                         <small class="text-muted">This is what will appear as the description when this post shows up
                             in the search results.</small>
                     </div>
@@ -289,3 +345,16 @@
         </div>
     </div>
 </div>
+
+@once
+    @push('scripts')
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+                var popoverList = popoverTriggerList.map(function(popoverTriggerEl) {
+                    return new bootstrap.Popover(popoverTriggerEl)
+                })
+            });
+        </script>
+    @endpush
+@endonce

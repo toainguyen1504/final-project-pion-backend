@@ -4,9 +4,12 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\PostApiController;
 use App\Http\Controllers\Api\MediaApiController;
 use App\Http\Controllers\Api\ConsultationApiController;
+use App\Http\Controllers\Api\FormController;
 
 Route::get('/posts', [PostApiController::class, 'index']);
 Route::get('/posts/{id}', [PostApiController::class, 'show']);
+
+Route::post('/form', [FormController::class, 'submit']);
 
 // Media
 Route::apiResource('media', MediaApiController::class)->parameters([
