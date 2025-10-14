@@ -32,9 +32,9 @@ Route::get('/client/posts/{id}', function ($id) {
 })->name('client.post.detail');
 
 // Route Login  
-Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [AuthController::class, 'login']);
-Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
+// Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+// Route::post('/login', [AuthController::class, 'login']);
+// Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
 // Forgot password
 Route::get('/forgot-password', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
 Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
@@ -47,14 +47,14 @@ Route::get('/', [DashboardController::class, 'index'])
     ->name('admin.dashboard');
 
 // admin + staff + staffads: CRUD posts, categories, consultations (access all - users)
-Route::middleware(['auth', 'role:admin,staff,staffads'])
-    ->name('admin.')
-    ->group(function () {
-        Route::resource('categories', CategoryController::class);
-        Route::resource('posts', PostController::class)->except(['show']);
-        Route::resource('consultations', ConsultationController::class)->only(['index']);
-        Route::get('posts/select-template', [PostController::class, 'selectTemplate'])->name('posts.selectTemplate');
-    });
+// Route::middleware(['auth', 'role:admin,staff,staffads'])
+//     ->name('admin.')
+//     ->group(function () {
+//         Route::resource('categories', CategoryController::class);
+//         Route::resource('posts', PostController::class)->except(['show']);
+//         Route::resource('consultations', ConsultationController::class)->only(['index']);
+//         Route::get('posts/select-template', [PostController::class, 'selectTemplate'])->name('posts.selectTemplate');
+//     });
 
 // staffads: only access CRUD posts, categories, consultations
 // Route::middleware(['auth', 'role:staffads'])
@@ -77,6 +77,6 @@ Route::middleware(['auth', 'role:admin'])
     });
 
 // ✅ CKEditor upload
-Route::post('/ckeditor/upload', [CKEditorController::class, 'upload'])
-    ->middleware('auth')
-    ->name('ckeditor.upload');
+// Route::post('/ckeditor/upload', [CKEditorController::class, 'upload'])
+    // ->middleware('auth')
+    // ->name('ckeditor.upload');

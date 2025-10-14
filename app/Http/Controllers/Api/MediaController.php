@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
 
-class MediaApiController extends Controller
+class MediaController extends Controller
 {
     // List media (GET /api/media)
     public function index()

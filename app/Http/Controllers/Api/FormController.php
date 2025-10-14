@@ -15,6 +15,7 @@ class FormController extends Controller
         $this->sheets = $sheets;
     }
 
+    // Form for register talk show program
     public function submit(Request $request)
     {
         $request->validate([
