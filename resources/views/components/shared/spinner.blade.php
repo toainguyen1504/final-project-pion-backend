@@ -1,1 +1,0 @@
-{{-- Component dùng chung toàn hệ thống, ex: alert, modal, spinner... --}}

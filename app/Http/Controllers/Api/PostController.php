@@ -3,9 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
-use Illuminate\Http\Request;
+use App\Models\Category;
 use App\Models\Post;
 use App\Models\PostContent;
 use App\Http\Requests\PostRequest;
@@ -14,11 +13,20 @@ class PostController extends Controller
 {
     public function index()
     {
-        $posts = Post::with(['category', 'content', 'categories'])->latest()->get();
+        $perPage = request()->get('per_page', 10);
+        $posts = Post::with(['category', 'content', 'categories'])->latest()->paginate($perPage);
 
         return response()->json([
             'status' => 'success',
-            'data' => $posts
+            'data' => $posts->items(),
+            'meta' => [
+                'current_page' => $posts->currentPage(),
+                'last_page' => $posts->lastPage(),
+                'per_page' => $posts->perPage(),
+                'total' => $posts->total(),
+                'next_page_url' => $posts->nextPageUrl(),
+                'prev_page_url' => $posts->previousPageUrl()
+            ]
         ]);
     }
 
@@ -45,10 +53,10 @@ class PostController extends Controller
             $categoryIds = $request->input('category_ids', []);
             $mainCategoryId = $categoryIds[0] ?? null;
 
-            $post = Post::create([
+            $postData = [
                 'title' => $request->title,
                 'sapo_text' => $request->sapo_text,
-                'user_id' => Auth::id(), // hoặc $request->user()->id nếu dùng Sanctum
+                'user_id' => $request->user()->id,
                 'category_id' => $mainCategoryId,
                 'featured_media_id' => $request->input('featured_media_id'),
                 'slug' => $request->slug ?? Str::slug($request->title),
@@ -58,7 +66,9 @@ class PostController extends Controller
                 'status' => $request->status,
                 'visibility' => $request->visibility,
                 'publish_at' => $request->publish_at,
-            ]);
+            ];
+
+            $post = Post::create($postData);
 
             PostContent::create([
                 'post_id' => $post->id,
@@ -70,25 +80,29 @@ class PostController extends Controller
             return response()->json([
                 'status' => 'success',
                 'message' => 'Post created successfully.',
-                'data' => $post
+                'data' => $post->fresh(['category', 'content', 'categories'])
             ], 201);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Failed to create post.'
+                'message' => 'Failed to create post.',
+                'error' => $e->getMessage()
             ], 500);
         }
     }
 
+
     public function update(PostRequest $request, $id)
     {
+
         try {
             $post = Post::with('content')->findOrFail($id);
 
             $categoryIds = $request->input('category_ids', []);
             $mainCategoryId = $categoryIds[0] ?? null;
 
-            $post->update([
+            // update data
+            $updateData = [
                 'title' => $request->title,
                 'sapo_text' => $request->sapo_text,
                 'category_id' => $mainCategoryId,
@@ -100,26 +114,40 @@ class PostController extends Controller
                 'status' => $request->status,
                 'visibility' => $request->visibility,
                 'publish_at' => $request->publish_at,
-            ]);
+            ];
 
-            $postContent = $post->content ?? new PostContent(['post_id' => $post->id]);
-            $postContent->content_html = $request->input('content');
-            $postContent->save();
+            $post->update($updateData);
+
+            // handle content
+            $contentHtml = $request->input('content');
+
+            if ($post->content) {
+                $post->content->update([
+                    'content_html' => $contentHtml
+                ]);
+            } else {
+                PostContent::create([
+                    'post_id' => $post->id,
+                    'content_html' => $contentHtml
+                ]);
+            }
 
             $post->categories()->sync($categoryIds);
 
             return response()->json([
                 'status' => 'success',
                 'message' => 'Post updated successfully.',
-                'data' => $post
+                'data' => $post->fresh(['category', 'content', 'categories']) // fresh data
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Failed to update post.'
+                'message' => 'Failed to update post.',
+                'error' => $e->getMessage() // debug
             ], 500);
         }
     }
+
 
     public function destroy($id)
     {
@@ -140,7 +168,8 @@ class PostController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Failed to delete post.'
+                'message' => 'Failed to delete post.',
+                'error' => $e->getMessage()
             ], 500);
         }
     }

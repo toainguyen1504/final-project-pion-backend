@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('posts', function (Blueprint $table) {
             $table->id();
 
-            $table->string('title');                  // Post title shown to users
+            $table->string('title')->unique();                   // Post title shown to users
             $table->text('sapo_text')->nullable(); // plain text intro to show meta desc in FE
             $table->string('slug')->unique();         // SEO-friendly URL - slug follow seo_title
             $table->unsignedBigInteger('user_id');    // Author

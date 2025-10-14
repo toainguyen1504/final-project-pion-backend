@@ -5,21 +5,25 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Symfony\Component\HttpFoundation\Response;
 
 class RoleMiddleware
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-     */
-    public function handle($request, Closure $next, ...$roles)
+    public function handle(Request $request, Closure $next, $roles)
     {
-        $user = Auth::user();
+        $user = $request->user();
 
-        if (!$user || !in_array($user->role->name, $roles)) {
-            return redirect()->route('admin.dashboard');
+        if (!$user) {
+            return response()->json([
+                'message' => 'Unauthenticated.'
+            ], 401);
+        }
+
+        $roleList = explode('|', $roles);
+
+        if (!$user->role || !in_array($user->role->name, $roleList)) {
+            return response()->json([
+                'message' => 'Access denied. You do not have permission.'
+            ], 403);
         }
 
         return $next($request);
