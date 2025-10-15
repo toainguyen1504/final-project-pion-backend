@@ -45,7 +45,11 @@ class MediaProcessor
 
                 Storage::disk('public')->putFileAs($folder, $file, $filename);
 
-                $image = $this->imageManager->read(Storage::disk('public')->path($path));
+                try {
+                    $image = $this->imageManager->read(Storage::disk('public')->path($path));
+                } catch (\Throwable $e) {
+                    throw new \Exception("Failed to read image: " . $e->getMessage());
+                }
             } else {
                 $folder = "{$this->baseFolder}/{$key}";
                 $path   = "{$folder}/{$filename}";
@@ -90,9 +94,13 @@ class MediaProcessor
         $folder = "{$this->baseFolder}/custom";
         $path = "{$folder}/{$filename}";
 
-        $image = $this->imageManager->read($filePath);
+        try {
+            $image = $this->imageManager->read($filePath);
+        } catch (\Throwable $e) {
+            throw new \Exception("Failed to read image: " . $e->getMessage());
+        }
 
-        // Resize logic
+        // Resize logic - optimize image for seo posts
         if ($width && !$height) {
             $image = $this->smartResize($image, $width, 500); // giới hạn chiều cao
         } elseif ($height && !$width) {

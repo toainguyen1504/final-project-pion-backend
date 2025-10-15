@@ -13,7 +13,10 @@ use Illuminate\Support\Facades\Log;
 
 class MediaController extends Controller
 {
-    // List media (GET /api/media)
+    /**
+     * List media files with pagination
+     * GET /api/media
+     */
     public function index()
     {
         $mediaList = Media::latest()->paginate(20);
@@ -23,33 +26,49 @@ class MediaController extends Controller
             return $media;
         });
 
-        return $mediaList;
-    }
-
-    // GET /api/media/{id}
-    public function show(Media $media)
-    {
-
-        if (!$media->exists) {
-            return response()->json(['error' => 'Media not found'], 404);
-        }
-        $media->url = Storage::url($media->path);
-
         return response()->json([
-            'id'          => $media->id,
-            'type'        => $media->type,
-            'mime_type'   => $media->mime_type,
-            'title'       => $media->title,
-            'alt'         => $media->alt,
-            'caption'     => $media->caption,
-            'description' => $media->description,
-            'url'         => $media->url,
-            'meta'        => $media->meta ?? new \stdClass(), // FE chỉ cần đọc trong meta
-            'created_at'  => $media->created_at?->toDateTimeString(),
+            'success' => true,
+            'data' => $mediaList->items(),
+            'meta' => [
+                'current_page' => $mediaList->currentPage(),
+                'last_page' => $mediaList->lastPage(),
+                'per_page' => $mediaList->perPage(),
+                'total' => $mediaList->total(),
+                'next_page_url' => $mediaList->nextPageUrl(),
+                'prev_page_url' => $mediaList->previousPageUrl()
+            ]
         ]);
     }
 
-    //Upload file (POST /api/media)
+    /**
+     * Show media detail
+     * GET /api/media/{id}
+     */
+    public function show(Media $media)
+    {
+        $media->url = Storage::url($media->path);
+
+        return response()->json([
+            'success'      => true,
+            'data' => [
+                'id'          => $media->id,
+                'type'        => $media->type,
+                'mime_type'   => $media->mime_type,
+                'title'       => $media->title,
+                'alt'         => $media->alt,
+                'caption'     => $media->caption,
+                'description' => $media->description,
+                'url'         => $media->url,
+                'meta'        => $media->meta ?? new \stdClass(),
+                'created_at'  => $media->created_at?->toDateTimeString(),
+            ]
+        ]);
+    }
+
+    /**
+     * Upload media files
+     * POST /api/media
+     */
     public function store(Request $request, MediaProcessor $processor)
     {
         $request->validate([
@@ -58,7 +77,10 @@ class MediaController extends Controller
         ]);
 
         if (!$request->hasFile('files')) {
-            return response()->json(['message' => 'Không có file upload'], 400);
+            return response()->json([
+                'success' => false,
+                'message' => 'No files uploaded.'
+            ], 400);
         }
 
         $uploaded = [];
@@ -67,13 +89,10 @@ class MediaController extends Controller
             foreach ($request->file('files') as $index => $file) {
                 $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
                 $extension    = strtolower($file->getClientOriginalExtension());
+                $slug         = $request->input("slugs.$index") ?? Str::slug($originalName);
 
-                $slug = $request->input("slugs.$index") ?? Str::slug($originalName);
-
-                // Call MediaProcessor to create variants
+                // Generate variants using MediaProcessor
                 $variantsMeta = $processor->process($file, $slug);
-
-                // get "original" -> main path
                 $originalPath = $variantsMeta['original']['path'];
 
                 $media = Media::create([
@@ -92,20 +111,28 @@ class MediaController extends Controller
                 $uploaded[] = $media;
             }
 
-            return response()->json($uploaded, 201);
+            return response()->json([
+                'success' => true,
+                'message' => 'Media uploaded successfully.',
+                'data' => $uploaded
+            ], 201);
         } catch (\Throwable $e) {
-            Log::error('Upload media failed', [
+            Log::error('Media upload failed', [
                 'message' => $e->getMessage(),
                 'trace' => $e->getTrace(),
             ]);
 
             return response()->json([
-                'error' => 'Lỗi server khi xử lý ảnh',
+                'success' => false,
+                'message' => 'Server error while processing media.'
             ], 500);
         }
     }
 
-    // Update metadata (PUT /api/media/{id})
+    /**
+     * Update media metadata
+     * PUT /api/media/{id}
+     */
     public function update(Request $request, Media $media)
     {
         $meta = $request->input('meta');
@@ -121,14 +148,20 @@ class MediaController extends Controller
             'meta'        => $meta,
         ]);
 
-        return response()->json($media);
+        return response()->json([
+            'success' => true,
+            'message' => 'Media metadata updated.',
+            'data' => $media
+        ]);
     }
 
-    // Delete media (DELETE /api/media/{id})
+    /**
+     * Delete media file
+     * DELETE /api/media/{id}
+     */
     public function destroy(Media $media)
     {
         try {
-            // check img (is used in posts)
             $usedPaths = collect($media->meta['variants'] ?? [])
                 ->pluck('path')
                 ->filter()
@@ -142,11 +175,11 @@ class MediaController extends Controller
 
             if ($isUsed) {
                 return response()->json([
-                    'error' => 'Ảnh đang được sử dụng trong bài viết. Không thể xóa.',
+                    'success' => false,
+                    'message' => 'This media is currently used in a post and cannot be deleted.'
                 ], 400);
             }
 
-            // delete
             foreach ($media->meta['variants'] ?? [] as $variant) {
                 if (!empty($variant['path'])) {
                     Storage::disk('public')->delete($variant['path']);
@@ -155,20 +188,27 @@ class MediaController extends Controller
 
             $media->delete();
 
-            return response()->json(['message' => '🗑️ Media đã được xóa thành công']);
+            return response()->json([
+                'success' => true,
+                'message' => '🗑️ Media deleted successfully.'
+            ]);
         } catch (\Throwable $e) {
-            Log::error('Xóa media thất bại', [
+            Log::error('Media deletion failed', [
                 'message' => $e->getMessage(),
                 'trace' => $e->getTrace(),
             ]);
 
             return response()->json([
-                'error' => 'Lỗi server khi xóa media',
+                'success' => false,
+                'message' => 'Server error while deleting media.'
             ], 500);
         }
     }
 
-    // Resize (custom)
+    /**
+     * Resize media manually
+     * POST /api/media/{id}/resize
+     */
     public function resize(Request $request, Media $media, MediaProcessor $processor)
     {
         $request->validate([
@@ -177,27 +217,36 @@ class MediaController extends Controller
         ]);
 
         if (!Storage::disk('public')->exists($media->path)) {
-            return response()->json(['error' => 'File not found'], 404);
+            return response()->json([
+                'success' => false,
+                'message' => 'Original file not found.'
+            ], 404);
         }
 
         $width  = $request->input('width');
         $height = $request->input('height');
-
         $filePath = Storage::disk('public')->path($media->path);
-
         $slug = $media->title ? Str::slug($media->title) : "media-{$media->id}";
+
         $meta = $processor->customResize($filePath, $slug, $width, $height);
 
-        $oldMeta = $media->meta ?? [];
-        $media->meta = array_merge($oldMeta, [
+        if (empty($meta['url'])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Resize failed or no URL returned.'
+            ], 500);
+        }
+
+        $media->meta = array_merge($media->meta ?? [], [
             'custom_resize' => $meta,
         ]);
         $media->save();
 
         return response()->json([
-            'message' => 'Image resized successfully',
-            'url'     => $meta['url'] ?? null,
-            'media'   => $media,
+            'success' => true,
+            'message' => 'Image resized successfully.',
+            'url'     => $meta['url'],
+            'data'    => $media
         ]);
     }
 }
