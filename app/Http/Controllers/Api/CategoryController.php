@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Str;
+use Illuminate\Http\Request;
 use App\Models\Category;
 use App\Http\Requests\CategoryRequest;
 
@@ -13,7 +14,20 @@ class CategoryController extends Controller
     {
         // get 10 categories/ 1 page, can change = query string: ?per_page=20
         $perPage = request()->get('per_page', 10);
-        $categories = Category::latest()->paginate($perPage);
+
+        // sort by updated_at
+        $sort = request()->get('sort', 'updated_at');
+        $order = request()->get('order', 'desc');
+
+        // search
+        $search = request()->get('search');
+        $query = Category::query();
+
+        if ($search) {
+            $query->where('name', 'like', "%{$search}%");
+        }
+
+        $categories = $query->orderBy($sort, $order)->paginate($perPage);
 
         return response()->json([
             'success' => true,
@@ -43,7 +57,9 @@ class CategoryController extends Controller
         try {
             $category = Category::create([
                 'name' => $request->name,
-                'slug' => Str::slug($request->name)
+                'slug' => Str::slug($request->name),
+                'type' => $request->input('type', 'post'),
+                'is_featured' => $request->boolean('is_featured', false),
             ]);
 
             return response()->json([
@@ -96,7 +112,9 @@ class CategoryController extends Controller
         try {
             $category->update([
                 'name' => $request->name,
-                'slug' => Str::slug($request->name)
+                'slug' => Str::slug($request->name),
+                'type' => $request->input('type', $category->type),
+                'is_featured' => $request->boolean('is_featured', $category->is_featured),
             ]);
 
             return response()->json([
@@ -141,5 +159,45 @@ class CategoryController extends Controller
                 'message' => 'Failed to delete category. Please try again.'
             ], 500);
         }
+    }
+
+    public function bulkDestroy(Request $request)
+    {
+        $ids = $request->input('ids', []);
+
+        if (empty($ids)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No category IDs provided.'
+            ], 400);
+        }
+
+        $categories = Category::whereIn('id', $ids)->get();
+
+        // Check if all requested IDs exist
+        if ($categories->count() !== count($ids)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'One or more categories not found.'
+            ], 404);
+        }
+
+        // Check if any category is linked to posts
+        foreach ($categories as $category) {
+            if ($category->posts()->exists()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Cannot delete categories that are linked to posts.'
+                ], 409);
+            }
+        }
+
+        // Proceed to delete
+        Category::whereIn('id', $ids)->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Categories deleted successfully.'
+        ]);
     }
 }

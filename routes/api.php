@@ -15,14 +15,17 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
 
+    Route::post('/categories/bulk-destroy', [CategoryController::class, 'bulkDestroy']);
     Route::apiResource('categories', CategoryController::class);
+
+    Route::post('/posts/bulk-destroy', [PostController::class, 'bulkDestroy']);
     Route::apiResource('posts', PostController::class);
+
     Route::apiResource('media', MediaController::class)->parameters([
         'media' => 'media'
     ]);
 
     Route::post('/media/{media}/resize', [MediaController::class, 'resize'])->name('media.resize');
-
     // Route::prefix('consultations')->group(function () {
     // // rate limit 2 requests / 1 minutes
     // Route::middleware('throttle:2,1')->post('/', [ConsultationApiController::class, 'store']);

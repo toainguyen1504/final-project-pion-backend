@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Str;
-use App\Models\Category;
+use Illuminate\Http\Request;
 use App\Models\Post;
 use App\Models\PostContent;
 use App\Http\Requests\PostRequest;
@@ -13,11 +13,25 @@ class PostController extends Controller
 {
     public function index()
     {
+        // Pagination & filters
         $perPage = request()->get('per_page', 10);
-        $posts = Post::with(['category', 'content', 'categories'])->latest()->paginate($perPage);
+        $sort = request()->get('sort', 'publish_at');
+        $order = request()->get('order', 'desc');
+        $search = request()->get('search');
+
+        $query = Post::with(['category', 'content', 'categories']);
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                    ->orWhere('seo_title', 'like', "%{$search}%");
+            });
+        }
+
+        $posts = $query->orderBy($sort, $order)->paginate($perPage);
 
         return response()->json([
-            'status' => 'success',
+            'success' => true,
             'data' => $posts->items(),
             'meta' => [
                 'current_page' => $posts->currentPage(),
@@ -25,106 +39,120 @@ class PostController extends Controller
                 'per_page' => $posts->perPage(),
                 'total' => $posts->total(),
                 'next_page_url' => $posts->nextPageUrl(),
-                'prev_page_url' => $posts->previousPageUrl()
+                'prev_page_url' => $posts->previousPageUrl(),
             ]
         ]);
     }
 
     public function show($id)
     {
-        try {
-            $post = Post::with(['category', 'content', 'categories'])->findOrFail($id);
+        $post = Post::with(['category', 'content', 'categories'])->find($id);
 
+        if (!$post) {
             return response()->json([
-                'status' => 'success',
-                'data' => $post
-            ]);
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            return response()->json([
-                'status' => 'error',
+                'success' => false,
                 'message' => 'Post not found.'
             ], 404);
         }
+
+        return response()->json([
+            'success' => true,
+            'data' => $post
+        ]);
     }
 
     public function store(PostRequest $request)
     {
         try {
+            // Avoid duplicate titles
+            if (Post::where('title', $request->title)->exists()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Post title already exists.'
+                ], 422);
+            }
+
             $categoryIds = $request->input('category_ids', []);
             $mainCategoryId = $categoryIds[0] ?? null;
 
-            $postData = [
+            $post = Post::create([
                 'title' => $request->title,
                 'sapo_text' => $request->sapo_text,
-                'user_id' => $request->user()->id,
+                'slug' => $request->slug ?? Str::slug($request->title),
+                'user_id' => $request->user()->id ?? 1, // fallback nếu chưa có auth
                 'category_id' => $mainCategoryId,
                 'featured_media_id' => $request->input('featured_media_id'),
-                'slug' => $request->slug ?? Str::slug($request->title),
                 'seo_title' => $request->seo_title,
                 'seo_description' => $request->seo_description,
                 'seo_keywords' => $request->seo_keywords,
-                'status' => $request->status,
-                'visibility' => $request->visibility,
+                'status' => $request->status ?? 'draft',
+                'visibility' => $request->visibility ?? 'private',
                 'publish_at' => $request->publish_at,
-            ];
-
-            $post = Post::create($postData);
-
-            PostContent::create([
-                'post_id' => $post->id,
-                'content_html' => $request->input('content'),
             ]);
 
+            // create content
+            PostContent::create([
+                'post_id' => $post->id,
+                'content_html' => $request->input('content')
+            ]);
+
+            // assign categories
             $post->categories()->sync($categoryIds);
 
             return response()->json([
-                'status' => 'success',
-                'message' => 'Post created successfully.',
+                'success' => true,
+                'message' => 'Post created successfully!',
                 'data' => $post->fresh(['category', 'content', 'categories'])
             ], 201);
         } catch (\Exception $e) {
             return response()->json([
-                'status' => 'error',
+                'success' => false,
                 'message' => 'Failed to create post.',
                 'error' => $e->getMessage()
             ], 500);
         }
     }
 
-
     public function update(PostRequest $request, $id)
     {
+        $post = Post::with('content')->find($id);
+        if (!$post) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Post not found.'
+            ], 404);
+        }
+
+        // check title duplication
+        if (Post::where('title', $request->title)->where('id', '!=', $id)->exists()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Post title already exists.'
+            ], 422);
+        }
 
         try {
-            $post = Post::with('content')->findOrFail($id);
-
             $categoryIds = $request->input('category_ids', []);
             $mainCategoryId = $categoryIds[0] ?? null;
 
-            // update data
-            $updateData = [
+            $post->update([
                 'title' => $request->title,
                 'sapo_text' => $request->sapo_text,
+                'slug' => $request->slug ?? Str::slug($request->title),
                 'category_id' => $mainCategoryId,
                 'featured_media_id' => $request->input('featured_media_id'),
-                'slug' => $request->slug ?? Str::slug($request->title),
                 'seo_title' => $request->seo_title,
                 'seo_description' => $request->seo_description,
                 'seo_keywords' => $request->seo_keywords,
                 'status' => $request->status,
                 'visibility' => $request->visibility,
                 'publish_at' => $request->publish_at,
-            ];
+            ]);
 
-            $post->update($updateData);
-
-            // handle content
+            // Update or create content
             $contentHtml = $request->input('content');
-
             if ($post->content) {
-                $post->content->update([
-                    'content_html' => $contentHtml
-                ]);
+                $post->content->update(['content_html' => $contentHtml]);
             } else {
                 PostContent::create([
                     'post_id' => $post->id,
@@ -132,28 +160,35 @@ class PostController extends Controller
                 ]);
             }
 
+            // sync categories
             $post->categories()->sync($categoryIds);
 
             return response()->json([
-                'status' => 'success',
-                'message' => 'Post updated successfully.',
-                'data' => $post->fresh(['category', 'content', 'categories']) // fresh data
+                'success' => true,
+                'message' => 'Post updated successfully!',
+                'data' => $post->fresh(['category', 'content', 'categories'])
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                'status' => 'error',
+                'success' => false,
                 'message' => 'Failed to update post.',
-                'error' => $e->getMessage() // debug
+                'error' => $e->getMessage()
             ], 500);
         }
     }
 
-
     public function destroy($id)
     {
-        try {
-            $post = Post::with('content')->findOrFail($id);
+        $post = Post::with('content')->find($id);
 
+        if (!$post) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Post not found.'
+            ], 404);
+        }
+
+        try {
             if ($post->content) {
                 $post->content->delete();
             }
@@ -162,13 +197,56 @@ class PostController extends Controller
             $post->delete();
 
             return response()->json([
-                'status' => 'success',
-                'message' => 'Post deleted successfully.'
+                'success' => true,
+                'message' => 'Post deleted successfully!'
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                'status' => 'error',
+                'success' => false,
                 'message' => 'Failed to delete post.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function bulkDestroy(Request $request)
+    {
+        $ids = $request->input('ids', []);
+
+        if (empty($ids)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No post IDs provided.'
+            ], 400);
+        }
+
+        $posts = Post::whereIn('id', $ids)->get();
+
+        if ($posts->count() !== count($ids)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'One or more posts not found.'
+            ], 404);
+        }
+
+        try {
+            foreach ($posts as $post) {
+                if ($post->content) {
+                    $post->content->delete();
+                }
+                $post->categories()->detach();
+            }
+
+            Post::whereIn('id', $ids)->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Posts deleted successfully.'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete posts.',
                 'error' => $e->getMessage()
             ], 500);
         }

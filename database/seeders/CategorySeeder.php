@@ -18,6 +18,13 @@ class CategorySeeder extends Seeder
                 'updated_at' => '2025-07-09 03:39:10',
             ],
             [
+                'id' => 2,
+                'name' => 'Du học Hot',
+                'slug' => 'du-hoc-hot',
+                'created_at' => '2025-07-09 03:39:10',
+                'updated_at' => '2025-07-09 03:39:10',
+            ],
+            [
                 'id' => 3,
                 'name' => 'Học phí',
                 'slug' => 'hoc-phi',
@@ -77,6 +84,13 @@ class CategorySeeder extends Seeder
                 'id' => 11,
                 'name' => 'Sức khỏe',
                 'slug' => 'suc-khoe',
+                'created_at' => '2025-07-11 07:47:17',
+                'updated_at' => '2025-07-11 07:47:17',
+            ],
+            [
+                'id' => 12,
+                'name' => 'Thể Thao',
+                'slug' => 'the-thao',
                 'created_at' => '2025-07-11 07:47:17',
                 'updated_at' => '2025-07-11 07:47:17',
             ],
