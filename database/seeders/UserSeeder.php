@@ -13,9 +13,9 @@ class UserSeeder extends Seeder
     {
         $roles = Role::pluck('id', 'name'); // ['admin' => 1, 'staff' => 2, ...]
 
-        // 3 staffs
+        // 2 staffs
         User::firstOrCreate(['email' => 'staff1@pion.vn'], [
-            'name' => 'Staff One',
+            'name' => 'Admin Pion',
             'password' => Hash::make('Staff@1123'),
             'role_id' => $roles['staff']
         ]);
@@ -27,11 +27,11 @@ class UserSeeder extends Seeder
         ]);
 
         // Staff ADS
-        User::firstOrCreate(['email' => 'adminads@pion.vn'], [
-            'name' => 'Staff ADS',
-            'password' => Hash::make('Adminads110825'),
-            'role_id' => $roles['staffads']
-        ]);
+        // User::firstOrCreate(['email' => 'adminads@pion.vn'], [
+        //     'name' => 'Staff ADS',
+        //     'password' => Hash::make('Adminads110825'),
+        //     'role_id' => $roles['staffads']
+        // ]);
 
         // 2 teachers
         User::firstOrCreate(['email' => 'teacher1@pion.vn'], [

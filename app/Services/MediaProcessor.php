@@ -75,6 +75,7 @@ class MediaProcessor
 
             $meta[$key] = [
                 'path'   => $path,
+                'url'    => Storage::url($path),
                 'width'  => $image->width(),
                 'height' => $image->height(),
                 'size'   => Storage::disk('public')->size($path),

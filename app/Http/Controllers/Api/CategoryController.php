@@ -43,7 +43,6 @@ class CategoryController extends Controller
         ]);
     }
 
-
     public function store(CategoryRequest $request)
     {
         if (Category::where('name', $request->name)->exists()) {
@@ -198,6 +197,34 @@ class CategoryController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Categories deleted successfully.'
+        ]);
+    }
+
+    // Stats hiển thị cho dashboard (admin cms)
+    public function stats(Request $request)
+    {
+        $field = $request->get('field', 'created_at');
+
+        $now = now();
+        $thisMonthStart = $now->copy()->startOfMonth();
+        $thisMonthEnd = $now->copy()->endOfMonth();
+
+        $lastMonthStart = $thisMonthStart->copy()->subMonth();
+        $lastMonthEnd = $thisMonthStart->copy()->subSecond();
+
+        $thisMonthCount = Category::whereBetween($field, [$thisMonthStart, $thisMonthEnd])->count();
+        $lastMonthCount = Category::whereBetween($field, [$lastMonthStart, $lastMonthEnd])->count();
+        $totalCount = Category::count();
+
+        // dd($totalCount, $thisMonthCount, $lastMonthCount);
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'this_month' => $thisMonthCount,
+                'last_month' => $lastMonthCount,
+                'total' => $totalCount,
+            ]
         ]);
     }
 }

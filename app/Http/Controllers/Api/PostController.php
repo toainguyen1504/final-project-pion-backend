@@ -13,6 +13,13 @@ class PostController extends Controller
 {
     public function index()
     {
+        // Tự động cập nhật scheduled_public -> public khi đến giờ
+        $now = now();
+        Post::where('visibility', 'scheduled_public')
+            ->whereNotNull('publish_at')
+            ->where('publish_at', '<=', $now)
+            ->update(['visibility' => 'public']);
+
         // Pagination & filters
         $perPage = request()->get('per_page', 10);
         $sort = request()->get('sort', 'publish_at');
@@ -136,6 +143,16 @@ class PostController extends Controller
             $categoryIds = $request->input('category_ids', []);
             $mainCategoryId = $categoryIds[0] ?? null;
 
+            // Logic auto điều chỉnh visibility dựa vào publish_at
+            $now = now();
+            $publishAt = $request->publish_at;
+
+            if ($publishAt && $publishAt > $now) {
+                $request->merge(['visibility' => 'scheduled_public']);
+            } elseif ($publishAt && $publishAt <= $now) {
+                $request->merge(['visibility' => 'public']);
+            }
+
             $post->update([
                 'title' => $request->title,
                 'sapo_text' => $request->sapo_text,
@@ -251,5 +268,34 @@ class PostController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
+    }
+
+
+    // Stats hiển thị cho dashboard (admin cms)
+    public function stats(Request $request)
+    {
+        $field = $request->get('field', 'created_at');
+
+        $now = now();
+        $thisMonthStart = $now->copy()->startOfMonth();
+        $thisMonthEnd = $now->copy()->endOfMonth();
+
+        $lastMonthStart = $thisMonthStart->copy()->subMonth();
+        $lastMonthEnd = $thisMonthStart->copy()->subSecond();
+
+        $thisMonthCount = Post::whereBetween($field, [$thisMonthStart, $thisMonthEnd])->count();
+        $lastMonthCount = Post::whereBetween($field, [$lastMonthStart, $lastMonthEnd])->count();
+        $totalCount = Post::count();
+
+        // dd($totalCount, $thisMonthCount, $lastMonthCount);
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'this_month' => $thisMonthCount,
+                'last_month' => $lastMonthCount,
+                'total' => $totalCount,
+            ]
+        ]);
     }
 }
