@@ -8,37 +8,50 @@ use App\Http\Controllers\Api\FormController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\AuthController;
 
-// User
+// -----------------------------
+// 🔓 Public routes (Không cần token)
+// -----------------------------
+
+// Auth
 Route::post('/login', [AuthController::class, 'login']);
+
+// Public content
+Route::get('/posts', [PostController::class, 'index']);
+Route::get('/posts/{id}', [PostController::class, 'show']);
+
+Route::get('/categories', [CategoryController::class, 'index']);
+Route::get('/categories/{id}', [CategoryController::class, 'show']);
+
+// Public media (cho FE hiển thị ảnh)
+Route::get('/media', [MediaController::class, 'index']);
+Route::get('/media/{id}', [MediaController::class, 'show']);
+
+// Public stats & forms
 Route::get('/categories/stats', [CategoryController::class, 'stats']);
 Route::get('/posts/stats', [PostController::class, 'stats']);
-
 Route::prefix('consultations')->group(function () {
-    // rate limit 2 requests / 1 minutes
     Route::middleware('throttle:2,1')->post('/', [ConsultationApiController::class, 'store']);
-    Route::middleware('auth:sanctum')->get('/my', [ConsultationApiController::class, 'myConsultations']); // Lấy tư vấn cá nhân (nếu cần)
 });
+Route::post('/form', [FormController::class, 'submit']);
 
-// categories api
-Route::middleware('auth:sanctum')->group(function () {
+// -----------------------------
+// 🔒 Protected routes (admin, cần token)
+// -----------------------------
+Route::prefix('admin')->middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
 
+    // Categories
     Route::post('/categories/bulk-destroy', [CategoryController::class, 'bulkDestroy']);
-    Route::apiResource('categories', CategoryController::class);
+    Route::apiResource('categories', CategoryController::class)->except(['index', 'show']);
 
+    // Posts
     Route::post('/posts/bulk-destroy', [PostController::class, 'bulkDestroy']);
-    Route::apiResource('posts', PostController::class);
+    Route::apiResource('posts', PostController::class)->except(['index', 'show']);
 
-    Route::apiResource('media', MediaController::class)->parameters([
-        'media' => 'media'
-    ]);
+    // Media
+    Route::post('/media/{media}/resize', [MediaController::class, 'resize']);
+    Route::apiResource('media', MediaController::class)->except(['index', 'show']);
 
-    Route::post('/media/{media}/resize', [MediaController::class, 'resize'])->name('media.resize');
+    // Consultation (private)
+    Route::get('/consultations/my', [ConsultationApiController::class, 'myConsultations']);
 });
-
-// Route::middleware(['auth:sanctum', 'role:super_admin'])->group(function () {
-//     Route::delete('/posts/{post}', [PostController::class, 'destroy']);
-// });
-
-// form api - submit for talk show program
-Route::post('/form', [FormController::class, 'submit']);

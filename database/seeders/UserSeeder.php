@@ -27,11 +27,11 @@ class UserSeeder extends Seeder
         ]);
 
         // Staff ADS
-        // User::firstOrCreate(['email' => 'adminads@pion.vn'], [
-        //     'name' => 'Staff ADS',
-        //     'password' => Hash::make('Adminads110825'),
-        //     'role_id' => $roles['staffads']
-        // ]);
+        User::firstOrCreate(['email' => 'adminads@pion.vn'], [
+            'name' => 'Staff ADS',
+            'password' => Hash::make('Admin@Pion1123'),
+            'role_id' => $roles['staffads']
+        ]);
 
         // 2 teachers
         User::firstOrCreate(['email' => 'teacher1@pion.vn'], [

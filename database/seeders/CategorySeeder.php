@@ -19,10 +19,10 @@ class CategorySeeder extends Seeder
             ],
             [
                 'id' => 2,
-                'name' => 'Du học Hot',
-                'slug' => 'du-hoc-hot',
-                'created_at' => '2025-07-09 03:39:10',
-                'updated_at' => '2025-07-09 03:39:10',
+                'name' => 'Tin tức',
+                'slug' => 'tin-tuc',
+                'created_at' => '2025-07-10 09:14:46',
+                'updated_at' => '2025-07-10 09:14:46',
             ],
             [
                 'id' => 3,
@@ -51,13 +51,6 @@ class CategorySeeder extends Seeder
                 'slug' => 'khoa-hoc',
                 'created_at' => '2025-07-09 03:39:56',
                 'updated_at' => '2025-07-09 03:39:56',
-            ],
-            [
-                'id' => 7,
-                'name' => 'Tin tức',
-                'slug' => 'tin-tuc',
-                'created_at' => '2025-07-10 09:14:46',
-                'updated_at' => '2025-07-10 09:14:46',
             ],
             [
                 'id' => 8,
