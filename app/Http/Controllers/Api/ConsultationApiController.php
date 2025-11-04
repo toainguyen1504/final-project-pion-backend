@@ -17,10 +17,6 @@ class ConsultationApiController extends Controller
     public function store(ConsultationRequest $request, TelegramService $telegram, GoogleSheetService $sheetService)
     {
         $data = $request->validated();
-        // Filter XSS - Purifier is applied to sanitize request_content, removing <script> tags and other harmful HTML.
-        // $data['request_content'] = Purifier::clean($data['request_content'], [
-        //     'HTML.Allowed' => 'b,strong,i,em,u,br',
-        // ]);
         $data['request_content'] = strip_tags($data['request_content']);
 
         $consultation = new Consultation();
@@ -37,43 +33,48 @@ class ConsultationApiController extends Controller
         }
 
         $consultation->request_content = $data['request_content'];
-        // $consultation->status = 'pending';
-        $consultation->save();
+        $consultation->save(); // Lưu DB trước để chắc chắn dữ liệu không bị mất
 
-        // Send a message Telegram to notify
-        $message = "<b>📥 Yêu cầu tư vấn mới</b>\n";
+        // Send a message Telegram safely
+        try {
+            $message = "<b>📥 Yêu cầu tư vấn mới</b>\n";
 
-        if (Auth::check()) {
-            $message .= "👤 Người dùng: {$consultation->user_name}\n";
-            $message .= "📞 SĐT: {$consultation->user_phone}\n";
-            $message .= "✉️ Email: {$consultation->user_email}\n";
-        } else {
-            $message .= "👤 Khách: {$consultation->guest_name}\n";
-            $message .= "📞 SĐT: {$consultation->guest_phone}\n";
-            $message .= "✉️ Email: {$consultation->guest_email}\n";
+            if (Auth::check()) {
+                $message .= "👤 Người dùng: {$consultation->user_name}\n";
+                $message .= "📞 SĐT: {$consultation->user_phone}\n";
+                $message .= "✉️ Email: {$consultation->user_email}\n";
+            } else {
+                $message .= "👤 Khách: {$consultation->guest_name}\n";
+                $message .= "📞 SĐT: {$consultation->guest_phone}\n";
+                $message .= "✉️ Email: {$consultation->guest_email}\n";
+            }
+
+            $message .= "📝 Nội dung: {$consultation->request_content}\n";
+            $message .= "⏰ Thời gian: " . now()->format('d/m/Y H:i');
+
+            $telegram->sendMessage($message);
+        } catch (\Exception $e) {
+            // Bỏ qua lỗi Telegram, không throw 500
         }
 
-        $message .= "📝 Nội dung: {$consultation->request_content}\n";
-        $message .= "⏰ Thời gian: " . now()->format('d/m/Y H:i');
-
-        $telegram->sendMessage($message);
-
-
-        // Save data on Google Sheet
+        // Save data on Google Sheet safely
         $spreadsheetId = env('GOOGLE_SHEET_ID');
         $range = 'Sheet1';
 
         try {
-            $sheetService->ensureHeader($spreadsheetId, $range);
+            if ($spreadsheetId) { // Chỉ chạy nếu ID tồn tại
+                $sheetService->ensureHeader($spreadsheetId, $range);
 
-            $sheetService->appendRow($spreadsheetId, $range, [
-                Auth::check() ? $consultation->user_name : $consultation->guest_name,
-                Auth::check() ? $consultation->user_email : $consultation->guest_email,
-                Auth::check() ? $consultation->user_phone : $consultation->guest_phone,
-                $consultation->request_content,
-                now()->format('d/m/Y H:i')
-            ]);
+                $sheetService->appendRow($spreadsheetId, $range, [
+                    Auth::check() ? $consultation->user_name : $consultation->guest_name,
+                    Auth::check() ? $consultation->user_email : $consultation->guest_email,
+                    Auth::check() ? $consultation->user_phone : $consultation->guest_phone,
+                    $consultation->request_content,
+                    now()->format('d/m/Y H:i')
+                ]);
+            }
         } catch (\Exception $e) {
+            // Thay vì trả 500, giữ nguyên trả message 200
             return response()->json([
                 'message' => 'Tư vấn đã ghi nhận, nhưng lỗi khi ghi Google Sheet',
                 'error' => $e->getMessage()

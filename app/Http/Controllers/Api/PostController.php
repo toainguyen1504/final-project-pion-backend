@@ -143,14 +143,17 @@ class PostController extends Controller
             $categoryIds = $request->input('category_ids', []);
             $mainCategoryId = $categoryIds[0] ?? null;
 
-            // Logic auto điều chỉnh visibility dựa vào publish_at
+            // Logic auto điều chỉnh visibility chỉ áp dụng khi user muốn public
             $now = now();
             $publishAt = $request->publish_at;
 
-            if ($publishAt && $publishAt > $now) {
-                $request->merge(['visibility' => 'scheduled_public']);
-            } elseif ($publishAt && $publishAt <= $now) {
-                $request->merge(['visibility' => 'public']);
+            // Nếu người dùng chọn public → kiểm tra xem có đặt lịch hay không
+            if ($request->visibility === 'public') {
+                if ($publishAt && $publishAt > $now) {
+                    $request->merge(['visibility' => 'scheduled_public']);
+                } elseif ($publishAt && $publishAt <= $now) {
+                    $request->merge(['visibility' => 'public']);
+                }
             }
 
             $post->update([

@@ -16,22 +16,29 @@ use App\Http\Controllers\Api\AuthController;
 Route::post('/login', [AuthController::class, 'login']);
 
 // Public content
+// category
+Route::get('/categories', [CategoryController::class, 'index']);
+Route::get('/categories/stats', [CategoryController::class, 'stats']);
+Route::get('/categories/{id}', [CategoryController::class, 'show']);
+
+// post
 Route::get('/posts', [PostController::class, 'index']);
+Route::get('/posts/stats', [PostController::class, 'stats']);
 Route::get('/posts/{id}', [PostController::class, 'show']);
 
-Route::get('/categories', [CategoryController::class, 'index']);
-Route::get('/categories/{id}', [CategoryController::class, 'show']);
+
 
 // Public media (cho FE hiển thị ảnh)
 Route::get('/media', [MediaController::class, 'index']);
 Route::get('/media/{id}', [MediaController::class, 'show']);
 
-// Public stats & forms
-Route::get('/categories/stats', [CategoryController::class, 'stats']);
-Route::get('/posts/stats', [PostController::class, 'stats']);
+// Public forms
+// form tư vấn
 Route::prefix('consultations')->group(function () {
     Route::middleware('throttle:2,1')->post('/', [ConsultationApiController::class, 'store']);
 });
+
+// Form đăng ký
 Route::post('/form', [FormController::class, 'submit']);
 
 // -----------------------------
