@@ -8,7 +8,7 @@ use App\Models\User;
 use App\Models\Role;
 
 class UserSeeder extends Seeder
-{ 
+{
     public function run(): void
     {
         $roles = Role::pluck('id', 'name'); // ['admin' => 1, 'staff' => 2, ...]
@@ -30,6 +30,13 @@ class UserSeeder extends Seeder
         User::firstOrCreate(['email' => 'adminads@pion.vn'], [
             'name' => 'Staff ADS',
             'password' => Hash::make('Admin@Pion1123'),
+            'role_id' => $roles['staffads']
+        ]);
+
+        // Staff ADS fix bài viết tạm thời -> sẽ xóa account trên deploy
+        User::firstOrCreate(['email' => 'ads@pion.vn'], [
+            'name' => 'Staff ADS',
+            'password' => Hash::make('Ads123456'),
             'role_id' => $roles['staffads']
         ]);
 

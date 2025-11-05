@@ -100,6 +100,14 @@ class CategoryController extends Controller
             ], 404);
         }
 
+        // Kiểm tra xem category name có thay đổi không
+        if ($category->name !== $request->input('name')) {
+            // Nếu tên thay đổi, cần kiểm tra lại unique
+            $request->validate([
+                'name' => 'unique:categories,name,' . $id
+            ]);
+        }
+
         if (Category::where('name', $request->name)->where('id', '!=', $id)->exists()) {
             return response()->json([
                 'success' => false,
@@ -107,7 +115,7 @@ class CategoryController extends Controller
             ], 422);
         }
 
-
+        // Cập nhật các trường khác của category
         try {
             $category->update([
                 'name' => $request->name,

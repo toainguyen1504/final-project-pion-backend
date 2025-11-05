@@ -6,6 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Validation\Rule;
+use App\Models\Category;
 
 class CategoryRequest extends FormRequest
 {
@@ -16,16 +17,34 @@ class CategoryRequest extends FormRequest
 
     public function rules()
     {
-        $id = $this->route('id');
+        $id = $this->route('id');  // Lấy ID từ route (cần cho việc ignore trong validation)
 
-        return [
+        // Lấy category từ database
+        $category = Category::find($id);
+
+        // Nếu không tìm thấy category, trả lỗi
+        if (!$category) {
+            return [];
+        }
+
+        $rules = [
             'name' => [
                 'required',
                 'string',
                 'max:50',
+                // Chỉ kiểm tra trùng tên nếu name có thay đổi
                 Rule::unique('categories', 'name')->ignore($id),
             ],
+            'type' => ['required', 'string', 'max:50'],  // Loại của category (post, course, ...)
+            'is_featured' => ['boolean'],  // Nếu có
         ];
+
+        // Nếu tên không thay đổi, bỏ qua kiểm tra trùng tên
+        if ($this->input('name') === $category->name) {
+            unset($rules['name']);  // Bỏ qua validation unique nếu tên không thay đổi
+        }
+
+        return $rules;
     }
 
     public function messages()

@@ -17,13 +17,7 @@ class CategorySeeder extends Seeder
                 'created_at' => '2025-07-09 03:39:10',
                 'updated_at' => '2025-07-09 03:39:10',
             ],
-            [
-                'id' => 2,
-                'name' => 'Tin tức',
-                'slug' => 'tin-tuc',
-                'created_at' => '2025-07-10 09:14:46',
-                'updated_at' => '2025-07-10 09:14:46',
-            ],
+
             [
                 'id' => 3,
                 'name' => 'Học phí',
@@ -53,6 +47,13 @@ class CategorySeeder extends Seeder
                 'updated_at' => '2025-07-09 03:39:56',
             ],
             [
+                'id' => 7,
+                'name' => 'Tin tức',
+                'slug' => 'tin-tuc',
+                'created_at' => '2025-07-10 09:14:46',
+                'updated_at' => '2025-07-10 09:14:46',
+            ],
+            [
                 'id' => 8,
                 'name' => 'Hữu ích',
                 'slug' => 'huu-ich',
@@ -72,20 +73,6 @@ class CategorySeeder extends Seeder
                 'slug' => 'ky-nang-song',
                 'created_at' => '2025-07-10 09:15:09',
                 'updated_at' => '2025-07-11 07:46:49',
-            ],
-            [
-                'id' => 11,
-                'name' => 'Sức khỏe',
-                'slug' => 'suc-khoe',
-                'created_at' => '2025-07-11 07:47:17',
-                'updated_at' => '2025-07-11 07:47:17',
-            ],
-            [
-                'id' => 12,
-                'name' => 'Thể Thao',
-                'slug' => 'the-thao',
-                'created_at' => '2025-07-11 07:47:17',
-                'updated_at' => '2025-07-11 07:47:17',
             ],
         ]);
     }
