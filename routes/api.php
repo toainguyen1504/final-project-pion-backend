@@ -57,8 +57,12 @@ Route::prefix('admin')->middleware('auth:sanctum')->group(function () {
 
     // Media
     Route::post('/media/{media}/resize', [MediaController::class, 'resize']);
-    Route::apiResource('media', MediaController::class)->except(['index', 'show']);
+    Route::apiResource('media', MediaController::class)
+        ->parameters(['media' => 'media']) // ép Laravel dùng {media} thay vì {medium}
+        ->except(['index', 'show']);
 
     // Consultation (private)
-    Route::get('/consultations/my', [ConsultationApiController::class, 'myConsultations']);
+    Route::get('/consultations', [ConsultationApiController::class, 'index']);
+    Route::get('/consultations/export', [ConsultationApiController::class, 'export']);
+    Route::get('/consultations/my', [ConsultationApiController::class, 'myConsultations']); //don't use
 });

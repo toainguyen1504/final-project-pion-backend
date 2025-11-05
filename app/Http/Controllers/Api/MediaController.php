@@ -44,12 +44,21 @@ class MediaController extends Controller
      * Show media detail
      * GET /api/media/{id}
      */
-    public function show(Media $media)
+    public function show($id)
     {
+        $media = Media::find($id);
+
+        if (!$media) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Media not found.'
+            ], 404);
+        }
+
         $media->url = Storage::url($media->path);
 
         return response()->json([
-            'success'      => true,
+            'success' => true,
             'data' => [
                 'id'          => $media->id,
                 'type'        => $media->type,
@@ -64,6 +73,7 @@ class MediaController extends Controller
             ]
         ]);
     }
+
 
     /**
      * Upload media files
