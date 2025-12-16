@@ -27,6 +27,9 @@ return new class extends Migration
             $table->string('seo_keywords')->nullable();     // Focus keywords (comma-separated)
             $table->json('seo_meta')->nullable();           // Extended SEO (Open Graph, Twitter Card...)
 
+            // NEED: is_feature: để hiển thị bài viết nổi bật
+            // NEED: cần các trường để hiển thị lượt xem bài viết,chức năng comment để tương tác bài viết
+            
             // Status & visibility & scheduling
             $table->enum('status', ['draft', 'pending', 'published', 'archived'])->default('draft');
             $table->enum('visibility', ['public', 'private', 'scheduled_public'])->default('private');
@@ -44,7 +47,6 @@ return new class extends Migration
             $table->foreign('featured_media_id')->references('id')->on('medias')->onDelete('set null');
         });
     }
-
 
     /**
      * Reverse the migrations.

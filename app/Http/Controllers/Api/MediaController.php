@@ -82,7 +82,7 @@ class MediaController extends Controller
     public function store(Request $request, MediaProcessor $processor)
     {
         $request->validate([
-            'files.*' => 'required|file|max:10240|mimes:jpg,jpeg,png,gif,webp',
+            'files.*' => 'required|file|max:10240|mimes:jpg,jpeg,png,gif,webp', //2mb: 2048
             'slugs.*' => 'nullable|string',
         ]);
 
