@@ -9,9 +9,10 @@ use Illuminate\Support\Str;
  * @property \App\Models\PostContent|null $content
  */
 class Post extends Model
-{
+{   
     protected $fillable = [
         'title',
+        'slug',
         'sapo_text',
         'user_id',
         'category_id',

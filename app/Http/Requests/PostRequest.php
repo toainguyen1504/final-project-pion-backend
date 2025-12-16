@@ -20,6 +20,7 @@ class PostRequest extends FormRequest
             'category_ids'    => 'required|array|min:1',
             'category_ids.*'  => 'exists:categories,id',
             'content'         => 'required|string|min:50',
+            'slug' => 'nullable|string|min:3|max:255',
         ];
     }
 
@@ -33,6 +34,8 @@ class PostRequest extends FormRequest
             'category_ids.*.exists'   => 'One or more selected categories do not exist.',
             'content.required'        => 'Post content is required.',
             'content.min'             => 'Content must be at least 50 characters long.',
+            'slug.min' => 'Slug must be at least 3 characters.',
+            'slug.max' => 'Slug may not exceed 255 characters.',
         ];
     }
 

@@ -159,7 +159,7 @@ class PostController extends Controller
             $post->update([
                 'title' => $request->title,
                 'sapo_text' => $request->sapo_text,
-                'slug' => $request->slug ?? Str::slug($request->title),
+                'slug' => $request->filled('slug') ? $request->slug : $post->slug,
                 'category_id' => $mainCategoryId,
                 'featured_media_id' => $request->input('featured_media_id'),
                 'seo_title' => $request->seo_title,
