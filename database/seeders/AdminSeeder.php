@@ -21,7 +21,8 @@ class AdminSeeder extends Seeder
         User::firstOrCreate([
             'email' => 'admin@pion.vn'
         ], [
-            'name' => 'Admin',
+            'display_name' => 'Admin',
+            'username'     => 'admin-' . now()->format('y'), // thêm username
             'password' => Hash::make('Admin@1123'),
             'profile_image' => 'default_avatar.jpg',
             'role_id' => $adminRole->id
@@ -30,7 +31,8 @@ class AdminSeeder extends Seeder
         User::firstOrCreate([
             'email' => 'superadmin@pion.vn'
         ], [
-            'name' => 'Super Admin',
+            'display_name' => 'Super Admin',
+            'username'     => 'superadmin-' . now()->format('y'),
             'password' => Hash::make('SuperAdmin@1123'),
             'profile_image' => 'default_avatar.jpg',
             'role_id' => $superAdminRole->id

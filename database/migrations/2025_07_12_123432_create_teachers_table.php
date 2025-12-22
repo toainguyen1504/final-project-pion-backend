@@ -14,13 +14,14 @@ return new class extends Migration
         Schema::create('teachers', function (Blueprint $table) {
             $table->id();
 
-            $table->string('subject');
-            $table->string('nationality');
-            $table->tinyInteger('experience');
-            $table->unsignedBigInteger('user_id')->unique();
-
+            $table->string('subject')->nullable(); // nhiều môn thì tách bảng phụ, hiện chị là 1 giáo viên 1 môn
+            $table->string('nationality')->nullable();
+            $table->smallInteger('experience_years')->default(0); // số năm kinh nghiệm
+            $table->text('certificate')->nullable(); // eg. TESOL, IELTS ...
+            $table->text('bio')->nullable();
             $table->timestamps();
 
+            $table->unsignedBigInteger('user_id')->index(); // index thay vì unique
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }

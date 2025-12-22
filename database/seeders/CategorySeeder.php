@@ -17,7 +17,13 @@ class CategorySeeder extends Seeder
                 'created_at' => '2025-07-09 03:39:10',
                 'updated_at' => '2025-07-09 03:39:10',
             ],
-
+            [
+                'id' => 2,
+                'name' => 'Du học Trung Quốc',
+                'slug' => 'du-hoc-trung-quoc',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
             [
                 'id' => 3,
                 'name' => 'Học phí',
