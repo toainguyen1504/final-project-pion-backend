@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\ConsultationApiController;
 use App\Http\Controllers\Api\FormController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\UserController;
 
 // -----------------------------
 // 🔓 Public routes (Không cần token)
@@ -65,4 +66,7 @@ Route::prefix('admin')->middleware('auth:sanctum')->group(function () {
     Route::get('/consultations', [ConsultationApiController::class, 'index']);
     Route::get('/consultations/export', [ConsultationApiController::class, 'export']);
     Route::get('/consultations/my', [ConsultationApiController::class, 'myConsultations']); //don't use
+
+    // Users
+    Route::apiResource('users', UserController::class);
 });

@@ -16,15 +16,23 @@ class User extends Authenticatable
     // use Notifiable;
     use HasApiTokens, Notifiable;
 
+    // ===== Constants cho status ===== 
+    const STATUS_UNVERIFIED = 0;
+    const STATUS_ACTIVE = 1;
+    const STATUS_BLOCKED = 2;
+
     protected $fillable = [
         'display_name',
         'username',       // thêm vào để có thể gán
         'email',
         'password',
         'role_id',
+        'status',
         'profile_image',
     ];
     protected $hidden = ['password', 'remember_token'];
+
+    protected $casts = ['status' => 'integer',];
 
     // ===== Quan hệ =====
     public function role()
@@ -58,13 +66,34 @@ class User extends Authenticatable
         return $this->role && in_array($this->role->name, $roles);
     }
 
+    // Kiểm tra trạng thái 
+    public function isActive(): bool
+    {
+        return $this->status === self::STATUS_ACTIVE;
+    }
+    public function isBlocked(): bool
+    {
+        return $this->status === self::STATUS_BLOCKED;
+    }
+    public function isUnverified(): bool
+    {
+        return $this->status === self::STATUS_UNVERIFIED;
+    }
+
     // ===== Hook để sinh username =====
     protected static function booted()
     {
         static::created(function ($user) {
             if (!$user->username) {
-                $user->username = UsernameService::generate($user);
-                $user->save();
+                // Load quan hệ trước khi generate
+                $user->loadMissing(['role', 'learner', 'teacher', 'staff']);
+
+                try {
+                    $username = UsernameService::generate($user);
+                    $user->update(['username' => $username]);
+                } catch (\Throwable $e) {
+                    // Nếu không dùng log, thì ít nhất không để lỗi làm hỏng response
+                }
             }
         });
     }

@@ -14,10 +14,11 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('display_name')->nullable(); // tên hiển thị công khai
-            $table->string('username')->unique()->nullable(); // tên đăng nhập
-            $table->string('email')->unique(); // email người dùng (có thể dùng để đăng nhập)
+            $table->string('username')->unique()->nullable(); // tên đăng nhập (có thể dùng để đăng nhập)
+            $table->string('email')->unique()->nullable(); // email người dùng (có thể dùng null, người dùng sẽ cập nhật sau khi có account)
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->unsignedTinyInteger('status')->default(0)->comment('0=unverified,1=active,2=blocked');
             $table->string('profile_image')->nullable(); // ảnh
             $table->timestamps();
             $table->rememberToken();
