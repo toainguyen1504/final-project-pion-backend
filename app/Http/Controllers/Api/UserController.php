@@ -3,9 +3,13 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
+use App\Services\PasswordService;
 use App\Models\User;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+
 
 class UserController extends Controller
 {
@@ -98,14 +102,33 @@ class UserController extends Controller
         ]);
     }
 
+
+    // Update
     public function update(Request $request, $id)
     {
-        $user = User::find($id);
+        /** @var User|null $currentUser */
+        $currentUser = Auth::user();
+
+        $user = User::find($id); // id
         if (!$user) {
             return response()->json([
                 'success' => false,
                 'message' => 'User not found.'
             ], 404);
+        }
+
+        // Nếu chưa load role, load để đảm bảo có dữ liệu
+        $user->loadMissing('role');
+        if ($currentUser) {
+            $currentUser->loadMissing('role');
+        }
+
+        // get role to check
+        if ($currentUser && $currentUser->hasRole('admin') && $user->hasRole('super_admin')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Admin không có quyền sửa Super Admin.'
+            ], 403);
         }
 
         $validated = $request->validate([
@@ -134,14 +157,30 @@ class UserController extends Controller
         }
     }
 
+    // Delete
     public function destroy($id)
     {
+        /** @var User|null $currentUser */
+        $currentUser = Auth::user();
+
         $user = User::find($id);
         if (!$user) {
             return response()->json([
                 'success' => false,
                 'message' => 'User not found.'
             ], 404);
+        }
+
+        $user->loadMissing('role');
+        if ($currentUser) {
+            $currentUser->loadMissing('role');
+        }
+
+        if ($currentUser && $currentUser->hasRole('admin') && $user->hasRole('super_admin')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Admin không có quyền xóa Super Admin.'
+            ], 403);
         }
 
         try {
@@ -154,6 +193,94 @@ class UserController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to delete user.'
+            ], 500);
+        }
+    }
+
+    // note: Email/Phone: cho phép chỉnh sửa khi tài khoản mới chưa có thông tin.
+    //       Username: không cho phép user tự đổi, chỉ admin/super_admin mới có quyền.
+    // Get profile staff/learner/teacher
+    public function me(Request $request)
+    {
+        /** @var \App\Models\User $user */
+        $user = $request->user()->load(['role', 'learner', 'teacher', 'staff']);
+
+        return response()->json([
+            'success' => true,
+            'data' => $user
+        ]);
+    }
+
+    // update profile staff/learner/teacher
+    public function updateMe(Request $request)
+    {
+        /** @var \App\Models\User $user */
+        $user = $request->user();
+
+        $validated = $request->validate([
+            'display_name' => 'sometimes|string|max:255',
+            'profile_image' => 'sometimes|url',
+            'password'     => 'nullable|string|min:8',
+        ]);
+
+        if (isset($validated['password'])) {
+            $validated['password'] = Hash::make($validated['password']);
+        }
+
+        try {
+            $user->update($validated);
+            return response()->json([
+                'success' => true,
+                'message' => 'Your profile has been updated.',
+                'data' => $user
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update profile.'
+            ], 500);
+        }
+    }
+
+
+
+    // Reset password - accept admin and super_admin
+    public function resetPassword($id)
+    {
+        /** @var User|null $currentUser */
+        $currentUser = Auth::user();
+
+        $user = User::find($id);
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not found.'
+            ], 404);
+        }
+
+        // Admin không được reset password của Super Admin
+        if ($currentUser->hasRole('admin') && $user->hasRole('super_admin')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Admin không có quyền reset password của Super Admin.'
+            ], 403);
+        }
+
+        try {
+            // Sinh password mới
+            $passwords = PasswordService::generate(10);
+            $user->update(['password' => $passwords['hashed']]);
+
+            return response()->json([
+                'success'        => true,
+                'message'        => 'Password reset successfully!',
+                'username'       => $user->username,
+                'plain_password' => $passwords['plain'] // trả về cho admin biết
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to reset password.'
             ], 500);
         }
     }

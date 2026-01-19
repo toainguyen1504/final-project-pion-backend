@@ -67,6 +67,15 @@ Route::prefix('admin')->middleware('auth:sanctum')->group(function () {
     Route::get('/consultations/export', [ConsultationApiController::class, 'export']);
     Route::get('/consultations/my', [ConsultationApiController::class, 'myConsultations']); //don't use
 
-    // Users
-    Route::apiResource('users', UserController::class);
+
+});
+
+// chỉ admin/super_admin mới được CRUD users
+Route::prefix('admin')->middleware('auth:sanctum')->group(function () {
+    // CRUD
+    Route::apiResource('users', UserController::class)
+        ->middleware('role:admin|super_admin');
+
+    // Reset password nhanh
+    Route::post('/users/{id}/reset-password', [UserController::class, 'resetPassword'])->middleware('role:admin|super_admin');
 });
