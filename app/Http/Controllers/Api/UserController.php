@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Services\PasswordService;
 use App\Models\User;
+use App\Models\Role;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -43,6 +44,7 @@ class UserController extends Controller
         ]);
     }
 
+
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -50,13 +52,13 @@ class UserController extends Controller
             'role_id'      => 'required|exists:roles,id',
             'status'       => 'nullable|integer|in:0,1,2',
             'email'        => 'nullable|email|unique:users', // không bắt buộc
-            'password'     => 'nullable|string|min:8',       // không bắt buộc
+            'password'     => 'nullable|string|min:6',       // không bắt buộc
         ]);
 
         try {
-            // Nếu không nhập password -> tự sinh
+            // Nếu không nhập password -> tự sinh 6 ký tự
             if (!$request->filled('password')) {
-                $passwords = \App\Services\PasswordService::generate(10);
+                $passwords = \App\Services\PasswordService::generate(6);
                 $validated['password'] = $passwords['hashed'];
                 $plainPassword = $passwords['plain'];
             } else {
@@ -71,16 +73,20 @@ class UserController extends Controller
             $user = User::create($validated);
             $user = $user->fresh(['role', 'learner', 'teacher', 'staff']);
 
+            // Sinh username theo logic mới
+            $username = \App\Services\UsernameService::generate($user);
+            $user->update(['username' => $username]);
+
             return response()->json([
                 'success'        => true,
-                'message'        => 'User created successfully!',
+                'message'        => 'Tạo tài khoản thành công!',
                 'data'           => $user,
                 'plain_password' => $plainPassword // trả về cho admin biết
             ], 201);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create user.'
+                'message' => 'Tạo tài khoản thất bại.'
             ], 500);
         }
     }
@@ -92,7 +98,7 @@ class UserController extends Controller
         if (!$user) {
             return response()->json([
                 'success' => false,
-                'message' => 'User not found.'
+                'message' => 'Không tìm thấy tài khoản.'
             ], 404);
         }
 
@@ -113,7 +119,7 @@ class UserController extends Controller
         if (!$user) {
             return response()->json([
                 'success' => false,
-                'message' => 'User not found.'
+                'message' => 'Không tìm thấy tài khoản.'
             ], 404);
         }
 
@@ -123,7 +129,7 @@ class UserController extends Controller
             $currentUser->loadMissing('role');
         }
 
-        // get role to check
+        // get role to check - chặn sửa super_admin
         if ($currentUser && $currentUser->hasRole('admin') && $user->hasRole('super_admin')) {
             return response()->json([
                 'success' => false,
@@ -146,13 +152,13 @@ class UserController extends Controller
             $user->update($validated);
             return response()->json([
                 'success' => true,
-                'message' => 'User updated successfully!',
+                'message' => 'Cập nhật tài khoản thành công!',
                 'data' => $user
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update user.'
+                'message' => 'Cập nhật tài khoản thất bại.'
             ], 500);
         }
     }
@@ -167,7 +173,7 @@ class UserController extends Controller
         if (!$user) {
             return response()->json([
                 'success' => false,
-                'message' => 'User not found.'
+                'message' => 'Không tìm thấy tài khoản.'
             ], 404);
         }
 
@@ -176,6 +182,7 @@ class UserController extends Controller
             $currentUser->loadMissing('role');
         }
 
+        // chặn super_admin bị xóa
         if ($currentUser && $currentUser->hasRole('admin') && $user->hasRole('super_admin')) {
             return response()->json([
                 'success' => false,
@@ -187,12 +194,12 @@ class UserController extends Controller
             $user->delete();
             return response()->json([
                 'success' => true,
-                'message' => 'User deleted successfully!'
+                'message' => 'Xóa tài khoản thành công!'
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete user.'
+                'message' => 'Xóa tài khoản thất bại.'
             ], 500);
         }
     }
@@ -231,18 +238,16 @@ class UserController extends Controller
             $user->update($validated);
             return response()->json([
                 'success' => true,
-                'message' => 'Your profile has been updated.',
+                'message' => 'Cập nhật thông tin cá nhân thành công!',
                 'data' => $user
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update profile.'
+                'message' => 'Cập nhật thông tin cá nhân thất bại.'
             ], 500);
         }
     }
-
-
 
     // Reset password - accept admin and super_admin
     public function resetPassword($id)
@@ -254,11 +259,12 @@ class UserController extends Controller
         if (!$user) {
             return response()->json([
                 'success' => false,
-                'message' => 'User not found.'
+                'message' => 'Không tìm thấy tài khoản.'
             ], 404);
         }
 
         // Admin không được reset password của Super Admin
+        // TH này không thể xảy ra vì đã chặn 2 role ko được gán: guest và super_admin
         if ($currentUser->hasRole('admin') && $user->hasRole('super_admin')) {
             return response()->json([
                 'success' => false,
@@ -273,15 +279,60 @@ class UserController extends Controller
 
             return response()->json([
                 'success'        => true,
-                'message'        => 'Password reset successfully!',
+                'message'        => 'Đặt lại mật khẩu thành công!',
                 'username'       => $user->username,
                 'plain_password' => $passwords['plain'] // trả về cho admin biết
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to reset password.'
+                'message' => 'Đặt lại mật khẩu thất bại.'
             ], 500);
         }
+    }
+
+    public function getRoles(Request $request)
+    {
+        /** @var \App\Models\User $currentUser */
+        $currentUser = $request->user();
+        $currentUser->loadMissing('role');
+
+        // Chỉ cho phép staff, admin, super_admin gọi API này
+        if (!$currentUser->hasAnyRole(['staff', 'admin', 'super_admin'])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Truy cập bị từ chối. Bạn không có quyền thực hiện thao tác này.'
+            ], 403);
+        }
+
+        $roles = Role::all();
+
+        return response()->json([
+            'success' => true,
+            'data' => $roles
+        ]);
+    }
+
+    // Lấy tất cả roles trừ super_admin và guest
+    public function rolesAvailable(Request $request)
+    {
+        /** @var \App\Models\User $currentUser */
+        $currentUser = $request->user();
+        $currentUser->loadMissing('role');
+
+        // Chỉ cho phép admin, super_admin gọi API này
+        if (!$currentUser->hasAnyRole(['admin', 'super_admin'])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Truy cập bị từ chối. Bạn không có quyền thực hiện thao tác này.'
+            ], 403);
+        }
+
+        $roles = Role::whereNotIn('name', ['super_admin', 'guest'])->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $roles
+        ]);
     }
 }

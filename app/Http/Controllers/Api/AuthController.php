@@ -10,20 +10,26 @@ class AuthController extends Controller
 {
     public function login(Request $request)
     {
-        $credentials = $request->only('email', 'password');
+        $request->validate([
+            'login'    => 'required|string', // có thể là email hoặc username
+            'password' => 'required|string',
+        ]);
 
-        if (!Auth::attempt($credentials)) {
+        $loginField = filter_var($request->login, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+
+        if (!Auth::attempt([$loginField => $request->login, 'password' => $request->password])) {
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
 
+        /** @var \App\Models\User $user */
         $user = Auth::user();
 
-        /** @var \App\Models\User|\Laravel\Sanctum\HasApiTokens $user */
         $token = $user->createToken('api-token')->plainTextToken;
 
         return response()->json([
             'token' => $token,
-            'user' => $user
+            'user'  => $user,
+            'role' => $user->role->name,
         ]);
     }
 

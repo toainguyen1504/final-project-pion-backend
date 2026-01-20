@@ -66,8 +66,6 @@ Route::prefix('admin')->middleware('auth:sanctum')->group(function () {
     Route::get('/consultations', [ConsultationApiController::class, 'index']);
     Route::get('/consultations/export', [ConsultationApiController::class, 'export']);
     Route::get('/consultations/my', [ConsultationApiController::class, 'myConsultations']); //don't use
-
-
 });
 
 // chỉ admin/super_admin mới được CRUD users
@@ -78,4 +76,10 @@ Route::prefix('admin')->middleware('auth:sanctum')->group(function () {
 
     // Reset password nhanh
     Route::post('/users/{id}/reset-password', [UserController::class, 'resetPassword'])->middleware('role:admin|super_admin');
+
+    // Get list roles (staff, admin, super_admin mới được phép) 
+    Route::get('/roles', [UserController::class, 'getRoles'])->middleware('role:staff|admin|super_admin');
+
+    // Get roles trừ super_admin và guest 
+    Route::get('/roles/available', [UserController::class, 'rolesAvailable']) ->middleware('role:admin|super_admin');
 });
