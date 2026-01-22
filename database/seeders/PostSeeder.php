@@ -69,6 +69,7 @@ class PostSeeder extends Seeder
                 'seo_keywords' => 'du học, nhật bản, việc làm',
                 'seo_meta' => json_encode(['twitter:card' => 'summary_large_image']),
                 'status' => 'published',
+                'visibility' => 'public',
                 'publish_at' => now(),
             ],
             [
@@ -80,6 +81,7 @@ class PostSeeder extends Seeder
                 'seo_keywords' => 'công nghệ, việc làm, it',
                 'seo_meta' => json_encode(['twitter:card' => 'summary_large_image']),
                 'status' => 'published',
+                'visibility' => 'public',
                 'publish_at' => now(),
             ],
             [
@@ -91,6 +93,7 @@ class PostSeeder extends Seeder
                 'seo_keywords' => 'chọn trường, du học, tư vấn',
                 'seo_meta' => json_encode(['twitter:card' => 'summary_large_image']),
                 'status' => 'published',
+                'visibility' => 'public',
                 'publish_at' => now(),
             ],
             [
@@ -102,6 +105,7 @@ class PostSeeder extends Seeder
                 'seo_keywords' => 'visa, du học, mỹ',
                 'seo_meta' => json_encode(['twitter:card' => 'summary_large_image']),
                 'status' => 'published',
+                'visibility' => 'public',
                 'publish_at' => now(),
             ],
             [
@@ -113,6 +117,7 @@ class PostSeeder extends Seeder
                 'seo_keywords' => 'kỹ năng, du học, sinh viên',
                 'seo_meta' => json_encode(['twitter:card' => 'summary_large_image']),
                 'status' => 'published',
+                'visibility' => 'public',
                 'publish_at' => now(),
             ],
             [
@@ -124,6 +129,7 @@ class PostSeeder extends Seeder
                 'seo_keywords' => 'du học, quốc gia, xu hướng',
                 'seo_meta' => json_encode(['twitter:card' => 'summary_large_image']),
                 'status' => 'published',
+                'visibility' => 'public',
                 'publish_at' => now(),
             ],
             [
@@ -135,6 +141,7 @@ class PostSeeder extends Seeder
                 'seo_keywords' => 'bài luận, du học, viết essay',
                 'seo_meta' => json_encode(['twitter:card' => 'summary_large_image']),
                 'status' => 'published',
+                'visibility' => 'public',
                 'publish_at' => now(),
             ],
             [
@@ -146,6 +153,7 @@ class PostSeeder extends Seeder
                 'seo_keywords' => 'du học, hàn quốc, việc làm',
                 'seo_meta' => json_encode(['twitter:card' => 'summary_large_image']),
                 'status' => 'published',
+                'visibility' => 'public',
                 'publish_at' => now(),
             ],
             [
@@ -157,6 +165,7 @@ class PostSeeder extends Seeder
                 'seo_keywords' => 'ngành học, việc làm, hướng nghiệp',
                 'seo_meta' => json_encode(['twitter:card' => 'summary_large_image']),
                 'status' => 'published',
+                'visibility' => 'public',
                 'publish_at' => now(),
             ],
 
@@ -169,6 +178,7 @@ class PostSeeder extends Seeder
                 'seo_keywords' => 'du học, canada, định cư',
                 'seo_meta' => json_encode(['twitter:card' => 'summary_large_image']),
                 'status' => 'published',
+                'visibility' => 'public',
                 'publish_at' => now(),
             ],
             [
@@ -180,6 +190,7 @@ class PostSeeder extends Seeder
                 'seo_keywords' => 'tiếng anh, giao tiếp, học ngoại ngữ',
                 'seo_meta' => json_encode(['twitter:card' => 'summary_large_image']),
                 'status' => 'published',
+                'visibility' => 'public',
                 'publish_at' => now(),
             ],
             [
@@ -191,6 +202,7 @@ class PostSeeder extends Seeder
                 'seo_keywords' => 'sinh viên, học tập, kỹ năng',
                 'seo_meta' => json_encode(['twitter:card' => 'summary_large_image']),
                 'status' => 'published',
+                'visibility' => 'public',
                 'publish_at' => now(),
             ],
         ];

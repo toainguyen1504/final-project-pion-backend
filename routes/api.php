@@ -19,15 +19,11 @@ Route::post('/login', [AuthController::class, 'login']);
 // Public content
 // category
 Route::get('/categories', [CategoryController::class, 'index']);
-Route::get('/categories/stats', [CategoryController::class, 'stats']);
 Route::get('/categories/{id}', [CategoryController::class, 'show']);
 
 // post
 Route::get('/posts', [PostController::class, 'index']);
-Route::get('/posts/stats', [PostController::class, 'stats']);
 Route::get('/posts/{id}', [PostController::class, 'show']);
-
-
 
 // Public media (cho FE hiển thị ảnh)
 Route::get('/media', [MediaController::class, 'index']);
@@ -49,12 +45,14 @@ Route::prefix('admin')->middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
 
     // Categories
-    Route::post('/categories/bulk-destroy', [CategoryController::class, 'bulkDestroy']);
     Route::apiResource('categories', CategoryController::class)->except(['index', 'show']);
+    Route::post('/categories/bulk-destroy', [CategoryController::class, 'bulkDestroy']);
+    Route::get('/categories/stats', [CategoryController::class, 'stats'])->middleware('role:admin|staff|staffads|super_admin');
 
     // Posts
-    Route::post('/posts/bulk-destroy', [PostController::class, 'bulkDestroy']);
     Route::apiResource('posts', PostController::class)->except(['index', 'show']);
+    Route::post('/posts/bulk-destroy', [PostController::class, 'bulkDestroy']);
+    Route::get('/posts/stats', [PostController::class, 'stats'])->middleware('role:admin|staff|staffads|super_admin');
 
     // Media
     Route::post('/media/{media}/resize', [MediaController::class, 'resize']);
@@ -68,7 +66,7 @@ Route::prefix('admin')->middleware('auth:sanctum')->group(function () {
     Route::get('/consultations/my', [ConsultationApiController::class, 'myConsultations']); //don't use
 });
 
-// chỉ admin/super_admin mới được CRUD users
+// Auth route: chỉ khi đang nhập và check role (admin/super_admin,....) mới được CRUD users, roles
 Route::prefix('admin')->middleware('auth:sanctum')->group(function () {
     // CRUD
     Route::apiResource('users', UserController::class)
@@ -81,5 +79,5 @@ Route::prefix('admin')->middleware('auth:sanctum')->group(function () {
     Route::get('/roles', [UserController::class, 'getRoles'])->middleware('role:staff|admin|super_admin');
 
     // Get roles trừ super_admin và guest 
-    Route::get('/roles/available', [UserController::class, 'rolesAvailable']) ->middleware('role:admin|super_admin');
+    Route::get('/roles/available', [UserController::class, 'rolesAvailable'])->middleware('role:admin|super_admin');
 });

@@ -11,22 +11,29 @@ use App\Http\Requests\PostRequest;
 
 class PostController extends Controller
 {
-    public function index()
+    // API hiển thị danh sách cho Admin CMS (CRUD) và Guest (với guest thì chỉ hiển thị public)
+    public function index(Request $request)
     {
-        // Tự động cập nhật scheduled_public -> public khi đến giờ
+        // Auto update scheduled -> public
         $now = now();
         Post::where('visibility', 'scheduled_public')
             ->whereNotNull('publish_at')
             ->where('publish_at', '<=', $now)
             ->update(['visibility' => 'public']);
 
-        // Pagination & filters
-        $perPage = request()->get('per_page', 10);
-        $sort = request()->get('sort', 'publish_at');
-        $order = request()->get('order', 'desc');
-        $search = request()->get('search');
+        $perPage = $request->get('per_page', 10);
+        $sort    = $request->get('sort', 'publish_at');
+        $order   = $request->get('order', 'desc');
+        $search  = $request->get('search');
 
         $query = Post::with(['category', 'content', 'categories']);
+
+        // Check role để hiển thị đúng mong muốn: chỉ hiển thị public nếu là guest
+        $user = $request->user();
+        if (!$user || !in_array($user->role->name ?? 'guest', ['admin', 'staff', 'staffads', 'super_admin'])) {
+            // Nếu không phải admin/staff → chỉ lấy bài public
+            $query->where('visibility', 'public');
+        }
 
         if ($search) {
             $query->where(function ($q) use ($search) {
@@ -40,21 +47,36 @@ class PostController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $posts->items(),
-            'meta' => [
-                'current_page' => $posts->currentPage(),
-                'last_page' => $posts->lastPage(),
-                'per_page' => $posts->perPage(),
-                'total' => $posts->total(),
+            'data'    => $posts->items(),
+            'meta'    => [
+                'current_page'  => $posts->currentPage(),
+                'last_page'     => $posts->lastPage(),
+                'per_page'      => $posts->perPage(),
+                'total'         => $posts->total(),
                 'next_page_url' => $posts->nextPageUrl(),
                 'prev_page_url' => $posts->previousPageUrl(),
             ]
         ]);
     }
 
-    public function show($id)
+    // Get detail
+    public function show(Request $request, $id)
     {
-        $post = Post::with(['category', 'content', 'categories'])->find($id);
+        $now = now();
+        Post::where('visibility', 'scheduled_public')
+            ->whereNotNull('publish_at')
+            ->where('publish_at', '<=', $now)
+            ->update(['visibility' => 'public']);
+
+        $query = Post::with(['category', 'content', 'categories']);
+
+        // check role để hiển thị đúng, guest chỉ hiển thị bài viết public
+        $user = $request->user();
+        if (!$user || !in_array($user->role->name ?? 'guest', ['admin', 'staff', 'staff', 'super_admin'])) {
+            $query->where('visibility', 'public');
+        }
+
+        $post = $query->find($id);
 
         if (!$post) {
             return response()->json([
