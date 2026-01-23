@@ -13,9 +13,11 @@ return new class extends Migration
     {
         Schema::create('roles', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique();       // Role key: super_admin, admin, staff, learner, guest
+            $table->string('name')->unique();       // Role key: super_admin, admin, staff, learner, guest , member
+          
             // $table->string('label')->nullable();    // Display name: Administrator, Teacher, Parent...
             // $table->text('description')->nullable(); // Description of the role and its permissions
+
             $table->timestamps();
         });
     }

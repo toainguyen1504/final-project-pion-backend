@@ -19,10 +19,14 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->unsignedTinyInteger('status')->default(0)->comment('0=unverified,1=active,2=blocked');
-          
-            // $table->enum('membership_type', ['free', 'premium', 'vip']) ->nullable()   // Membership type: chỉ áp dụng cho role member 
+            $table->enum('membership_type', ['free', 'premium', 'vip'])->nullable();   // Membership type: chỉ áp dụng cho role member 
+            // Note for member role
+            // free: chỉ comment, tham gia cộng đồng.
+            // premium: có thêm quyền truy cập khóa học online.
+            // vip: quyền lợi cao hơn (tài liệu đặc biệt, ưu đãi).
+
             $table->string('profile_image')->nullable(); // ảnh
-            
+
             $table->timestamps();
             $table->rememberToken();
 
