@@ -19,7 +19,10 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->unsignedTinyInteger('status')->default(0)->comment('0=unverified,1=active,2=blocked');
+          
+            // $table->enum('membership_type', ['free', 'premium', 'vip']) ->nullable()   // Membership type: chỉ áp dụng cho role member 
             $table->string('profile_image')->nullable(); // ảnh
+            
             $table->timestamps();
             $table->rememberToken();
 
