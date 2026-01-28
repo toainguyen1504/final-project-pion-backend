@@ -18,7 +18,7 @@ class UserSeeder extends Seeder
         // ===== Staffs =====
         $staff1 = User::firstOrCreate(['email' => 'staff1@pion.vn'], [
             'display_name' => 'Admin Pion',
-            'password'     => Hash::make('Staff@1123'),
+            'password'     => Hash::make('Staff@6868'),
             'role_id'      => $roles['staff'] ?? null,
         ]);
         if (!$staff1->username) {
@@ -28,7 +28,7 @@ class UserSeeder extends Seeder
 
         $staff2 = User::firstOrCreate(['email' => 'staff2@pion.vn'], [
             'display_name' => 'Staff Two',
-            'password'     => Hash::make('Staff@1123'),
+            'password'     => Hash::make('Staff@6868'),
             'role_id'      => $roles['staff'] ?? null,
         ]);
         if (!$staff2->username) {
@@ -39,7 +39,7 @@ class UserSeeder extends Seeder
         // Staff ADS
         $staffAds = User::firstOrCreate(['email' => 'adminads@pion.vn'], [
             'display_name' => 'Staff ADS',
-            'password'     => Hash::make('Admin@Pion1123'),
+            'password'     => Hash::make('Admin@Pion6868'),
             'role_id'      => $roles['staffads'] ?? null,
         ]);
         if (!$staffAds->username) {
@@ -50,7 +50,7 @@ class UserSeeder extends Seeder
         // ===== Teachers =====
         $teacher1 = User::firstOrCreate(['email' => 'teacher1@pion.vn'], [
             'display_name' => 'Cô Rita',
-            'password'     => Hash::make('Teacher@1123'),
+            'password'     => Hash::make('Teacher@6868'),
             'role_id'      => $roles['teacher'] ?? null,
         ]);
         if (!$teacher1->username) {
@@ -60,7 +60,7 @@ class UserSeeder extends Seeder
 
         $teacher2 = User::firstOrCreate(['email' => 'teacher2@pion.vn'], [
             'display_name' => 'Thầy Minh',
-            'password'     => Hash::make('Teacher@1123'),
+            'password'     => Hash::make('Teacher@6868'),
             'role_id'      => $roles['teacher'] ?? null,
         ]);
         if (!$teacher2->username) {
@@ -71,7 +71,7 @@ class UserSeeder extends Seeder
         // ===== Learners =====
         $learner1 = User::firstOrCreate(['email' => 'learner1@pion.vn'], [
             'display_name' => 'Bạn An',
-            'password'     => Hash::make('Learner@1123'),
+            'password'     => Hash::make('Learner@6868'),
             'role_id'      => $roles['learner'] ?? null,
         ]);
 
@@ -92,7 +92,7 @@ class UserSeeder extends Seeder
 
         $learner2 = User::firstOrCreate(['email' => 'learner2@pion.vn'], [
             'display_name' => 'Bạn Bình',
-            'password'     => Hash::make('Learner@1123'),
+            'password'     => Hash::make('Learner@6868'),
             'role_id'      => $roles['learner'] ?? null,
         ]);
 

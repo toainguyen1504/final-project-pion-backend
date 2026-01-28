@@ -23,7 +23,7 @@ class AdminSeeder extends Seeder
         ], [
             'display_name' => 'Admin',
             'username'     => 'admin' . now()->format('y'), // thêm username
-            'password' => Hash::make('Admin@1123'),
+            'password' => Hash::make('Admin@6868'),
             'profile_image' => 'default_avatar.jpg',
             'role_id' => $adminRole->id
         ]);
@@ -33,7 +33,7 @@ class AdminSeeder extends Seeder
         ], [
             'display_name' => 'Super Admin',
             'username'     => 'superadmin_' . now()->format('y'),
-            'password' => Hash::make('SuperAdmin@1123'),
+            'password' => Hash::make('Admin@6868'),
             'profile_image' => 'default_avatar.jpg',
             'role_id' => $superAdminRole->id
         ]);

@@ -10,7 +10,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\UserController;
 
 // -----------------------------
-// 🔓 Public routes (Không cần token)
+// Public routes (Không cần token)
 // -----------------------------
 
 // Auth
@@ -39,7 +39,7 @@ Route::prefix('consultations')->group(function () {
 Route::post('/form', [FormController::class, 'submit']);
 
 // -----------------------------
-// 🔒 Protected routes (admin, cần token)
+// ** Protected routes (admin, cần token)
 // -----------------------------
 Route::prefix('admin')->middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
