@@ -35,6 +35,6 @@ class FormController extends Controller
             now()->toDateTimeString(),
         ]);
 
-        return response()->json(['success' => true, 'message' => 'Form submitted successfully']);
+        return response()->json(['success' => true, 'message' => 'Gửi biểu mẫu thành công.']);
     }
 }

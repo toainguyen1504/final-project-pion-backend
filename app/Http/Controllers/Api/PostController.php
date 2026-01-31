@@ -82,7 +82,7 @@ class PostController extends Controller
         if (!$post) {
             return response()->json([
                 'success' => false,
-                'message' => 'Post not found.'
+                'message' => 'Post không tồn tại!'
             ], 404);
         }
 
@@ -127,13 +127,22 @@ class PostController extends Controller
     public function store(PostRequest $request)
     {
         try {
-            // Avoid duplicate titles
+            // Avoid duplicate titles or slugs
             if (Post::where('title', $request->title)->exists()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Post title already exists.'
+                    'message' => 'Tiêu đề bài viết đã tồn tại!'
                 ], 422);
             }
+
+            $slug = $request->slug ?? Str::slug($request->title);
+            if (Post::where('slug', $slug)->exists()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Đường dẫn (Slug) của bài viết đã tồn tại!'
+                ], 422);
+            }
+
 
             $categoryIds = $request->input('category_ids', []);
             $mainCategoryId = $categoryIds[0] ?? null;
@@ -164,13 +173,13 @@ class PostController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Post created successfully!',
+                'message' => 'Bài viết đã được tạo thành công.',
                 'data' => $post->fresh(['category', 'content', 'categories'])
             ], 201);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create post.',
+                'message' => 'Không thể tạo bài viết!',
                 'error' => $e->getMessage()
             ], 500);
         }
@@ -182,15 +191,23 @@ class PostController extends Controller
         if (!$post) {
             return response()->json([
                 'success' => false,
-                'message' => 'Post not found.'
+                'message' => 'Bài viết không tồn tại!'
             ], 404);
         }
 
-        // check title duplication
-        if (Post::where('title', $request->title)->where('id', '!=', $id)->exists()) {
+        // Avoid duplicate titles or slugs
+        if (Post::where('title', $request->title)->exists()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Post title already exists.'
+                'message' => 'Tiêu đề bài viết đã tồn tại!'
+            ], 422);
+        }
+
+        $slug = $request->slug ?? Str::slug($request->title);
+        if (Post::where('slug', $slug)->exists()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Đường dẫn (Slug) của bài viết đã tồn tại!'
             ], 422);
         }
 
@@ -241,13 +258,13 @@ class PostController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Post updated successfully!',
+                'message' => 'Cập nhật bài viết thành công.',
                 'data' => $post->fresh(['category', 'content', 'categories'])
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update post.',
+                'message' => 'Không thể cập nhật bài viết!',
                 'error' => $e->getMessage()
             ], 500);
         }
@@ -274,12 +291,12 @@ class PostController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Post deleted successfully!'
+                'message' => 'Bài viết đã được xóa thành công.'
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete post.',
+                'message' => 'Không thể xóa bài viết!',
                 'error' => $e->getMessage()
             ], 500);
         }
@@ -292,7 +309,7 @@ class PostController extends Controller
         if (empty($ids)) {
             return response()->json([
                 'success' => false,
-                'message' => 'No post IDs provided.'
+                'message' => 'Không có ID bài viết nào được cung cấp.'
             ], 400);
         }
 
@@ -301,7 +318,7 @@ class PostController extends Controller
         if ($posts->count() !== count($ids)) {
             return response()->json([
                 'success' => false,
-                'message' => 'One or more posts not found.'
+                'message' => 'Một hoặc nhiều bài viết không tồn tại.'
             ], 404);
         }
 
@@ -317,12 +334,12 @@ class PostController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Posts deleted successfully.'
+                'message' => 'Xóa các bài viết thành công.'
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete posts.',
+                'message' => 'Không thể xóa bài viết.',
                 'error' => $e->getMessage()
             ], 500);
         }
@@ -345,7 +362,6 @@ class PostController extends Controller
         $totalCount = Post::count();
 
         // dd($totalCount, $thisMonthCount, $lastMonthCount);
-
         return response()->json([
             'success' => true,
             'data' => [

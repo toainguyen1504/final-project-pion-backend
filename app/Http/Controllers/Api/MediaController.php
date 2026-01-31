@@ -51,7 +51,7 @@ class MediaController extends Controller
         if (!$media) {
             return response()->json([
                 'success' => false,
-                'message' => 'Media not found.'
+                'message' => 'Không tìm thấy media (images/videos).'
             ], 404);
         }
 
@@ -89,7 +89,7 @@ class MediaController extends Controller
         if (!$request->hasFile('files')) {
             return response()->json([
                 'success' => false,
-                'message' => 'No files uploaded.'
+                'message' => 'Không có tệp nào được tải lên.'
             ], 400);
         }
 
@@ -123,18 +123,18 @@ class MediaController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Media uploaded successfully.',
+                'message' => 'Tải media lên thành công.',
                 'data' => $uploaded
             ], 201);
         } catch (\Throwable $e) {
-            Log::error('Media upload failed', [
+            Log::error('Tải Media thất bại', [
                 'message' => $e->getMessage(),
                 'trace' => $e->getTrace(),
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'Server error while processing media.'
+                'message' => 'Lỗi máy chủ trong quá trình xử lý media.'
             ], 500);
         }
     }
@@ -160,7 +160,7 @@ class MediaController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Media metadata updated.',
+            'message' => 'Cập nhật metadata của media thành công.',
             'data' => $media
         ]);
     }
@@ -186,7 +186,7 @@ class MediaController extends Controller
             if ($isUsed) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'This media is currently used in a post and cannot be deleted.'
+                    'message' => 'Media này đang được sử dụng trong bài viết và không thể xóa.'
                 ], 400);
             }
 
@@ -200,7 +200,7 @@ class MediaController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => '🗑️ Media deleted successfully.'
+                'message' => 'Xóa media thành công.'
             ]);
         } catch (\Throwable $e) {
             Log::error('Media deletion failed', [
@@ -210,7 +210,7 @@ class MediaController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Server error while deleting media.'
+                'message' => 'Lỗi máy chủ trong quá trình xóa media.'
             ], 500);
         }
     }
@@ -229,7 +229,7 @@ class MediaController extends Controller
         if (!Storage::disk('public')->exists($media->path)) {
             return response()->json([
                 'success' => false,
-                'message' => 'Original file not found.'
+                'message' => 'Không tìm thấy tệp gốc.'
             ], 404);
         }
 
@@ -243,7 +243,7 @@ class MediaController extends Controller
         if (empty($meta['url'])) {
             return response()->json([
                 'success' => false,
-                'message' => 'Resize failed or no URL returned.'
+                'message' => 'Thay đổi kích thước ảnh thất bại hoặc không nhận được URL.'
             ], 500);
         }
 
@@ -254,7 +254,7 @@ class MediaController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Image resized successfully.',
+            'message' => 'Thay đổi kích thước ảnh thành công.',
             'url'     => $meta['url'],
             'data'    => $media
         ]);

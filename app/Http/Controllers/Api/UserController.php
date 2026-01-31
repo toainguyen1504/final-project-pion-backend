@@ -268,7 +268,7 @@ class UserController extends Controller
         if ($currentUser->hasRole('admin') && $user->hasRole('super_admin')) {
             return response()->json([
                 'success' => false,
-                'message' => 'Admin không có quyền reset password của Super Admin.'
+                'message' => 'Admin không có quyền đặt lại mật khẩu của Super Admin.'
             ], 403);
         }
 

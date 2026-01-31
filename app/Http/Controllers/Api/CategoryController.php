@@ -48,7 +48,7 @@ class CategoryController extends Controller
         if (Category::where('name', $request->name)->exists()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Category name already exists.'
+                'message' => 'Danh mục đã tồn tại!'
             ], 422);
         }
 
@@ -63,13 +63,13 @@ class CategoryController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Category created successfully!',
+                'message' => 'Danh mục đã được tạo thành công!',
                 'data' => $category
             ], 201);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create category. Please try again.'
+                'message' => 'Không thể tạo danh mục. Vui lòng thử lại.'
             ], 500);
         }
     }
@@ -80,7 +80,7 @@ class CategoryController extends Controller
         if (!$category) {
             return response()->json([
                 'success' => false,
-                'message' => 'Category not found.'
+                'message' => 'Danh mục không tồn tại!'
             ], 404);
         }
 
@@ -96,7 +96,7 @@ class CategoryController extends Controller
         if (!$category) {
             return response()->json([
                 'success' => false,
-                'message' => 'Category not found.'
+                'message' => 'Danh mục không tồn tại!'
             ], 404);
         }
 
@@ -111,7 +111,7 @@ class CategoryController extends Controller
         if (Category::where('name', $request->name)->where('id', '!=', $id)->exists()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Category name already exists.'
+                'message' => 'Tên danh mục đã tồn tại!'
             ], 422);
         }
 
@@ -126,13 +126,13 @@ class CategoryController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Category updated successfully!',
+                'message' => 'Danh mục đã được cập nhật thành công!',
                 'data' => $category
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update category. Please try again.'
+                'message' => 'Không thể cập nhật danh mục. Vui lòng thử lại.'
             ], 500);
         }
     }
@@ -143,14 +143,14 @@ class CategoryController extends Controller
         if (!$category) {
             return response()->json([
                 'success' => false,
-                'message' => 'Category not found.'
+                'message' => 'Danh mục không tồn tại!'
             ], 404);
         }
 
         if ($category->posts()->exists()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Cannot delete category with associated posts.'
+                'message' => 'Không thể xóa danh mục có bài viết liên quan.'
             ], 409);
         }
 
@@ -158,12 +158,12 @@ class CategoryController extends Controller
             $category->delete();
             return response()->json([
                 'success' => true,
-                'message' => 'Category deleted successfully!'
+                'message' => 'Danh mục đã được xóa thành công!'
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete category. Please try again.'
+                'message' => 'Không thể xóa danh mục. Vui lòng thử lại.'
             ], 500);
         }
     }
@@ -175,7 +175,7 @@ class CategoryController extends Controller
         if (empty($ids)) {
             return response()->json([
                 'success' => false,
-                'message' => 'No category IDs provided.'
+                'message' => 'Không có ID danh mục nào được cung cấp.'
             ], 400);
         }
 
@@ -185,7 +185,7 @@ class CategoryController extends Controller
         if ($categories->count() !== count($ids)) {
             return response()->json([
                 'success' => false,
-                'message' => 'One or more categories not found.'
+                'message' => 'Một hoặc nhiều danh mục không tồn tại.'
             ], 404);
         }
 
@@ -194,7 +194,7 @@ class CategoryController extends Controller
             if ($category->posts()->exists()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Cannot delete categories that are linked to posts.'
+                    'message' => 'Không thể xóa danh mục có bài viết liên quan.'
                 ], 409);
             }
         }
@@ -204,7 +204,7 @@ class CategoryController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Categories deleted successfully.'
+            'message' => 'Danh mục đã được xóa thành công.'
         ]);
     }
 

@@ -18,7 +18,7 @@ class AuthController extends Controller
         $loginField = filter_var($request->login, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
 
         if (!Auth::attempt([$loginField => $request->login, 'password' => $request->password])) {
-            return response()->json(['message' => 'Invalid credentials'], 401);
+            return response()->json(['message' => 'Thông tin đăng nhập không hợp lệ!'], 401);
         }
 
         /** @var \App\Models\User $user */
@@ -41,7 +41,7 @@ class AuthController extends Controller
         $user->currentAccessToken()->delete();
 
         return response()->json([
-            'message' => 'Logged out successfully'
+            'message' => 'Đăng xuất thành công.'
         ]);
     }
 }
