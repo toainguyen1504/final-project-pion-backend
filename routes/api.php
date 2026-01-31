@@ -10,22 +10,19 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\UserController;
 
 // -----------------------------
-// Public routes (Không cần token)
+// Common Public routes
 // -----------------------------
 
 // Auth
 Route::post('/login', [AuthController::class, 'login']);
+Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
 
-// Public content
 // category
 Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/categories/{id}', [CategoryController::class, 'show']);
 
-// post
-Route::get('/posts', [PostController::class, 'index']);
-Route::get('/posts/{id}', [PostController::class, 'show']);
-
 // Public media (cho FE hiển thị ảnh)
+// tối ưu: chỉ lấy danh sách media công khai và đang dùng cho post (Client site)
 Route::get('/media', [MediaController::class, 'index']);
 Route::get('/media/{id}', [MediaController::class, 'show']);
 
@@ -39,45 +36,64 @@ Route::prefix('consultations')->group(function () {
 Route::post('/form', [FormController::class, 'submit']);
 
 // -----------------------------
-// ** Protected routes (admin, cần token)
+//  START - Public routes cho Client Site (Frontend)
 // -----------------------------
-Route::prefix('admin')->middleware('auth:sanctum')->group(function () {
-    Route::post('/logout', [AuthController::class, 'logout']);
-
-    // Categories
-    Route::apiResource('categories', CategoryController::class)->except(['index', 'show']);
-    Route::post('/categories/bulk-destroy', [CategoryController::class, 'bulkDestroy']);
-    Route::get('/categories/stats', [CategoryController::class, 'stats'])->middleware('role:admin|staff|staffads|super_admin');
+Route::prefix('client')->group(function () {
 
     // Posts
-    Route::apiResource('posts', PostController::class)->except(['index', 'show']);
-    Route::post('/posts/bulk-destroy', [PostController::class, 'bulkDestroy']);
-    Route::get('/posts/stats', [PostController::class, 'stats'])->middleware('role:admin|staff|staffads|super_admin');
+    Route::get('/posts', [PostController::class, 'indexClient']);
+    Route::get('/posts/{id}', [PostController::class, 'showClient']);
 
-    // Media
-    Route::post('/media/{media}/resize', [MediaController::class, 'resize']);
-    Route::apiResource('media', MediaController::class)
-        ->parameters(['media' => 'media']) // ép Laravel dùng {media} thay vì {medium}
-        ->except(['index', 'show']);
+    // Courses
 
-    // Consultation (private)
-    Route::get('/consultations', [ConsultationApiController::class, 'index']);
-    Route::get('/consultations/export', [ConsultationApiController::class, 'export']);
-    Route::get('/consultations/my', [ConsultationApiController::class, 'myConsultations']); //don't use
+    // Flashcards
 });
 
-// Auth route: chỉ khi đang nhập và check role (admin/super_admin,....) mới được CRUD users, roles
+// -----------------------------
+//  END - Public routes cho Client Site(Frontend)
+// -----------------------------
+
+// -----------------------------
+// ** Protected routes - chỉ role: admin, staff, staffads, super_admin mới được truy cập **
+// -----------------------------
+// categories, posts, media, consultations
 Route::prefix('admin')->middleware('auth:sanctum')->group(function () {
-    // CRUD
-    Route::apiResource('users', UserController::class)
-        ->middleware('role:admin|super_admin');
+    Route::middleware('role:admin|staff|staffads|super_admin')->group(function () {
 
-    // Reset password nhanh
-    Route::post('/users/{id}/reset-password', [UserController::class, 'resetPassword'])->middleware('role:admin|super_admin');
+        // Categories
+        Route::apiResource('categories', CategoryController::class)->except(['index', 'show']);
+        Route::post('/categories/bulk-destroy', [CategoryController::class, 'bulkDestroy']);
+        Route::get('/categories/stats', [CategoryController::class, 'stats']);
 
-    // Get list roles (staff, admin, super_admin mới được phép) 
-    Route::get('/roles', [UserController::class, 'getRoles'])->middleware('role:staff|admin|super_admin');
+        // Posts
+        Route::get('/posts/stats', [PostController::class, 'stats']); // phải đặt trước route  apiResource để không bị ghi đè với detail post
+        Route::post('/posts/bulk-destroy', [PostController::class, 'bulkDestroy']);
+        Route::apiResource('posts', PostController::class);
 
-    // Get roles trừ super_admin và guest 
-    Route::get('/roles/available', [UserController::class, 'rolesAvailable'])->middleware('role:admin|super_admin');
+        // Media
+        Route::post('/media/{media}/resize', [MediaController::class, 'resize']);
+        Route::apiResource('media', MediaController::class)
+            ->parameters(['media' => 'media']) // ép Laravel dùng {media} thay vì {medium}
+            ->except(['index', 'show']);
+
+        // Consultation (private)
+        Route::get('/consultations', [ConsultationApiController::class, 'index']);
+        Route::get('/consultations/export', [ConsultationApiController::class, 'export']);
+        Route::get('/consultations/my', [ConsultationApiController::class, 'myConsultations']); //don't use
+    });
+
+    // CRUD users, roles
+    Route::middleware('role:admin|super_admin')->group(function () {
+
+        Route::apiResource('users', UserController::class);
+
+        // Reset password nhanh
+        Route::post('/users/{id}/reset-password', [UserController::class, 'resetPassword']);
+
+        // Get list roles (admin, super_admin mới được phép) 
+        Route::get('/roles', [UserController::class, 'getRoles']);
+
+        // Get roles trừ super_admin và guest 
+        Route::get('/roles/available', [UserController::class, 'rolesAvailable']);
+    });
 });

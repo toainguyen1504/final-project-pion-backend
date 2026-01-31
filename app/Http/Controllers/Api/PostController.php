@@ -9,18 +9,13 @@ use App\Models\Post;
 use App\Models\PostContent;
 use App\Http\Requests\PostRequest;
 
+
+
 class PostController extends Controller
 {
-    // API hiển thị danh sách cho Admin CMS (CRUD) và Guest (với guest thì chỉ hiển thị public)
-    public function index(Request $request)
+    // Hàm chung để build query
+    private function buildQuery(Request $request, bool $onlyPublic = false)
     {
-        // Auto update scheduled -> public
-        $now = now();
-        Post::where('visibility', 'scheduled_public')
-            ->whereNotNull('publish_at')
-            ->where('publish_at', '<=', $now)
-            ->update(['visibility' => 'public']);
-
         $perPage = $request->get('per_page', 10);
         $sort    = $request->get('sort', 'publish_at');
         $order   = $request->get('order', 'desc');
@@ -28,10 +23,7 @@ class PostController extends Controller
 
         $query = Post::with(['category', 'content', 'categories']);
 
-        // Check role để hiển thị đúng mong muốn: chỉ hiển thị public nếu là guest
-        $user = $request->user();
-        if (!$user || !in_array($user->role->name ?? 'guest', ['admin', 'staff', 'staffads', 'super_admin'])) {
-            // Nếu không phải admin/staff → chỉ lấy bài public
+        if ($onlyPublic) {
             $query->where('visibility', 'public');
         }
 
@@ -43,8 +35,23 @@ class PostController extends Controller
             });
         }
 
-        $posts = $query->orderBy($sort, $order)->paginate($perPage);
+        return $query->orderBy($sort, $order)->paginate($perPage);
+    }
 
+    // Auto update scheduled -> public
+    private function autoUpdateVisibility()
+    {
+        $now = now();
+        Post::where('visibility', 'scheduled_public')
+            ->whereNotNull('publish_at')
+            ->where('publish_at', '<=', $now)
+            ->update(['visibility' => 'public']);
+    }
+
+
+    // Hàm chung format response
+    private function formatResponse($posts)
+    {
         return response()->json([
             'success' => true,
             'data'    => $posts->items(),
@@ -59,20 +66,14 @@ class PostController extends Controller
         ]);
     }
 
-    // Get detail
-    public function show(Request $request, $id)
+    // Hàm chung lấy detail cho client site và admin cms 
+    private function getPostDetail(Request $request, $id, bool $onlyPublic = false)
     {
-        $now = now();
-        Post::where('visibility', 'scheduled_public')
-            ->whereNotNull('publish_at')
-            ->where('publish_at', '<=', $now)
-            ->update(['visibility' => 'public']);
+        $this->autoUpdateVisibility();
 
         $query = Post::with(['category', 'content', 'categories']);
 
-        // check role để hiển thị đúng, guest chỉ hiển thị bài viết public
-        $user = $request->user();
-        if (!$user || !in_array($user->role->name ?? 'guest', ['admin', 'staff', 'staff', 'super_admin'])) {
+        if ($onlyPublic) {
             $query->where('visibility', 'public');
         }
 
@@ -87,8 +88,40 @@ class PostController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $post
+            'data'    => $post
         ]);
+    }
+
+    // Client: API hiển thị danh sách Guest (chỉ public) - this is for frontend (client site)
+    public function indexClient(Request $request)
+    {
+        $this->autoUpdateVisibility();
+
+        $posts = $this->buildQuery($request, true);
+
+        return $this->formatResponse($posts);
+    }
+
+    public function showClient(Request $request, $id)
+    {
+        return $this->getPostDetail($request, $id, true);
+    }
+
+    // CMS: API hiển thị danh sách cho Admin CMS (tất cả)
+    public function index(Request $request)
+    {
+        $this->autoUpdateVisibility();
+
+        // Admin có thể xem tất cả, không filter
+        $posts = $this->buildQuery($request, false);
+
+        return $this->formatResponse($posts);
+    }
+
+    // detail admin cms
+    public function show(Request $request, $id)
+    {
+        return $this->getPostDetail($request, $id, false);
     }
 
     public function store(PostRequest $request)
@@ -294,7 +327,6 @@ class PostController extends Controller
             ], 500);
         }
     }
-
 
     // Stats hiển thị cho dashboard (admin cms)
     public function stats(Request $request)
