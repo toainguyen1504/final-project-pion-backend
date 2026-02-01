@@ -14,8 +14,11 @@ use App\Http\Controllers\Api\UserController;
 // -----------------------------
 
 // Auth
-Route::post('/login', [AuthController::class, 'login']);
-Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
+
+Route::post('/cms/login', [AuthController::class, 'loginCms']); // CMS login
+Route::post('/client/login', [AuthController::class, 'loginClient']); // Client login
+
+Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']); // logout chung
 
 // category
 Route::get('/categories', [CategoryController::class, 'index']);
