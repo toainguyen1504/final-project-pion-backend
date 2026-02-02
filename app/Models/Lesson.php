@@ -23,7 +23,7 @@ class Lesson extends Model
         'order',
         'is_preview',
         'is_quiz',
-        'chapter_id',
+        'course_id',
     ];
 
     protected $casts = [
@@ -33,9 +33,9 @@ class Lesson extends Model
         'is_quiz' => 'boolean',
     ];
 
-    public function chapter(): BelongsTo
+    public function course(): BelongsTo
     {
-        return $this->belongsTo(Chapter::class);
+        return $this->belongsTo(Course::class);
     }
 
     public function flashcards(): HasMany

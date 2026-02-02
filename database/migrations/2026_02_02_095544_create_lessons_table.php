@@ -22,7 +22,7 @@ return new class extends Migration
             $table->boolean('is_preview')->default(false); // có cho xem trước không
             $table->boolean('is_quiz')->default(false);    // có phải bài kiểm tra không
 
-            $table->foreignId('chapter_id')->constrained('chapters')->onDelete('cascade');
+            $table->foreignId('course_id')->constrained('courses')->onDelete('cascade');
 
             $table->timestamps();
         });

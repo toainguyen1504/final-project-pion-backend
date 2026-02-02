@@ -28,7 +28,8 @@ return new class extends Migration
             $table->text('benefits')->nullable(); // mô tả lợi ích
             $table->boolean('is_free')->default(false);
 
-            $table->foreignId('category_id')->nullable()->constrained('categories')->nullOnDelete(); // 1 khóa học thuộc về 1 danh mục, ví dụ: Tiếng Anh cho Trẻ em, Tiếng Anh Giao tiếp,...
+            $table->foreignId('program_id')->nullable()->constrained('programs')->nullOnDelete(); // 1 khóa học thuộc về 1 chương trình học, ví dụ: Tiếng Anh cho Trẻ em, Tiếng Anh Giao tiếp,...
+            $table->foreignId('category_id')->nullable()->constrained('categories')->nullOnDelete(); // 1 khóa học thuộc về 1 danh mục, ví dụ: Tiếng Anh, tiếng Trung..
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); // người tạo
 
             $table->timestamps();

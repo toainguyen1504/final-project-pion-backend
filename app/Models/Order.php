@@ -19,7 +19,7 @@ class Order extends Model
         'payment_method',
         'payment_status',
         'ordered_at',
-        'learner_id',
+        'payer_id',
     ];
 
     protected $casts = [
@@ -29,9 +29,9 @@ class Order extends Model
         'ordered_at' => 'datetime',
     ];
 
-    public function learner(): BelongsTo
+    public function user(): BelongsTo
     {
-        return $this->belongsTo(Learner::class);
+        return $this->belongsTo(User::class, 'payer_id');
     }
 
     public function items(): HasMany

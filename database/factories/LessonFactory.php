@@ -18,7 +18,6 @@ class LessonFactory extends Factory
             'order' => $this->faker->numberBetween(1, 20),
             'is_preview' => $this->faker->boolean(10),
             'is_quiz' => $this->faker->boolean(20),
-            'chapter_id' => null, // sẽ gán trong seeder
         ];
     }
 }

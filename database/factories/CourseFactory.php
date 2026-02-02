@@ -23,8 +23,9 @@ class CourseFactory extends Factory
             'total_lessons' => $this->faker->numberBetween(5, 50),
             'benefits' => $this->faker->sentence(6),
             'is_free' => $this->faker->boolean(20),
-            'category_id' => 1, // giả định có category
-            'user_id' => 1,     // giả định có user tạo
+            'program_id' => 1,   // giả định có program
+            'category_id' => 1,  // giả định có category
+            'user_id' => 1,      // giả định có user tạo
         ];
     }
 }

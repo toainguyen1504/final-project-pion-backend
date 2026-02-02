@@ -15,7 +15,6 @@ return new class extends Migration
             $table->unsignedInteger('timestamp')->default(0); // thời điểm trong video (giây)
 
             $table->foreignId('lesson_id')->constrained('lessons')->onDelete('cascade');
-            $table->foreignId('chapter_id')->constrained('chapters')->onDelete('cascade');
             $table->foreignId('learner_id')->constrained('learners')->onDelete('cascade');
 
             $table->timestamps();

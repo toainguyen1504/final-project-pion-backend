@@ -27,6 +27,7 @@ class Course extends Model
         'total_lessons',
         'benefits',
         'is_free',
+        'program_id',
         'category_id',
         'user_id',
     ];
@@ -50,10 +51,16 @@ class Course extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function chapters(): HasMany
+    public function program(): BelongsTo
     {
-        return $this->hasMany(Chapter::class);
+        return $this->belongsTo(Program::class);
     }
+
+    public function lessons(): HasMany
+    {
+        return $this->hasMany(Lesson::class);
+    }
+
 
     public function enrollments(): HasMany
     {

@@ -14,7 +14,7 @@ class Enrollment extends Model
         'payment_source',
         'enrollment_date',
         'progress',
-        'learner_id',
+        'user_id',
         'course_id',
     ];
 
@@ -23,9 +23,9 @@ class Enrollment extends Model
         'progress' => 'integer',
     ];
 
-    public function learner(): BelongsTo
+    public function user(): BelongsTo
     {
-        return $this->belongsTo(Learner::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function course(): BelongsTo

@@ -17,7 +17,7 @@ return new class extends Migration
 
             $table->unsignedTinyInteger('progress')->default(0); // tiến độ học (%)
 
-            $table->foreignId('learner_id')->constrained('learners')->onDelete('cascade');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); // người học: member hoặc learner
             $table->foreignId('course_id')->constrained('courses')->onDelete('cascade');
 
             $table->timestamps();

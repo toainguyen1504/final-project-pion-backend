@@ -14,7 +14,7 @@ return new class extends Migration
             $table->enum('payment_method', ['bank', 'vnpay', 'momo'])->default('bank');
             $table->decimal('total_amount', 10, 2)->default(0);
             $table->enum('status', ['pending', 'paid', 'failed'])->default('pending');
-            $table->foreignId('payer_id')->constrained('learners')->onDelete('cascade'); // người thanh toán, sau này nâng cấp có thể là member hoặc learner
+            $table->foreignId('payer_id')->constrained('users')->onDelete('cascade'); // người thanh toán, là member hoặc learner
 
             $table->timestamps();
         });

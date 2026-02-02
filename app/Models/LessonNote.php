@@ -13,7 +13,6 @@ class LessonNote extends Model
         'content',
         'timestamp',
         'lesson_id',
-        'chapter_id',
         'learner_id',
     ];
 
@@ -24,11 +23,6 @@ class LessonNote extends Model
     public function lesson(): BelongsTo
     {
         return $this->belongsTo(Lesson::class);
-    }
-
-    public function chapter(): BelongsTo
-    {
-        return $this->belongsTo(Chapter::class);
     }
 
     public function learner(): BelongsTo
