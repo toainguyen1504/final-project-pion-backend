@@ -13,6 +13,7 @@ return new class extends Migration
 
             $table->text('front_text'); // mặt trước
             $table->text('back_text');  // mặt sau
+            $table->text('example')->nullable(); // ví dụ minh họa cho từ này
             $table->string('image_url')->nullable(); // ảnh minh họa (upload hoặc render)
             $table->text('image_prompt')->nullable(); // mô tả ảnh nếu render từ AI
             $table->string('audio')->nullable();     // âm thanh nếu có

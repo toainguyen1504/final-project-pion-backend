@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             CategorySeeder::class,
             TemplateSeeder::class,
             PostSeeder::class,
+            ElearningSeeder::class,
         ]);
     }
 }
