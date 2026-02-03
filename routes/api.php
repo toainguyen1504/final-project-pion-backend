@@ -8,16 +8,15 @@ use App\Http\Controllers\Api\FormController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\ProgramController;
 
 // -----------------------------
 // Common Public routes
 // -----------------------------
 
 // Auth
-
 Route::post('/cms/login', [AuthController::class, 'loginCms']); // CMS login
 Route::post('/client/login', [AuthController::class, 'loginClient']); // Client login
-
 Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']); // logout chung
 
 // category
@@ -61,12 +60,13 @@ Route::prefix('client')->group(function () {
 // -----------------------------
 // categories, posts, media, consultations
 Route::prefix('admin')->middleware('auth:sanctum')->group(function () {
+    // CRUD categories, posts, media, consultations
     Route::middleware('role:admin|staff|staffads|super_admin')->group(function () {
 
         // Categories
-        Route::apiResource('categories', CategoryController::class)->except(['index', 'show']);
-        Route::post('/categories/bulk-destroy', [CategoryController::class, 'bulkDestroy']);
         Route::get('/categories/stats', [CategoryController::class, 'stats']);
+        Route::post('/categories/bulk-destroy', [CategoryController::class, 'bulkDestroy']);
+        Route::apiResource('categories', CategoryController::class)->except(['index', 'show']);
 
         // Posts
         Route::get('/posts/stats', [PostController::class, 'stats']); // phải đặt trước route  apiResource để không bị ghi đè với detail post
@@ -98,5 +98,12 @@ Route::prefix('admin')->middleware('auth:sanctum')->group(function () {
 
         // Get roles trừ super_admin và guest 
         Route::get('/roles/available', [UserController::class, 'rolesAvailable']);
+    });
+
+    // CRUD programs, courses, lessons, lesson notes,... (E-learning)
+    Route::middleware('role:admin|super_admin|teacher')->group(function () {
+        // Programs
+        Route::post('/programs/bulk-destroy', [ProgramController::class, 'bulkDestroy']);
+        Route::apiResource('programs', ProgramController::class);
     });
 });

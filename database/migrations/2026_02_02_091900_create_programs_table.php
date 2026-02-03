@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
 
             $table->string('title');
-            $table->string('slug')->unique();
+            $table->string('slug')->unique(); // định danh duy nhất - lấy theo title
             $table->text('description')->nullable();
             $table->enum('status', ['active', 'inactive'])->default('active');
 
