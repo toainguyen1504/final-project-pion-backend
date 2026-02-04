@@ -39,6 +39,7 @@ class Course extends Model
         'duration' => 'integer',
         'participants' => 'integer',
         'total_lessons' => 'integer',
+        'benefits' => 'array',
     ];
 
     public function category(): BelongsTo

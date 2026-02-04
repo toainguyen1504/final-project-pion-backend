@@ -11,12 +11,12 @@ return new class extends Migration
         Schema::create('lessons', function (Blueprint $table) {
             $table->id();
 
-            $table->string('title');
+            $table->string('title');  // -> bắt buộc
             $table->string('slug')->unique();
             $table->text('intro')->nullable();     // phần giới thiệu ngắn
             $table->longText('content')->nullable(); // nội dung chính
             $table->unsignedInteger('duration')->default(0); // thời lượng (phút)
-            $table->string('video_url')->nullable(); // link video bài học
+            $table->string('video_url')->nullable(); // link video bài học -> bắt buộc
 
             $table->unsignedInteger('order')->default(1); // thứ tự bài học trong chương
             $table->boolean('is_preview')->default(false); // có cho xem trước không

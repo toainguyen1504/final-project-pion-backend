@@ -9,7 +9,7 @@ use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\ProgramController;
-
+use App\Http\Controllers\Api\CourseController;
 // -----------------------------
 // Common Public routes
 // -----------------------------
@@ -105,5 +105,9 @@ Route::prefix('admin')->middleware('auth:sanctum')->group(function () {
         // Programs
         Route::post('/programs/bulk-destroy', [ProgramController::class, 'bulkDestroy']);
         Route::apiResource('programs', ProgramController::class);
+
+        // Courses
+        Route::post('/courses/bulk-destroy', [CourseController::class, 'bulkDestroy']);
+        Route::apiResource('courses', CourseController::class);
     });
 });

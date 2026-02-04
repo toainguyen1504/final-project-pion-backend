@@ -10,16 +10,21 @@ return new class extends Migration
     {
         Schema::create('flashcards', function (Blueprint $table) {
             $table->id();
+            $table->string('front_text'); // * từ vựng chính
+            $table->string('back_text');  // * nghĩa cơ bản
+            $table->string('phonetic')->nullable(); // phiên âm
+            $table->string('translation')->nullable(); // nghĩa tiếng Việt
+            $table->text('example_sentence')->nullable(); // câu ví dụ
+            $table->text('example_translation')->nullable(); // dịch câu ví dụ
+            $table->string('image_url')->nullable();
+            $table->string('image_prompt')->nullable();
+            $table->string('audio')->nullable();
+            $table->unsignedTinyInteger('level')->default(0); // cấp độ từ vựng
+            $table->integer('order')->default(0); // thứ tự trong lesson
 
-            $table->text('front_text'); // mặt trước
-            $table->text('back_text');  // mặt sau
-            $table->text('example')->nullable(); // ví dụ minh họa cho từ này
-            $table->string('image_url')->nullable(); // ảnh minh họa (upload hoặc render)
-            $table->text('image_prompt')->nullable(); // mô tả ảnh nếu render từ AI
-            $table->string('audio')->nullable();     // âm thanh nếu có
+            $table->json('tags')->nullable(); // metadata: unit, chủ đề
 
             $table->foreignId('lesson_id')->constrained('lessons')->onDelete('cascade');
-
             $table->timestamps();
         });
     }
