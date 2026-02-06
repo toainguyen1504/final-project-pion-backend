@@ -16,7 +16,7 @@ class CourseFactory extends Factory
             'description' => $this->faker->paragraph(),
             'price' => $this->faker->randomFloat(2, 100, 1000),
             'discount_price' => $this->faker->randomFloat(2, 50, 500),
-            'level' => $this->faker->randomElement(['beginner', 'intermediate', 'advanced']),
+            'level' => fake()->numberBetween(0, 6),
             'status' => $this->faker->randomElement(['draft', 'published']),
             'duration' => $this->faker->numberBetween(10, 100),
             'participants' => $this->faker->numberBetween(0, 1000),

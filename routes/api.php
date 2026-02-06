@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\ProgramController;
 use App\Http\Controllers\Api\CourseController;
+use App\Http\Controllers\Api\LessonController;
 // -----------------------------
 // Common Public routes
 // -----------------------------
@@ -109,5 +110,10 @@ Route::prefix('admin')->middleware('auth:sanctum')->group(function () {
         // Courses
         Route::post('/courses/bulk-destroy', [CourseController::class, 'bulkDestroy']);
         Route::apiResource('courses', CourseController::class);
+
+        // Lessons 
+        Route::get('/courses/{courseId}/lessons', [LessonController::class, 'getByCourse']);
+        Route::post('/lessons/bulk-destroy', [LessonController::class, 'bulkDestroy']);
+        Route::apiResource('lessons', LessonController::class);
     });
 });
