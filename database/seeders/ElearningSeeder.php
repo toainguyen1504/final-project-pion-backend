@@ -19,11 +19,11 @@ class ElearningSeeder extends Seeder
                 'program_id' => $program->id,
             ])->each(function ($course) {
                 // Mỗi khóa học có vài bài học
-                Lesson::factory(rand(4, 6))->create([
+                Lesson::factory(rand(1, 3))->create([
                     'course_id' => $course->id,
                 ])->each(function ($lesson) {
                     // Mỗi bài học có vài flashcard
-                    Flashcard::factory(rand(5, 10))->create([
+                    Flashcard::factory(rand(1, 3))->create([
                         'lesson_id' => $lesson->id,
                     ]);
                 });

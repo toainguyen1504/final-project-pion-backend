@@ -10,11 +10,11 @@ return new class extends Migration
     {
         Schema::create('flashcards', function (Blueprint $table) {
             $table->id();
-            $table->string('front_text'); // * từ vựng chính
-            $table->string('back_text');  // * nghĩa cơ bản
+            $table->string('vocabulary'); // từ vựng chính (English)
             $table->string('phonetic')->nullable(); // phiên âm
-            $table->string('translation')->nullable(); // nghĩa tiếng Việt
+            $table->string('translation')->nullable(); // nghĩa tiếng việt
             $table->text('example_sentence')->nullable(); // câu ví dụ
+
             $table->text('example_translation')->nullable(); // dịch câu ví dụ
             $table->string('image_url')->nullable();
             $table->string('image_prompt')->nullable();
