@@ -9,21 +9,24 @@ use Illuminate\Support\Str;
  * @property \App\Models\PostContent|null $content
  */
 class Post extends Model
-{   
+{
     protected $fillable = [
         'title',
-        'slug',
         'sapo_text',
+        'slug',
         'user_id',
         'category_id',
+        'template_id',
         'seo_title',
         'seo_description',
         'seo_keywords',
         'seo_meta',
+        'is_featured',
+        'view_count',
         'status',
         'visibility',
         'publish_at',
-        'featured_media_id'
+        'featured_media_id',
     ];
 
     protected static function booted()
