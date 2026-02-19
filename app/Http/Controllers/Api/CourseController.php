@@ -7,21 +7,25 @@ use App\Models\Course;
 use Illuminate\Http\Request;
 use App\Http\Requests\CourseRequest;
 use Illuminate\Support\Str;
-
 class CourseController extends Controller
 {
     // Lấy danh sách tất cả các khóa học
-    public function index()
+    public function index(Request $request)
     {
-        $perPage = request()->get('per_page', 10);
-        $sort = request()->get('sort', 'updated_at');
-        $order = request()->get('order', 'desc');
-        $search = request()->get('search');
+        $perPage = $request->get('per_page', 10);
+        $sort = $request->get('sort', 'updated_at');
+        $order = $request->get('order', 'desc');
+        $search = $request->get('search');
+        $programId = $request->get('program_id'); // lấy program_id từ query
 
         $query = Course::query();
 
         if ($search) {
             $query->where('title', 'like', "%{$search}%");
+        }
+
+        if ($programId) {
+            $query->where('program_id', $programId); // lọc theo program_id
         }
 
         $courses = $query->orderBy($sort, $order)->paginate($perPage);
@@ -39,6 +43,7 @@ class CourseController extends Controller
             ]
         ]);
     }
+
 
     // Tạo mới một khóa học
     public function store(CourseRequest $request)

@@ -9,23 +9,33 @@ use Illuminate\Support\Str;
 
 class LessonController extends Controller
 {
-    // Lấy danh sách tất cả các bài học
+    // Lấy danh sách tất cả các bài học, có query filter
     public function index()
     {
-        $perPage = request()->get('per_page', 10);
-        $sort = request()->get('sort', 'updated_at');
-        $order = request()->get('order', 'desc');
-        $search = request()->get('search');
-        $courseId = request()->get('course_id'); // lọc theo course
+        $perPage   = request()->get('per_page', 10);
+        $sort      = request()->get('sort', 'updated_at');
+        $order     = request()->get('order', 'desc');
+        $search    = request()->get('search');
+        $courseId  = request()->get('course_id');   // lọc theo course
+        $programId = request()->get('program_id');  // lọc theo program
 
-        $query = Lesson::query();
+        $query = Lesson::query()->with('course.program');
 
+        // Tìm kiếm theo title
         if ($search) {
             $query->where('title', 'like', "%{$search}%");
         }
 
+        // Lọc theo course
         if ($courseId) {
             $query->where('course_id', $courseId);
+        }
+
+        // Lọc theo program (thông qua quan hệ course)
+        if ($programId) {
+            $query->whereHas('course.program', function ($q) use ($programId) {
+                $q->where('id', $programId);
+            });
         }
 
         $lessons = $query->orderBy($sort, $order)->paginate($perPage);
@@ -35,9 +45,9 @@ class LessonController extends Controller
             'data' => $lessons->items(),
             'meta' => [
                 'current_page' => $lessons->currentPage(),
-                'last_page' => $lessons->lastPage(),
-                'per_page' => $lessons->perPage(),
-                'total' => $lessons->total(),
+                'last_page'    => $lessons->lastPage(),
+                'per_page'     => $lessons->perPage(),
+                'total'        => $lessons->total(),
                 'next_page_url' => $lessons->nextPageUrl(),
                 'prev_page_url' => $lessons->previousPageUrl()
             ]
