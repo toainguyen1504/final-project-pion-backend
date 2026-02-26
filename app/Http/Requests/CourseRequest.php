@@ -30,8 +30,8 @@ class CourseRequest extends FormRequest
             'total_lessons'  => 'nullable|integer|min:0',
             'benefits'       => 'nullable|string',
             'is_free'        => 'boolean',
-            'program_id'     => 'nullable|exists:programs,id',
-            'category_id'    => 'nullable|exists:categories,id',
+            'program_id'     => 'required|exists:programs,id', // required
+            'category_id'    => 'required|exists:categories,id', //required
             'user_id'        => 'required|exists:users,id',
         ];
     }

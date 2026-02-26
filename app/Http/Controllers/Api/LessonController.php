@@ -9,6 +9,28 @@ use Illuminate\Support\Str;
 
 class LessonController extends Controller
 {
+    // helper để convert link YTB
+    protected function convertYoutubeUrl(string $url): string
+    {
+        // Nếu là link share dạng youtu.be
+        if (preg_match('/youtu\.be\/([^\?]+)/', $url, $matches)) {
+            return "https://www.youtube.com/embed/" . $matches[1];
+        }
+
+        // Nếu là link đầy đủ dạng youtube.com/watch?v=...
+        if (preg_match('/v=([^\&]+)/', $url, $matches)) {
+            return "https://www.youtube.com/embed/" . $matches[1];
+        }
+
+        // Nếu đã là embed thì giữ nguyên
+        if (str_contains($url, 'youtube.com/embed')) {
+            return $url;
+        }
+
+        // Trường hợp khác: trả về nguyên gốc
+        return $url;
+    }
+
     // Lấy danh sách tất cả các bài học, có query filter
     public function index()
     {
@@ -98,6 +120,10 @@ class LessonController extends Controller
 
         $slug = $validated['slug'] ?? Str::slug($validated['title']);
 
+        if (!empty($validated['video_url'])) {
+            $validated['video_url'] = $this->convertYoutubeUrl($validated['video_url']);
+        }
+
         if (Lesson::where('slug', $slug)->exists()) {
             return response()->json([
                 'success' => false,
@@ -156,6 +182,10 @@ class LessonController extends Controller
         ]);
 
         $slug = $validated['slug'] ?? Str::slug($validated['title'] ?? $lesson->title);
+
+        if (!empty($validated['video_url'])) {
+            $validated['video_url'] = $this->convertYoutubeUrl($validated['video_url']);
+        }
 
         $lesson->update(array_merge($validated, ['slug' => $slug]));
 
