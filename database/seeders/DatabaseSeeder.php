@@ -19,7 +19,7 @@ class DatabaseSeeder extends Seeder
             CategorySeeder::class,
             TemplateSeeder::class,
             PostSeeder::class,
-            ElearningSeeder::class,
+            // ElearningSeeder::class, // Seeder cho Program, Course, Lesson, Flashcard - chưa cần test vì đang cần tạo data thật
         ]);
     }
 }

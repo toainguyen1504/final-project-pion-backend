@@ -97,8 +97,8 @@ class LessonController extends Controller
                 'per_page' => $lessons->perPage(),
                 'total' => $lessons->total(),
                 'next_page_url' => $lessons->nextPageUrl(),
-                'prev_page_url' => $lessons->previousPageUrl()
-            ]
+                    'prev_page_url' => $lessons->previousPageUrl()
+                ]
         ]);
     }
 
