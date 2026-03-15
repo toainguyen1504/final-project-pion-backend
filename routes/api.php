@@ -49,8 +49,8 @@ Route::prefix('client')->group(function () {
     Route::get('/posts/{id}', [PostController::class, 'showClient']);
 
     // Courses
-    Route::get('/courses', [CourseController::class, 'indexClient']);
-    Route::get('/courses/{slug}', [CourseController::class, 'showClient']);
+    Route::get('/courses', [CourseController::class, 'indexClient'])->middleware('auth:sanctum');
+    Route::get('/courses/{slug}', [CourseController::class, 'showClient'])->middleware('auth:sanctum');
     Route::post('/courses/{id}/enroll', [CourseController::class, 'enroll'])->middleware('auth:sanctum'); // đăng ký khóa học (phải login = account learner)
     Route::get('/courses/{slug}/learning', [CourseController::class, 'learningDetail'])->middleware('auth:sanctum'); // vào học khóa học (phải login = account learner)
 
