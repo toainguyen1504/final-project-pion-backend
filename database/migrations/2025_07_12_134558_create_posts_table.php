@@ -18,7 +18,7 @@ return new class extends Migration
             $table->text('sapo_text')->nullable(); // plain text intro to show meta desc in FE
             $table->string('slug')->unique();         // SEO-friendly URL - slug follow seo_title
             $table->unsignedBigInteger('user_id');    // Author
-            $table->unsignedBigInteger('category_id')->nullable();
+            $table->unsignedBigInteger('category_id')->nullable(); // OPTIMIZE : nên xóa vì đã có bảng trung gian category_post để liên kết nhiều-nhiều giữa posts và categories
             $table->unsignedBigInteger('template_id')->nullable();
 
             // SEO fields (Rank Math style)

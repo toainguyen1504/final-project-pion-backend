@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Lesson;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 class LessonController extends Controller
 {
@@ -31,7 +32,7 @@ class LessonController extends Controller
         return $url;
     }
 
-    // Lấy danh sách tất cả các bài học, có query filter
+    // Lấy danh sách tất cả các bài học, có query filter, index list cho admin cms CRUD
     public function index()
     {
         $perPage   = request()->get('per_page', 10);
@@ -97,12 +98,12 @@ class LessonController extends Controller
                 'per_page' => $lessons->perPage(),
                 'total' => $lessons->total(),
                 'next_page_url' => $lessons->nextPageUrl(),
-                    'prev_page_url' => $lessons->previousPageUrl()
-                ]
+                'prev_page_url' => $lessons->previousPageUrl()
+            ]
         ]);
     }
 
-    // Tạo mới một bài học
+    // Tạo mới một bài học, Không truyền order -> thêm cuối
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -118,26 +119,43 @@ class LessonController extends Controller
             'course_id' => 'required|exists:courses,id',
         ]);
 
-        $slug = $validated['slug'] ?? Str::slug($validated['title']);
+        return DB::transaction(function () use ($validated) {
 
-        if (!empty($validated['video_url'])) {
-            $validated['video_url'] = $this->convertYoutubeUrl($validated['video_url']);
-        }
+            $slug = $validated['slug'] ?? Str::slug($validated['title']);
+            $courseId = $validated['course_id'];
 
-        if (Lesson::where('slug', $slug)->exists()) {
+            if (!empty($validated['video_url'])) {
+                $validated['video_url'] = $this->convertYoutubeUrl($validated['video_url']);
+            }
+
+            if (Lesson::where('slug', $slug)->exists()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Slug đã tồn tại!'
+                ], 422);
+            }
+
+            $maxOrder = Lesson::where('course_id', $courseId)->max('order') ?? 0;
+
+            $order = $validated['order'] ?? $maxOrder + 1;
+
+            // shift order nếu insert giữa
+            Lesson::where('course_id', $courseId)
+                ->where('order', '>=', $order)
+                ->increment('order');
+
+            $lesson = Lesson::create([
+                ...$validated,
+                'slug' => $slug,
+                'order' => $order
+            ]);
+
             return response()->json([
-                'success' => false,
-                'message' => 'Slug đã tồn tại, hãy đổi tiêu đề hoặc slug!'
-            ], 422);
-        }
-
-        $lesson = Lesson::create(array_merge($validated, ['slug' => $slug]));
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Bài học đã được tạo thành công!',
-            'data' => $lesson
-        ], 201);
+                'success' => true,
+                'message' => 'Bài học đã được tạo thành công!',
+                'data' => $lesson
+            ], 201);
+        });
     }
 
     // Hiển thị chi tiết một bài học
@@ -157,10 +175,11 @@ class LessonController extends Controller
         ]);
     }
 
-    // Cập nhật một bài học
+    // Cập nhật một bài học - xử lý reorder nếu có thay đổi thứ tự
     public function update(Request $request, $id)
     {
         $lesson = Lesson::find($id);
+
         if (!$lesson) {
             return response()->json([
                 'success' => false,
@@ -181,25 +200,49 @@ class LessonController extends Controller
             'course_id' => 'required|exists:courses,id',
         ]);
 
-        $slug = $validated['slug'] ?? Str::slug($validated['title'] ?? $lesson->title);
+        return DB::transaction(function () use ($lesson, $validated) {
 
-        if (!empty($validated['video_url'])) {
-            $validated['video_url'] = $this->convertYoutubeUrl($validated['video_url']);
-        }
+            $slug = $validated['slug'] ?? Str::slug($validated['title']);
 
-        $lesson->update(array_merge($validated, ['slug' => $slug]));
+            if (!empty($validated['video_url'])) {
+                $validated['video_url'] = $this->convertYoutubeUrl($validated['video_url']);
+            }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Bài học đã được cập nhật thành công!',
-            'data' => $lesson
-        ]);
+            $newOrder = $validated['order'] ?? $lesson->order;
+            $oldOrder = $lesson->order;
+            $courseId = $lesson->course_id;
+
+            if ($newOrder > $oldOrder) {
+
+                Lesson::where('course_id', $courseId)
+                    ->whereBetween('order', [$oldOrder + 1, $newOrder])
+                    ->decrement('order');
+            } elseif ($newOrder < $oldOrder) {
+
+                Lesson::where('course_id', $courseId)
+                    ->whereBetween('order', [$newOrder, $oldOrder - 1])
+                    ->increment('order');
+            }
+
+            $lesson->update([
+                ...$validated,
+                'slug' => $slug,
+                'order' => $newOrder
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Bài học đã được cập nhật thành công!',
+                'data' => $lesson
+            ]);
+        });
     }
 
-    // Xóa một bài học
+    // Xóa một bài học - fix lại order sau khi delete
     public function destroy($id)
     {
         $lesson = Lesson::find($id);
+
         if (!$lesson) {
             return response()->json([
                 'success' => false,
@@ -207,21 +250,25 @@ class LessonController extends Controller
             ], 404);
         }
 
-        try {
+        return DB::transaction(function () use ($lesson) {
+
+            $courseId = $lesson->course_id;
+            $deletedOrder = $lesson->order;
+
             $lesson->delete();
+
+            Lesson::where('course_id', $courseId)
+                ->where('order', '>', $deletedOrder)
+                ->decrement('order');
+
             return response()->json([
                 'success' => true,
                 'message' => 'Bài học đã được xóa thành công!'
             ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Không thể xóa bài học. Vui lòng thử lại.'
-            ], 500);
-        }
+        });
     }
 
-    // Xóa nhiều bài học cùng lúc
+    // Xóa nhiều bài học cùng lúc - fix lại order sau khi delete
     public function bulkDestroy(Request $request)
     {
         $ids = $request->input('ids', []);
@@ -229,24 +276,40 @@ class LessonController extends Controller
         if (empty($ids)) {
             return response()->json([
                 'success' => false,
-                'message' => 'Không có ID bài học nào được cung cấp.'
+                'message' => 'Không có ID bài học nào.'
             ], 400);
         }
 
-        $lessons = Lesson::whereIn('id', $ids)->get();
+        return DB::transaction(function () use ($ids) {
 
-        if ($lessons->count() !== count($ids)) {
+            $lessons = Lesson::whereIn('id', $ids)->get();
+
+            if ($lessons->count() !== count($ids)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Một số bài học không tồn tại.'
+                ], 404);
+            }
+
+            $courseId = $lessons->first()->course_id;
+
+            Lesson::whereIn('id', $ids)->delete();
+
+            // Reindex order
+            $remaining = Lesson::where('course_id', $courseId)
+                ->orderBy('order')
+                ->get();
+
+            foreach ($remaining as $index => $lesson) {
+                $lesson->update([
+                    'order' => $index + 1
+                ]);
+            }
+
             return response()->json([
-                'success' => false,
-                'message' => 'Một hoặc nhiều bài học không tồn tại.'
-            ], 404);
-        }
-
-        Lesson::whereIn('id', $ids)->delete();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Các bài học đã được xóa thành công.'
-        ]);
+                'success' => true,
+                'message' => 'Các bài học đã được xóa thành công.'
+            ]);
+        });
     }
 }

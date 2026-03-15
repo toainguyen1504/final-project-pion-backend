@@ -17,6 +17,7 @@ return new class extends Migration
 
             $table->foreignId('learner_id')->constrained('learners')->onDelete('cascade');
             $table->foreignId('lesson_id')->constrained('lessons')->onDelete('cascade');
+            $table->unique(['learner_id', 'lesson_id']);
 
             $table->timestamps();
         });
