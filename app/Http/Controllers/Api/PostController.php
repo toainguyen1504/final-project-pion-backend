@@ -196,7 +196,10 @@ class PostController extends Controller
         }
 
         // Avoid duplicate titles or slugs
-        if (Post::where('title', $request->title)->exists()) {
+        if (Post::where('title', $request->title)
+            ->where('id', '!=', $id)
+            ->exists()
+        ) {
             return response()->json([
                 'success' => false,
                 'message' => 'Tiêu đề bài viết đã tồn tại!'
@@ -204,7 +207,10 @@ class PostController extends Controller
         }
 
         $slug = $request->slug ?? Str::slug($request->title);
-        if (Post::where('slug', $slug)->exists()) {
+        if (Post::where('slug', $slug)
+            ->where('id', '!=', $id)
+            ->exists()
+        ) {
             return response()->json([
                 'success' => false,
                 'message' => 'Đường dẫn (Slug) của bài viết đã tồn tại!'

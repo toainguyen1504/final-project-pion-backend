@@ -11,10 +11,26 @@ return new class extends Migration
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
 
-            $table->enum('payment_method', ['bank', 'vnpay', 'momo'])->default('bank');
+            $table->string('order_number')->unique();
+
+            $table->enum('status', ['pending', 'paid', 'failed'])
+                ->default('pending');
+
+            $table->enum('payment_method', ['bank', 'vnpay', 'momo'])
+                ->default('bank');
+
+            $table->enum('payment_status', ['pending', 'paid', 'failed'])
+                ->default('pending');
+
             $table->decimal('total_amount', 10, 2)->default(0);
-            $table->enum('status', ['pending', 'paid', 'failed'])->default('pending');
-            $table->foreignId('payer_id')->constrained('users')->onDelete('cascade'); // người thanh toán, là member hoặc learner
+            $table->decimal('discount_amount', 10, 2)->default(0);
+            $table->decimal('final_amount', 10, 2)->default(0);
+
+            $table->timestamp('ordered_at')->nullable();
+
+            $table->foreignId('payer_id')
+                ->constrained('users')
+                ->cascadeOnDelete();
 
             $table->timestamps();
         });

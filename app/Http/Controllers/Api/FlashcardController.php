@@ -10,61 +10,69 @@ use App\Http\Requests\FlashcardRequest;
 class FlashcardController extends Controller
 {
     // Lấy danh sách tất cả flashcards
-    public function index()
+    public function index(Request $request)
     {
-        $perPage   = request()->get('per_page', 10);
-        $sort      = request()->get('sort', 'order');
-        $order     = request()->get('order', 'asc');
-        $search    = request()->get('search');
-        $lessonId  = request()->get('lesson_id');
-        $courseId  = request()->get('course_id');
-        $programId = request()->get('program_id');
+        $perPage   = $request->get('per_page', 10);
+        $sort      = $request->get('sort', 'order');
+        $order     = $request->get('order', 'asc');
+        $search    = $request->get('search');
+        $lessonId  = $request->get('lesson_id');
+        $courseId  = $request->get('course_id');
+        $programId = $request->get('program_id');
 
-        $query = Flashcard::query()->with('lesson.course.program');
+        // whitelist các field cho phép sort
+        $allowedSorts = ['id', 'vocabulary', 'translation', 'order', 'level'];
+        if (!in_array($sort, $allowedSorts)) {
+            $sort = 'order';
+        }
 
-        // Tìm kiếm theo front_text hoặc back_text
+        $query = Flashcard::query()
+            ->with(['lesson:id,title,course_id', 'lesson.course:id,title,program_id', 'lesson.course.program:id,title']);
+
+        // Search
         if ($search) {
             $query->where(function ($q) use ($search) {
-                $q->where('front_text', 'like', "%{$search}%")
-                    ->orWhere('back_text', 'like', "%{$search}%");
+                $q->where('vocabulary', 'like', "%{$search}%")
+                    ->orWhere('translation', 'like', "%{$search}%");
             });
         }
 
-        // Lọc theo lesson
+        // Filter lesson
         if ($lessonId) {
             $query->where('lesson_id', $lessonId);
         }
 
-        // Lọc theo course
+        // Filter course
         if ($courseId) {
-            $query->whereHas('lesson.course', function ($q) use ($courseId) {
-                $q->where('id', $courseId);
+            $query->whereHas('lesson', function ($q) use ($courseId) {
+                $q->where('course_id', $courseId);
             });
         }
 
-        // Lọc theo program
+        // Filter program
         if ($programId) {
-            $query->whereHas('lesson.course.program', function ($q) use ($programId) {
-                $q->where('id', $programId);
+            $query->whereHas('lesson.course', function ($q) use ($programId) {
+                $q->where('program_id', $programId);
             });
         }
 
-        $flashcards = $query->orderBy($sort, $order)->paginate($perPage);
+        $flashcards = $query
+            ->orderBy($sort, $order)
+            ->paginate($perPage);
 
         return response()->json([
             'success' => true,
             'data' => $flashcards->items(),
             'meta' => [
-                'current_page' => $flashcards->currentPage(),
-                'last_page'    => $flashcards->lastPage(),
-                'per_page'     => $flashcards->perPage(),
-                'total'        => $flashcards->total(),
-                'next_page_url' => $flashcards->nextPageUrl(),
-                'prev_page_url' => $flashcards->previousPageUrl()
+                'current_page'   => $flashcards->currentPage(),
+                'last_page'      => $flashcards->lastPage(),
+                'per_page'       => $flashcards->perPage(),
+                'total'          => $flashcards->total(),
+                'next_page_url'  => $flashcards->nextPageUrl(),
+                'prev_page_url'  => $flashcards->previousPageUrl(),
             ]
         ]);
     }
-
 
     // Tạo mới flashcard
     public function store(FlashcardRequest  $request)

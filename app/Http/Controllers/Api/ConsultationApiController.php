@@ -20,33 +20,43 @@ class ConsultationApiController extends Controller
     public function index(Request $request)
     {
         $perPage = $request->get('per_page', 10);
-        $search = $request->get('search');
+        $search  = $request->get('search');
 
-        $query = Consultation::query();
+        $query = Consultation::with('user:id,email,display_name');
 
         if ($search) {
             $query->where(function ($q) use ($search) {
-                $q->where('user_name', 'like', "%{$search}%")
-                    ->orWhere('guest_name', 'like', "%{$search}%")
-                    ->orWhere('user_email', 'like', "%{$search}%")
-                    ->orWhere('guest_email', 'like', "%{$search}%");
+
+                // search guest
+                $q->where('guest_name', 'like', "%{$search}%")
+                    ->orWhere('guest_email', 'like', "%{$search}%")
+
+                    // search user relation
+                    ->orWhereHas('user', function ($userQuery) use ($search) {
+                        $userQuery->where('display_name', 'like', "%{$search}%")
+                            ->orWhere('email', 'like', "%{$search}%");
+                    });
             });
         }
 
-        $consultations = $query->orderBy('created_at', 'desc')->paginate($perPage);
+        $consultations = $query
+            ->orderBy('created_at', 'desc')
+            ->paginate($perPage);
 
         return response()->json([
             'success' => true,
             'data' => $consultations->items(),
             'meta' => [
-                'current_page' => $consultations->currentPage(),
-                'last_page' => $consultations->lastPage(),
-                'per_page' => $consultations->perPage(),
-                'total' => $consultations->total(),
+                'current_page'  => $consultations->currentPage(),
+                'last_page'     => $consultations->lastPage(),
+                'per_page'      => $consultations->perPage(),
+                'total'         => $consultations->total(),
+                'next_page_url' => $consultations->nextPageUrl(),
+                'prev_page_url' => $consultations->previousPageUrl(),
             ]
         ]);
     }
-
+    
     // Hàm export Excel
     public function export()
     {

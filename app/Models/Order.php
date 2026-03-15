@@ -29,7 +29,7 @@ class Order extends Model
         'ordered_at' => 'datetime',
     ];
 
-    public function user(): BelongsTo
+    public function payer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'payer_id');
     }

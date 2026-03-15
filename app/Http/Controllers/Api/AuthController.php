@@ -11,7 +11,7 @@ class AuthController extends Controller
     private function attemptLogin(Request $request)
     {
         $request->validate([
-            'login'    => 'required|string',
+            'login' => 'required|string|max:255',
             'password' => 'required|string',
         ]);
 

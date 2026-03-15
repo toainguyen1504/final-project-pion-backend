@@ -11,12 +11,12 @@ class Teacher extends Model
         'user_id',
         'subject',
         'nationality',
-        'experience',
+        'experience_years',
         'bio',
     ];
 
     protected $casts = [
-        'experience' => 'integer',
+        'experience_years' => 'integer',
     ];
 
     public function user()

@@ -29,8 +29,6 @@ class Flashcard extends Model
     ];
 
     protected $casts = [
-        'front_text' => 'string',
-        'back_text' => 'string',
         'phonetic' => 'string',
         'translation' => 'string',
         'example_sentence' => 'string',
