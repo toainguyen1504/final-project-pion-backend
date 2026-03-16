@@ -21,8 +21,8 @@ class CourseController extends Controller
 
         // Tính lại duration và total_lessons cho từng course
         $courses->getCollection()->transform(function ($course) use ($request) {
-            // $course->total_lessons = $course->lessons()->count(); // -> nên dùng 
-            Course::withCount('lessons');
+            $course->total_lessons = $course->lessons()->count(); // -> nên dùng 
+            // Course::withCount('lessons');
             $course->duration = $course->lessons()->sum('duration');
 
             // gắn flag enrolled cho từng course (nếu user đã login) -> để nếu có -> thay vì chuyển sang detail -> thì đẩy thẳng qua learning mode luôn
@@ -123,7 +123,7 @@ class CourseController extends Controller
 
         // Cập nhật participants (đếm lại số lượng enrollments)
         // $course->participants = $course->enrollments()->count();
-        $course->increment('participants');
+        $course->increment('participants'); // đã test ok, dùng increment
         $course->save();
 
         // thêm flag enrolled cho user hiện tại 
