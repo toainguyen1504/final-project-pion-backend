@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Flashcard;
 use Illuminate\Http\Request;
 use App\Http\Requests\FlashcardRequest;
+use Illuminate\Support\Facades\Log;
 
 class FlashcardController extends Controller
 {
@@ -133,6 +134,11 @@ class FlashcardController extends Controller
                 $created[] = $flashcard;
             }
         }
+
+        Log::info('Bulk flashcard input', [
+            'lesson_id' => $lessonId,
+            'text' => $rawText
+        ]);
 
         return response()->json([
             'success' => true,

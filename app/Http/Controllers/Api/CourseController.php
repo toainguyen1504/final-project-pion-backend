@@ -228,7 +228,14 @@ class CourseController extends Controller
 
         // Parse textarea thành mảng 
         if ($request->filled('benefits')) {
-            $validated['benefits'] = preg_split("/\t|\r\n|\n/", $request->input('benefits'), -1, PREG_SPLIT_NO_EMPTY);
+
+            $benefits = preg_split("/\t+|\R/", $request->input('benefits'));
+
+            $validated['benefits'] = array_values(
+                array_filter(
+                    array_map('trim', $benefits)
+                )
+            );
         }
 
         $course = Course::create(array_merge($validated, ['slug' => $slug]));
@@ -281,8 +288,15 @@ class CourseController extends Controller
         }
 
         // Parse textarea thành mảng 
-        if ($request->has('benefits')) {
-            $validated['benefits'] = preg_split("/\t|\r\n|\n/", $request->input('benefits'), -1, PREG_SPLIT_NO_EMPTY);
+        if ($request->filled('benefits')) {
+
+            $benefits = preg_split("/\t+|\R/", $request->input('benefits'));
+
+            $validated['benefits'] = array_values(
+                array_filter(
+                    array_map('trim', $benefits)
+                )
+            );
         }
 
         $course->update(array_merge($validated, ['slug' => $slug]));

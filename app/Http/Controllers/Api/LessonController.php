@@ -113,7 +113,7 @@ class LessonController extends Controller
             'content' => 'nullable|string',
             'duration' => 'nullable|integer|min:0',
             'video_url' => 'nullable|string',
-            'order' => 'nullable|integer|min:1',
+            'order' => 'nullable|numeric|min:1',
             'is_preview' => 'boolean',
             'is_quiz' => 'boolean',
             'course_id' => 'required|exists:courses,id',
@@ -132,6 +132,13 @@ class LessonController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' => 'Slug đã tồn tại!'
+                ], 422);
+            }
+
+            if (isset($validated['order']) && !ctype_digit((string)$validated['order'])) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Thứ tự bài học phải là số nguyên dương.'
                 ], 422);
             }
 
@@ -194,7 +201,7 @@ class LessonController extends Controller
             'content' => 'nullable|string',
             'duration' => 'nullable|integer|min:0',
             'video_url' => 'nullable|string',
-            'order' => 'nullable|integer|min:1',
+            'order' => 'nullable|numeric|min:1',
             'is_preview' => 'boolean',
             'is_quiz' => 'boolean',
             'course_id' => 'required|exists:courses,id',
@@ -206,6 +213,13 @@ class LessonController extends Controller
 
             if (!empty($validated['video_url'])) {
                 $validated['video_url'] = $this->convertYoutubeUrl($validated['video_url']);
+            }
+
+            if (isset($validated['order']) && !ctype_digit((string)$validated['order'])) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Thứ tự bài học phải là số nguyên dương.'
+                ], 422);
             }
 
             $newOrder = $validated['order'] ?? $lesson->order;
