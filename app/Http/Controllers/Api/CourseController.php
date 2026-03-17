@@ -10,55 +10,77 @@ use Illuminate\Support\Str;
 
 class CourseController extends Controller
 {
-    // Lấy danh sách khóa học cho client
+
+    /*
+    |--------------------------------------------------------------------------
+    | Helpers
+    |--------------------------------------------------------------------------
+    */
+
+    protected function paginationResponse($paginator)
+    {
+        return response()->json([
+            'success' => true,
+            'data' => $paginator->items(),
+            'meta' => [
+                'current_page' => $paginator->currentPage(),
+                'last_page' => $paginator->lastPage(),
+                'per_page' => $paginator->perPage(),
+                'total' => $paginator->total(),
+                'next_page_url' => $paginator->nextPageUrl(),
+                'prev_page_url' => $paginator->previousPageUrl()
+            ]
+        ]);
+    }
+
+    protected function checkEnrollment(Request $request, Course $course)
+    {
+        if (!$request->user()) {
+            return false;
+        }
+
+        return $course->enrollments()
+            ->where('user_id', $request->user()->id)
+            ->exists();
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | CLIENT API
+    |--------------------------------------------------------------------------
+    */
+
     public function indexClient(Request $request)
     {
         $perPage = $request->get('per_page', 10);
 
         $courses = Course::where('status', 'published')
+            ->withCount(['lessons as total_lessons'])
+            ->withSum(['lessons as duration'], 'duration')
             ->orderBy('updated_at', 'desc')
             ->paginate($perPage);
 
-        // Tính lại duration và total_lessons cho từng course
         $courses->getCollection()->transform(function ($course) use ($request) {
-            $course->total_lessons = $course->lessons()->count(); // -> nên dùng 
-            // Course::withCount('lessons');
-            $course->duration = $course->lessons()->sum('duration');
 
-            // gắn flag enrolled cho từng course (nếu user đã login) -> để nếu có -> thay vì chuyển sang detail -> thì đẩy thẳng qua learning mode luôn
-            $course->enrolled = false;
-            if ($request->user()) {
-                $course->enrolled = $course->enrollments()->where('user_id', $request->user()->id)->exists();
-            }
+            $course->duration = $course->duration ?? 0;
+            $course->enrolled = $this->checkEnrollment($request, $course);
 
             return $course;
         });
 
-
-        return response()->json([
-            'success' => true,
-            'data' => $courses->items(),
-            'meta' => [
-                'current_page' => $courses->currentPage(),
-                'last_page' => $courses->lastPage(),
-                'per_page' => $courses->perPage(),
-                'total' => $courses->total(),
-                'next_page_url' => $courses->nextPageUrl(),
-                'prev_page_url' => $courses->previousPageUrl()
-            ]
-        ]);
+        return $this->paginationResponse($courses);
     }
 
-    // Hiển thị chi tiết một khóa học cho client
+
     public function showClient(Request $request, $slug)
     {
         $course = Course::with([
             'program',
             'category',
-            'lessons' => function ($query) {
-                $query->select('id', 'title', 'slug', 'order', 'course_id', 'duration');
-            }
+            'lessons:id,title,slug,order,course_id,duration'
         ])
+            ->withCount(['lessons as total_lessons'])
+            ->withSum(['lessons as duration'], 'duration')
             ->where('slug', $slug)
             ->where('status', 'published')
             ->first();
@@ -70,17 +92,8 @@ class CourseController extends Controller
             ], 404);
         }
 
-        // Tính lại duration và total_lessons
-        $course->total_lessons = $course->lessons->count();
-        $course->duration = $course->lessons->sum('duration');
-        // participants xử lý sau
-
-        // thêm flag enrolled 
-        $enrolled = false;
-        if ($request->user()) {
-            $enrolled = $course->enrollments()->where('user_id', $request->user()->id)->exists();
-        }
-        $course->enrolled = $enrolled;
+        $course->duration = $course->duration ?? 0;
+        $course->enrolled = $this->checkEnrollment($request, $course);
 
         return response()->json([
             'success' => true,
@@ -88,10 +101,9 @@ class CourseController extends Controller
         ]);
     }
 
-    // Đăng ký khóa học (enroll) - chỉ dành cho learner đã đăng nhập
+
     public function enroll(Request $request, $courseId)
     {
-        // Kiểm tra user đã đăng nhập
         if (!$request->user()) {
             return response()->json([
                 'success' => false,
@@ -100,6 +112,7 @@ class CourseController extends Controller
         }
 
         $course = Course::find($courseId);
+
         if (!$course || $course->status !== 'published') {
             return response()->json([
                 'success' => false,
@@ -107,8 +120,10 @@ class CourseController extends Controller
             ], 404);
         }
 
-        // Kiểm tra user đã đăng ký chưa
-        $exists = $course->enrollments()->where('user_id', $request->user()->id)->exists();
+        $exists = $course->enrollments()
+            ->where('user_id', $request->user()->id)
+            ->exists();
+
         if ($exists) {
             return response()->json([
                 'success' => false,
@@ -116,17 +131,12 @@ class CourseController extends Controller
             ], 422);
         }
 
-        // Tạo enrollment mới
         $course->enrollments()->create([
             'user_id' => $request->user()->id,
         ]);
 
-        // Cập nhật participants (đếm lại số lượng enrollments)
-        // $course->participants = $course->enrollments()->count();
-        $course->increment('participants'); // đã test ok, dùng increment
-        $course->save();
+        $course->increment('participants');
 
-        // thêm flag enrolled cho user hiện tại 
         $course->enrolled = true;
 
         return response()->json([
@@ -136,16 +146,16 @@ class CourseController extends Controller
         ]);
     }
 
-    // learning mode
+
     public function learningDetail(Request $request, $slug)
     {
         $course = Course::with([
             'program',
             'category',
-            'lessons' => function ($query) {
-                $query->orderBy('order', 'asc');
-            }
+            'lessons' => fn($q) => $q->orderBy('order')
         ])
+            ->withCount(['lessons as total_lessons'])
+            ->withSum(['lessons as duration'], 'duration')
             ->where('slug', $slug)
             ->where('status', 'published')
             ->first();
@@ -157,16 +167,8 @@ class CourseController extends Controller
             ], 404);
         }
 
-        // Tính lại duration và total_lessons
-        $course->total_lessons = $course->lessons->count();
-        $course->duration = $course->lessons->sum('duration');
-
-        // Flag enrolled cho user hiện tại
-        $enrolled = false;
-        if ($request->user()) {
-            $enrolled = $course->enrollments()->where('user_id', $request->user()->id)->exists();
-        }
-        $course->enrolled = $enrolled;
+        $course->duration = $course->duration ?? 0;
+        $course->enrolled = $this->checkEnrollment($request, $course);
 
         return response()->json([
             'success' => true,
@@ -174,17 +176,21 @@ class CourseController extends Controller
         ]);
     }
 
-    // -----------------------------
-    //  START - Admin routes cho CMS
-    // -----------------------------
-    // Lấy danh sách tất cả các khóa học
+
+    /*
+    |--------------------------------------------------------------------------
+    | ADMIN CMS API
+    |--------------------------------------------------------------------------
+    */
+
+
     public function index(Request $request)
     {
         $perPage = $request->get('per_page', 10);
         $sort = $request->get('sort', 'updated_at');
         $order = $request->get('order', 'desc');
         $search = $request->get('search');
-        $programId = $request->get('program_id'); // lấy program_id từ query
+        $programId = $request->get('program_id');
 
         $query = Course::query();
 
@@ -193,32 +199,23 @@ class CourseController extends Controller
         }
 
         if ($programId) {
-            $query->where('program_id', $programId); // lọc theo program_id
+            $query->where('program_id', $programId);
         }
 
-        $courses = $query->orderBy($sort, $order)->paginate($perPage);
+        $courses = $query
+            ->orderBy($sort, $order)
+            ->paginate($perPage);
 
-        return response()->json([
-            'success' => true,
-            'data' => $courses->items(),
-            'meta' => [
-                'current_page' => $courses->currentPage(),
-                'last_page' => $courses->lastPage(),
-                'per_page' => $courses->perPage(),
-                'total' => $courses->total(),
-                'next_page_url' => $courses->nextPageUrl(),
-                'prev_page_url' => $courses->previousPageUrl()
-            ]
-        ]);
+        return $this->paginationResponse($courses);
     }
 
-    // Tạo mới một khóa học
+
     public function store(CourseRequest $request)
     {
         $validated = $request->validated();
+
         $slug = $validated['slug'] ?? Str::slug($validated['title']);
 
-        // Kiểm tra trùng slug trước khi insert
         if (Course::where('slug', $slug)->exists()) {
             return response()->json([
                 'success' => false,
@@ -226,20 +223,19 @@ class CourseController extends Controller
             ], 422);
         }
 
-        // Parse textarea thành mảng 
         if ($request->filled('benefits')) {
 
             $benefits = preg_split("/\t+|\R/", $request->input('benefits'));
 
             $validated['benefits'] = array_values(
-                array_filter(
-                    array_map('trim', $benefits)
-                )
+                array_filter(array_map('trim', $benefits))
             );
         }
 
-        $course = Course::create(array_merge($validated, ['slug' => $slug]));
-
+        $course = Course::create([
+            ...$validated,
+            'slug' => $slug
+        ]);
 
         return response()->json([
             'success' => true,
@@ -248,10 +244,11 @@ class CourseController extends Controller
         ], 201);
     }
 
-    // Hiển thị chi tiết một khóa học
+
     public function show($id)
     {
         $course = Course::with(['program', 'category'])->find($id);
+
         if (!$course) {
             return response()->json([
                 'success' => false,
@@ -265,10 +262,11 @@ class CourseController extends Controller
         ]);
     }
 
-    // Cập nhật một khóa học
+
     public function update(CourseRequest $request, $id)
     {
         $course = Course::find($id);
+
         if (!$course) {
             return response()->json([
                 'success' => false,
@@ -277,29 +275,34 @@ class CourseController extends Controller
         }
 
         $validated = $request->validated();
-        $slug = $validated['slug'] ?? Str::slug($validated['title'] ?? $course->title);
 
-        // Kiểm tra trùng slug (ngoại trừ chính nó)
-        if (Course::where('slug', $slug)->where('id', '!=', $id)->exists()) {
+        $slug = $validated['slug']
+            ?? Str::slug($validated['title'] ?? $course->title);
+
+        if (
+            Course::where('slug', $slug)
+            ->where('id', '!=', $id)
+            ->exists()
+        ) {
             return response()->json([
                 'success' => false,
                 'message' => 'Tiêu đề này đã tạo slug trùng, hãy đổi tiêu đề để tiếp tục!'
             ], 422);
         }
 
-        // Parse textarea thành mảng 
         if ($request->filled('benefits')) {
 
             $benefits = preg_split("/\t+|\R/", $request->input('benefits'));
 
             $validated['benefits'] = array_values(
-                array_filter(
-                    array_map('trim', $benefits)
-                )
+                array_filter(array_map('trim', $benefits))
             );
         }
 
-        $course->update(array_merge($validated, ['slug' => $slug]));
+        $course->update([
+            ...$validated,
+            'slug' => $slug
+        ]);
 
         return response()->json([
             'success' => true,
@@ -308,10 +311,11 @@ class CourseController extends Controller
         ]);
     }
 
-    // Xóa một khóa học
+
     public function destroy($id)
     {
         $course = Course::find($id);
+
         if (!$course) {
             return response()->json([
                 'success' => false,
@@ -319,26 +323,20 @@ class CourseController extends Controller
             ], 404);
         }
 
-        try {
-            $course->delete();
-            return response()->json([
-                'success' => true,
-                'message' => 'Khóa học đã được xóa thành công!'
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Không thể xóa khóa học. Vui lòng thử lại.'
-            ], 500);
-        }
+        $course->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Khóa học đã được xóa thành công!'
+        ]);
     }
 
-    // Xóa nhiều khóa học cùng lúc
+
     public function bulkDestroy(Request $request)
     {
         $ids = $request->input('ids', []);
 
-        if (empty($ids)) {
+        if (!$ids) {
             return response()->json([
                 'success' => false,
                 'message' => 'Không có ID khóa học nào được cung cấp.'

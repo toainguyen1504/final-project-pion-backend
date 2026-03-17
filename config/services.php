@@ -40,6 +40,9 @@ return [
         'chat_id' => env('TELEGRAM_CHAT_ID'),
     ],
 
+    'youtube' => [
+        'api_key' => env('YOUTUBE_API_KEY'),
+    ],
     // 'recaptcha' => [
     //     'secret' => env('GOOGLE_RECAPTCHA_SECRET'),
     // ],

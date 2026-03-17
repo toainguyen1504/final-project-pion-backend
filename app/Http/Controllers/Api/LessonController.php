@@ -5,155 +5,147 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Lesson;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use App\Services\YoutubeService;
 
 class LessonController extends Controller
 {
-    // helper để convert link YTB
-    protected function convertYoutubeUrl(string $url): string
+    protected YoutubeService $youtubeService;
+
+    public function __construct(YoutubeService $youtubeService)
     {
-        // Nếu là link share dạng youtu.be
-        if (preg_match('/youtu\.be\/([^\?]+)/', $url, $matches)) {
-            return "https://www.youtube.com/embed/" . $matches[1];
-        }
-
-        // Nếu là link đầy đủ dạng youtube.com/watch?v=...
-        if (preg_match('/v=([^\&]+)/', $url, $matches)) {
-            return "https://www.youtube.com/embed/" . $matches[1];
-        }
-
-        // Nếu đã là embed thì giữ nguyên
-        if (str_contains($url, 'youtube.com/embed')) {
-            return $url;
-        }
-
-        // Trường hợp khác: trả về nguyên gốc
-        return $url;
+        $this->youtubeService = $youtubeService;
     }
 
-    // Lấy danh sách tất cả các bài học, có query filter, index list cho admin cms CRUD
-    public function index()
-    {
-        $perPage   = request()->get('per_page', 10);
-        $sort      = request()->get('sort', 'updated_at');
-        $order     = request()->get('order', 'desc');
-        $search    = request()->get('search');
-        $courseId  = request()->get('course_id');   // lọc theo course
-        $programId = request()->get('program_id');  // lọc theo program
+    /*
+    |--------------------------------------------------------------------------
+    | Query builder helper
+    |--------------------------------------------------------------------------
+    */
 
+    protected function lessonQuery(Request $request)
+    {
         $query = Lesson::query()->with('course.program');
 
-        // Tìm kiếm theo title
-        if ($search) {
+        if ($search = $request->get('search')) {
             $query->where('title', 'like', "%{$search}%");
         }
 
-        // Lọc theo course
-        if ($courseId) {
+        if ($courseId = $request->get('course_id')) {
             $query->where('course_id', $courseId);
         }
 
-        // Lọc theo program (thông qua quan hệ course)
-        if ($programId) {
-            $query->whereHas('course.program', function ($q) use ($programId) {
-                $q->where('id', $programId);
-            });
+        if ($programId = $request->get('program_id')) {
+            $query->whereHas(
+                'course.program',
+                fn($q) =>
+                $q->where('id', $programId)
+            );
         }
 
-        $lessons = $query->orderBy($sort, $order)->paginate($perPage);
+        return $query;
+    }
 
+    protected function paginationResponse($paginator)
+    {
         return response()->json([
             'success' => true,
-            'data' => $lessons->items(),
+            'data' => $paginator->items(),
             'meta' => [
-                'current_page' => $lessons->currentPage(),
-                'last_page'    => $lessons->lastPage(),
-                'per_page'     => $lessons->perPage(),
-                'total'        => $lessons->total(),
-                'next_page_url' => $lessons->nextPageUrl(),
-                'prev_page_url' => $lessons->previousPageUrl()
+                'current_page' => $paginator->currentPage(),
+                'last_page' => $paginator->lastPage(),
+                'per_page' => $paginator->perPage(),
+                'total' => $paginator->total(),
+                'next_page_url' => $paginator->nextPageUrl(),
+                'prev_page_url' => $paginator->previousPageUrl()
             ]
         ]);
     }
 
-    // Lấy tất cả bài học theo id của khóa học
-    public function getByCourse($courseId)
+    protected function processYoutube(array &$validated)
     {
-        $perPage = request()->get('per_page', 10);
-        $sort = request()->get('sort', 'order'); // thường sắp xếp theo thứ tự bài học
-        $order = request()->get('order', 'asc');
+        if (empty($validated['video_url'])) {
+            return;
+        }
 
-        $lessons = Lesson::with(['course.program']) // thêm course info
-            ->where('course_id', $courseId)
+        $validated['video_url'] =
+            $this->youtubeService->convertYoutubeUrl($validated['video_url']);
+
+        $duration =
+            $this->youtubeService->getDurationFromUrl($validated['video_url']);
+
+        if ($duration) {
+            $validated['duration'] = $duration;
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Index
+    |--------------------------------------------------------------------------
+    */
+
+    public function index(Request $request)
+    {
+        $perPage = $request->get('per_page', 10);
+        $sort = $request->get('sort', 'updated_at');
+        $order = $request->get('order', 'desc');
+
+        $lessons = $this->lessonQuery($request)
             ->orderBy($sort, $order)
             ->paginate($perPage);
 
-        return response()->json([
-            'success' => true,
-            'data' => $lessons->items(),
-            'meta' => [
-                'current_page' => $lessons->currentPage(),
-                'last_page' => $lessons->lastPage(),
-                'per_page' => $lessons->perPage(),
-                'total' => $lessons->total(),
-                'next_page_url' => $lessons->nextPageUrl(),
-                'prev_page_url' => $lessons->previousPageUrl()
-            ]
-        ]);
+        return $this->paginationResponse($lessons);
     }
 
-    // Tạo mới một bài học, Không truyền order -> thêm cuối
+    /*
+    |--------------------------------------------------------------------------
+    | Lessons by Course
+    |--------------------------------------------------------------------------
+    */
+
+    public function getByCourse($courseId)
+    {
+        $perPage = request()->get('per_page', 10);
+
+        $lessons = Lesson::with('course.program')
+            ->where('course_id', $courseId)
+            ->orderBy('order')
+            ->paginate($perPage);
+
+        return $this->paginationResponse($lessons);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Store
+    |--------------------------------------------------------------------------
+    */
+
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'slug' => 'nullable|string|unique:lessons,slug',
-            'intro' => 'nullable|string',
-            'content' => 'nullable|string',
-            'duration' => 'nullable|integer|min:0',
-            'video_url' => 'nullable|string',
-            'order' => 'nullable|numeric|min:1',
-            'is_preview' => 'boolean',
-            'is_quiz' => 'boolean',
-            'course_id' => 'required|exists:courses,id',
-        ]);
+        $validated = $this->validateLesson($request);
 
-        return DB::transaction(function () use ($validated) {
+        return DB::transaction(function () use (&$validated) {
 
-            $slug = $validated['slug'] ?? Str::slug($validated['title']);
+            $validated['slug'] =
+                $validated['slug'] ?? Str::slug($validated['title']);
+
+            $this->processYoutube($validated);
+
             $courseId = $validated['course_id'];
-
-            if (!empty($validated['video_url'])) {
-                $validated['video_url'] = $this->convertYoutubeUrl($validated['video_url']);
-            }
-
-            if (Lesson::where('slug', $slug)->exists()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Slug đã tồn tại!'
-                ], 422);
-            }
-
-            if (isset($validated['order']) && !ctype_digit((string)$validated['order'])) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Thứ tự bài học phải là số nguyên dương.'
-                ], 422);
-            }
 
             $maxOrder = Lesson::where('course_id', $courseId)->max('order') ?? 0;
 
             $order = $validated['order'] ?? $maxOrder + 1;
 
-            // shift order nếu insert giữa
             Lesson::where('course_id', $courseId)
                 ->where('order', '>=', $order)
                 ->increment('order');
 
             $lesson = Lesson::create([
                 ...$validated,
-                'slug' => $slug,
                 'order' => $order
             ]);
 
@@ -165,10 +157,16 @@ class LessonController extends Controller
         });
     }
 
-    // Hiển thị chi tiết một bài học
+    /*
+    |--------------------------------------------------------------------------
+    | Show
+    |--------------------------------------------------------------------------
+    */
+
     public function show($id)
     {
         $lesson = Lesson::with('course')->find($id);
+
         if (!$lesson) {
             return response()->json([
                 'success' => false,
@@ -182,7 +180,12 @@ class LessonController extends Controller
         ]);
     }
 
-    // Cập nhật một bài học - xử lý reorder nếu có thay đổi thứ tự
+    /*
+    |--------------------------------------------------------------------------
+    | Update
+    |--------------------------------------------------------------------------
+    */
+
     public function update(Request $request, $id)
     {
         $lesson = Lesson::find($id);
@@ -194,45 +197,24 @@ class LessonController extends Controller
             ], 404);
         }
 
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'slug' => 'nullable|string|unique:lessons,slug,' . $id,
-            'intro' => 'nullable|string',
-            'content' => 'nullable|string',
-            'duration' => 'nullable|integer|min:0',
-            'video_url' => 'nullable|string',
-            'order' => 'nullable|numeric|min:1',
-            'is_preview' => 'boolean',
-            'is_quiz' => 'boolean',
-            'course_id' => 'required|exists:courses,id',
-        ]);
+        $validated = $this->validateLesson($request, $id);
 
-        return DB::transaction(function () use ($lesson, $validated) {
+        return DB::transaction(function () use ($lesson, &$validated) {
 
-            $slug = $validated['slug'] ?? Str::slug($validated['title']);
+            $validated['slug'] =
+                $validated['slug'] ?? Str::slug($validated['title']);
 
-            if (!empty($validated['video_url'])) {
-                $validated['video_url'] = $this->convertYoutubeUrl($validated['video_url']);
-            }
-
-            if (isset($validated['order']) && !ctype_digit((string)$validated['order'])) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Thứ tự bài học phải là số nguyên dương.'
-                ], 422);
-            }
+            $this->processYoutube($validated);
 
             $newOrder = $validated['order'] ?? $lesson->order;
             $oldOrder = $lesson->order;
             $courseId = $lesson->course_id;
 
             if ($newOrder > $oldOrder) {
-
                 Lesson::where('course_id', $courseId)
                     ->whereBetween('order', [$oldOrder + 1, $newOrder])
                     ->decrement('order');
             } elseif ($newOrder < $oldOrder) {
-
                 Lesson::where('course_id', $courseId)
                     ->whereBetween('order', [$newOrder, $oldOrder - 1])
                     ->increment('order');
@@ -240,7 +222,6 @@ class LessonController extends Controller
 
             $lesson->update([
                 ...$validated,
-                'slug' => $slug,
                 'order' => $newOrder
             ]);
 
@@ -252,7 +233,12 @@ class LessonController extends Controller
         });
     }
 
-    // Xóa một bài học - fix lại order sau khi delete
+    /*
+    |--------------------------------------------------------------------------
+    | Destroy
+    |--------------------------------------------------------------------------
+    */
+
     public function destroy($id)
     {
         $lesson = Lesson::find($id);
@@ -267,12 +253,12 @@ class LessonController extends Controller
         return DB::transaction(function () use ($lesson) {
 
             $courseId = $lesson->course_id;
-            $deletedOrder = $lesson->order;
+            $order = $lesson->order;
 
             $lesson->delete();
 
             Lesson::where('course_id', $courseId)
-                ->where('order', '>', $deletedOrder)
+                ->where('order', '>', $order)
                 ->decrement('order');
 
             return response()->json([
@@ -282,12 +268,17 @@ class LessonController extends Controller
         });
     }
 
-    // Xóa nhiều bài học cùng lúc - fix lại order sau khi delete
+    /*
+    |--------------------------------------------------------------------------
+    | Bulk destroy
+    |--------------------------------------------------------------------------
+    */
+
     public function bulkDestroy(Request $request)
     {
         $ids = $request->input('ids', []);
 
-        if (empty($ids)) {
+        if (!$ids) {
             return response()->json([
                 'success' => false,
                 'message' => 'Không có ID bài học nào.'
@@ -309,7 +300,6 @@ class LessonController extends Controller
 
             Lesson::whereIn('id', $ids)->delete();
 
-            // Reindex order
             $remaining = Lesson::where('course_id', $courseId)
                 ->orderBy('order')
                 ->get();
@@ -325,5 +315,27 @@ class LessonController extends Controller
                 'message' => 'Các bài học đã được xóa thành công.'
             ]);
         });
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Validation
+    |--------------------------------------------------------------------------
+    */
+
+    protected function validateLesson(Request $request, $id = null)
+    {
+        return $request->validate([
+            'title' => 'required|string|max:255',
+            'slug' => 'nullable|string|unique:lessons,slug,' . $id,
+            'intro' => 'nullable|string',
+            'content' => 'nullable|string',
+            'duration' => 'nullable|integer|min:0',
+            'video_url' => 'nullable|string',
+            'order' => 'nullable|numeric|min:1',
+            'is_preview' => 'boolean',
+            'is_quiz' => 'boolean',
+            'course_id' => 'required|exists:courses,id',
+        ]);
     }
 }
