@@ -115,12 +115,22 @@ class LessonProgressController extends Controller
         $courses = Enrollment::with('course:id,title,thumbnail')
             ->where('learner_id', $learner->id)
             ->get()
-            ->map(function ($enrollment) {
+            ->map(function ($enrollment) use ($learner) {
+
+                $lastWatchedAt = LessonProgress::where('learner_id', $learner->id)
+                    ->whereIn('lesson_id', function ($q) use ($enrollment) {
+                        $q->select('id')
+                            ->from('lessons')
+                            ->where('course_id', $enrollment->course_id);
+                    })
+                    ->max('last_watched_at');
+
                 return [
                     'course_id' => $enrollment->course->id,
                     'title' => $enrollment->course->title,
                     'thumbnail' => $enrollment->course->thumbnail,
                     'progress' => $enrollment->progress,
+                    'last_watched_at' => $lastWatchedAt,
                 ];
             });
 
