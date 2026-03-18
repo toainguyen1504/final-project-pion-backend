@@ -17,10 +17,13 @@ return new class extends Migration
 
             $table->unsignedTinyInteger('progress')->default(0); // tiến độ học (%)
 
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); // người học: member hoặc learner
+            // $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); // người học: member hoặc learner
             $table->foreignId('course_id')->constrained('courses')->onDelete('cascade');
+            $table->foreignId('learner_id')
+                ->constrained('learners')
+                ->onDelete('cascade');
 
-            $table->unique(['user_id', 'course_id']); //đảm bảo một user chỉ đăng ký một lần cho một course
+            $table->unique(['learner_id', 'course_id']); //đảm bảo một learner chỉ đăng ký một lần cho một course
 
             $table->timestamps();
         });

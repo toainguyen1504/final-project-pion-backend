@@ -39,8 +39,10 @@ class CourseController extends Controller
             return false;
         }
 
+        $learner = $request->user()->learner;
+
         return $course->enrollments()
-            ->where('user_id', $request->user()->id)
+            ->where('learner_id', $learner->id)
             ->exists();
     }
 
@@ -120,8 +122,9 @@ class CourseController extends Controller
             ], 404);
         }
 
+        $learner = $request->user()->learner;
         $exists = $course->enrollments()
-            ->where('user_id', $request->user()->id)
+            ->where('learner_id', $learner->id)
             ->exists();
 
         if ($exists) {
@@ -131,8 +134,14 @@ class CourseController extends Controller
             ], 422);
         }
 
+        // $course->enrollments()->create([
+        //     'user_id' => $request->user()->id,
+        // ]);
+
+        $learner = $request->user()->learner;
+
         $course->enrollments()->create([
-            'user_id' => $request->user()->id,
+            'learner_id' => $learner->id,
         ]);
 
         $course->increment('participants');

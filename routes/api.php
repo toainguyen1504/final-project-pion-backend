@@ -12,6 +12,8 @@ use App\Http\Controllers\Api\ProgramController;
 use App\Http\Controllers\Api\CourseController;
 use App\Http\Controllers\Api\LessonController;
 use App\Http\Controllers\Api\FlashcardController;
+use App\Http\Controllers\Api\LessonProgressController;
+
 // -----------------------------
 // Common Public routes
 // -----------------------------
@@ -43,18 +45,26 @@ Route::post('/form', [FormController::class, 'submit']);
 //  START - Public routes cho Client Site (Frontend)
 // -----------------------------
 Route::prefix('client')->group(function () {
-
     // Posts
     Route::get('/posts', [PostController::class, 'indexClient']);
     Route::get('/posts/{id}', [PostController::class, 'showClient']);
 
-    // Courses
-    Route::get('/courses', [CourseController::class, 'indexClient'])->middleware('auth:sanctum');
-    Route::get('/courses/{slug}', [CourseController::class, 'showClient'])->middleware('auth:sanctum');
-    Route::post('/courses/{id}/enroll', [CourseController::class, 'enroll'])->middleware('auth:sanctum'); // đăng ký khóa học (phải login = account learner)
-    Route::get('/courses/{slug}/learning', [CourseController::class, 'learningDetail'])->middleware('auth:sanctum'); // vào học khóa học (phải login = account learner)
-
     // Flashcards
+});
+
+Route::prefix('client')->middleware('auth:sanctum')->group(function () {
+
+    // Courses
+    Route::get('/courses', [CourseController::class, 'indexClient']);
+    Route::get('/courses/{slug}', [CourseController::class, 'showClient']);
+    Route::post('/courses/{id}/enroll', [CourseController::class, 'enroll']);
+    Route::get('/courses/{slug}/learning', [CourseController::class, 'learningDetail']);
+
+    // Progress
+    Route::post('/lesson-progress', [LessonProgressController::class, 'update']);
+    Route::get('/lesson-progress/{lessonId}', [LessonProgressController::class, 'getLessonProgress']);
+    Route::get('/me/learning-courses', [LessonProgressController::class, 'myLearningCourses']);
+    Route::get('/me/current-learning', [LessonProgressController::class, 'currentLearning']);
 });
 
 // -----------------------------
