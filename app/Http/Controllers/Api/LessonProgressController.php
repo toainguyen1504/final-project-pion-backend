@@ -112,7 +112,7 @@ class LessonProgressController extends Controller
             ], 404);
         }
 
-        $courses = Enrollment::with('course:id,title,thumbnail')
+        $courses = Enrollment::with('course:id,title,slug,thumbnail')
             ->where('learner_id', $learner->id)
             ->get()
             ->map(function ($enrollment) use ($learner) {
@@ -128,6 +128,7 @@ class LessonProgressController extends Controller
                 return [
                     'course_id' => $enrollment->course->id,
                     'title' => $enrollment->course->title,
+                    'slug' => $enrollment->course->slug,
                     'thumbnail' => $enrollment->course->thumbnail,
                     'progress' => $enrollment->progress,
                     'last_watched_at' => $lastWatchedAt,
