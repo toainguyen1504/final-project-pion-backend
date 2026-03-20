@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\CourseController;
 use App\Http\Controllers\Api\LessonController;
 use App\Http\Controllers\Api\FlashcardController;
 use App\Http\Controllers\Api\LessonProgressController;
+use App\Http\Controllers\Api\LessonNoteController;
 
 // -----------------------------
 // Common Public routes
@@ -65,6 +66,13 @@ Route::prefix('client')->middleware('auth:sanctum')->group(function () {
     Route::get('/lesson-progress/{lessonId}', [LessonProgressController::class, 'getLessonProgress']);
     Route::get('/me/learning-courses', [LessonProgressController::class, 'myLearningCourses']);
     Route::get('/me/current-learning', [LessonProgressController::class, 'currentLearning']);
+
+    // Note
+    Route::get('/courses/{courseId}/notes', [LessonNoteController::class, 'getByCourse']);
+    Route::get('/lessons/{lessonId}/notes', [LessonNoteController::class, 'index']);
+    Route::post('/notes', [LessonNoteController::class, 'store']);
+    Route::put('/notes/{id}', [LessonNoteController::class, 'update']);
+    Route::delete('/notes/{id}', [LessonNoteController::class, 'destroy']);
 });
 
 // -----------------------------
