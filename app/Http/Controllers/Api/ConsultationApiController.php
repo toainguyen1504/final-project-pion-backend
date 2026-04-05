@@ -56,7 +56,7 @@ class ConsultationApiController extends Controller
             ]
         ]);
     }
-    
+
     // Hàm export Excel
     public function export()
     {
@@ -88,20 +88,22 @@ class ConsultationApiController extends Controller
 
         // Send a message Telegram safely
         try {
-            $message = "<b>📥 Yêu cầu tư vấn mới</b>\n";
+            $message = "<b>📩 YÊU CẦU TƯ VẤN MỚI</b>\n\n";
 
             if (Auth::check()) {
-                $message .= "👤 Người dùng: {$consultation->user_name}\n";
-                $message .= "📞 SĐT: {$consultation->user_phone}\n";
-                $message .= "✉️ Email: {$consultation->user_email}\n";
+                $message .= "<b>👤 Người dùng:</b> {$consultation->user_name}\n";
+                $message .= "<b>📞 SĐT:</b> {$consultation->user_phone}\n";
+                $message .= "<b>✉️ Email:</b> {$consultation->user_email}\n";
             } else {
-                $message .= "👤 Khách: {$consultation->guest_name}\n";
-                $message .= "📞 SĐT: {$consultation->guest_phone}\n";
-                $message .= "✉️ Email: {$consultation->guest_email}\n";
+                $message .= "<b>👤 Khách:</b> {$consultation->guest_name}\n";
+                $message .= "<b>📞 SĐT:</b> {$consultation->guest_phone}\n";
+                $message .= "<b>✉️ Email:</b> {$consultation->guest_email}\n";
             }
 
-            $message .= "📝 Nội dung: {$consultation->request_content}\n";
-            $message .= "⏰ Thời gian: " . now()->format('d/m/Y H:i');
+            $message .= "\n<b>📝 Nội dung:</b>\n";
+            $message .= "<i>{$consultation->request_content}</i>\n\n";
+
+            $message .= "<b>⏰ Thời gian:</b> " . now()->format('d/m/Y H:i');
 
             $telegram->sendMessage($message);
         } catch (\Exception $e) {
