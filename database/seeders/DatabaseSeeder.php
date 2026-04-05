@@ -16,9 +16,9 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             AdminSeeder::class,
             UserSeeder::class,
-            CategorySeeder::class,
+            // CategorySeeder::class,
             TemplateSeeder::class,
-            PostSeeder::class,
+            // PostSeeder::class,
             // ElearningSeeder::class, // Seeder cho Program, Course, Lesson, Flashcard - chưa cần test vì đang cần tạo data thật
         ]);
     }

@@ -19,7 +19,7 @@ class MediaController extends Controller
      */
     public function index()
     {
-        $mediaList = Media::latest()->paginate(20);
+        $mediaList = Media::latest()->paginate(100); // optimize: cần tới ưu sau -> max 10-20, FE xử lý load more
 
         $mediaList->getCollection()->transform(function ($media) {
             $media->url = Storage::url($media->path);

@@ -10,6 +10,13 @@ use Intervention\Image\Encoders\WebpEncoder;
 use Intervention\Image\Drivers\Gd\Driver as GdDriver;
 use Illuminate\Http\UploadedFile;
 
+
+// Đây đã là Mini Cloudinary nội bộ trong Laravel, NEED Optimize:
+// 1. Chuyển sang Imagick -> giúp nhanh hơn (optional, vì GD đã được tối ưu nhiều)
+// 2. Thêm queue (optional, vì hiện tại xử lý khá nhanh, chỉ vài giây cho ảnh lớn, và có thể trả về URL tạm thời trước khi hoàn thành)
+// 3. Compress ảnh (optional, vì đã resize về kích thước hợp lý, và WebP đã rất nhẹ)
+// 4. Should: Generate thêm WebP variant để làm tối ưu hiển thị (và vẫn giữ jpg để fallback)
+// 5. Must - DÙng Cloudflare R2 + CDN -> thay vì storage local
 class MediaProcessor
 {
     protected string $baseFolder = 'media';
@@ -36,7 +43,7 @@ class MediaProcessor
         $meta = [];
 
         foreach ($this->variants as $key => $size) {
-            $filename = "{$slug}-{$timestamp}.{$extension}";
+            $filename = "{$slug}-{$timestamp}-" . uniqid() . ".{$extension}";
 
             if ($key === 'original') {
                 // Save to "media" folder
