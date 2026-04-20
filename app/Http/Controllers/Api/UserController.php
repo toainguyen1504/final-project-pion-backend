@@ -14,6 +14,17 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
+    // Thống kê đơn giản
+    public function stats()
+    {
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'total_users' => User::count(),
+            ],
+        ]);
+    }
+
     public function index()
     {
         $perPage = request()->get('per_page', 10);

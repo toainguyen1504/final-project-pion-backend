@@ -32,7 +32,7 @@ class User extends Authenticatable
     ];
     protected $hidden = ['password', 'remember_token'];
 
-    protected $casts = ['status' => 'integer',];
+    protected $casts = ['status' => 'integer', 'email_verified_at' => 'datetime'];
 
     // ===== Quan hệ =====
     public function role()

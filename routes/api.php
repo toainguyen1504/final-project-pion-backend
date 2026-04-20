@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\LessonController;
 use App\Http\Controllers\Api\FlashcardController;
 use App\Http\Controllers\Api\LessonProgressController;
 use App\Http\Controllers\Api\LessonNoteController;
+use App\Http\Controllers\Api\PaymentController;
 
 // -----------------------------
 // Common Public routes
@@ -73,7 +74,13 @@ Route::prefix('client')->middleware('auth:sanctum')->group(function () {
     Route::post('/notes', [LessonNoteController::class, 'store']);
     Route::put('/notes/{id}', [LessonNoteController::class, 'update']);
     Route::delete('/notes/{id}', [LessonNoteController::class, 'destroy']);
+
+    // Payment
+    Route::post('/payments/momo/create', [PaymentController::class, 'createMomoPayment']);
+    Route::get('/orders/{orderNumber}/status', [PaymentController::class, 'getOrderStatus']);
 });
+
+Route::post('/client/payments/momo/ipn', [PaymentController::class, 'momoIpn']);
 
 // -----------------------------
 //  END - Public routes cho Client Site(Frontend)
@@ -111,6 +118,8 @@ Route::prefix('admin')->middleware('auth:sanctum')->group(function () {
 
     // CRUD users, roles
     Route::middleware('role:admin|super_admin')->group(function () {
+
+     Route::get('/users/stats', [UserController::class, 'stats']); // phải đặt trước route  apiResource để không bị ghi đè với detail post
 
         Route::apiResource('users', UserController::class);
 
