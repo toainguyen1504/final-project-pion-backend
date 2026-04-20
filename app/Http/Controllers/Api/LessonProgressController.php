@@ -48,8 +48,8 @@ class LessonProgressController extends Controller
         }
 
         $isCompleted = $lessonDuration > 0
-            ? $request->watched_duration >= ($lessonDuration * 0.9)
-            : false; // 90% = completed
+            ? $request->watched_duration >= ($lessonDuration * 0.8)
+            : false; // 80% = completed
 
         $progress = LessonProgress::updateOrCreate(
             [
