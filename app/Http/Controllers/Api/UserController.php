@@ -15,13 +15,34 @@ use Illuminate\Support\Facades\Hash;
 class UserController extends Controller
 {
     // Thống kê đơn giản
-    public function stats()
+    public function stats(Request $request)
     {
+        $field = $request->get('field', 'created_at');
+
+        $allowedFields = ['created_at', 'updated_at'];
+
+        if (!in_array($field, $allowedFields, true)) {
+            $field = 'created_at';
+        }
+
+        $now = now();
+        $thisMonthStart = $now->copy()->startOfMonth();
+        $thisMonthEnd = $now->copy()->endOfMonth();
+
+        $lastMonthStart = $thisMonthStart->copy()->subMonth();
+        $lastMonthEnd = $thisMonthStart->copy()->subSecond();
+
+        $thisMonthCount = User::whereBetween($field, [$thisMonthStart, $thisMonthEnd])->count();
+        $lastMonthCount = User::whereBetween($field, [$lastMonthStart, $lastMonthEnd])->count();
+        $totalCount = User::count();
+
         return response()->json([
             'success' => true,
             'data' => [
-                'total_users' => User::count(),
-            ],
+                'this_month' => $thisMonthCount,
+                'last_month' => $lastMonthCount,
+                'total' => $totalCount,
+            ]
         ]);
     }
 

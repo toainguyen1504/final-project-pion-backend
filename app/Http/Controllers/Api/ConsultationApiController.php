@@ -141,4 +141,36 @@ class ConsultationApiController extends Controller
     {
         return Consultation::where('user_id', Auth::id())->get();
     }
+
+    // Stats hiển thị cho dashboard (admin cms)
+    public function stats(Request $request)
+    {
+        $field = $request->get('field', 'created_at');
+
+        $allowedFields = ['created_at', 'updated_at'];
+
+        if (!in_array($field, $allowedFields, true)) {
+            $field = 'created_at';
+        }
+
+        $now = now();
+        $thisMonthStart = $now->copy()->startOfMonth();
+        $thisMonthEnd = $now->copy()->endOfMonth();
+
+        $lastMonthStart = $thisMonthStart->copy()->subMonth();
+        $lastMonthEnd = $thisMonthStart->copy()->subSecond();
+
+        $thisMonthCount = Consultation::whereBetween($field, [$thisMonthStart, $thisMonthEnd])->count();
+        $lastMonthCount = Consultation::whereBetween($field, [$lastMonthStart, $lastMonthEnd])->count();
+        $totalCount = Consultation::count();
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'this_month' => $thisMonthCount,
+                'last_month' => $lastMonthCount,
+                'total' => $totalCount,
+            ]
+        ]);
+    }
 }

@@ -111,6 +111,7 @@ Route::prefix('admin')->middleware('auth:sanctum')->group(function () {
             ->except(['index', 'show']);
 
         // Consultation (private)
+        Route::get('/consultations/stats', [ConsultationApiController::class, 'stats']);
         Route::get('/consultations', [ConsultationApiController::class, 'index']);
         Route::get('/consultations/export', [ConsultationApiController::class, 'export']);
         Route::get('/consultations/my', [ConsultationApiController::class, 'myConsultations']); //don't use
@@ -119,7 +120,7 @@ Route::prefix('admin')->middleware('auth:sanctum')->group(function () {
     // CRUD users, roles
     Route::middleware('role:admin|super_admin')->group(function () {
 
-     Route::get('/users/stats', [UserController::class, 'stats']); // phải đặt trước route  apiResource để không bị ghi đè với detail post
+        Route::get('/users/stats', [UserController::class, 'stats']); // phải đặt trước route  apiResource để không bị ghi đè với detail post
 
         Route::apiResource('users', UserController::class);
 
