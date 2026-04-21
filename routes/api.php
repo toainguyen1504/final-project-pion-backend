@@ -68,6 +68,9 @@ Route::prefix('client')->middleware('auth:sanctum')->group(function () {
     Route::get('/me/learning-courses', [LessonProgressController::class, 'myLearningCourses']);
     Route::get('/me/current-learning', [LessonProgressController::class, 'currentLearning']);
 
+    // flashcard
+    Route::get('/lessons/{lessonId}/flashcards', [FlashcardController::class, 'getByLessonClient']);
+
     // Note
     Route::get('/courses/{courseId}/notes', [LessonNoteController::class, 'getByCourse']);
     Route::get('/lessons/{lessonId}/notes', [LessonNoteController::class, 'index']);

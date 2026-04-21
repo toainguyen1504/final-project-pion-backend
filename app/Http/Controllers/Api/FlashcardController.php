@@ -10,6 +10,34 @@ use Illuminate\Support\Facades\Log;
 
 class FlashcardController extends Controller
 {
+
+    // CLIENT SITE - get flashcards by lesson
+    public function getByLessonClient($lessonId)
+    {
+        $flashcards = Flashcard::where('lesson_id', $lessonId)
+            ->orderBy('order', 'asc')
+            ->get([
+                'id',
+                'lesson_id',
+                'vocabulary',
+                'phonetic',
+                'translation',
+                'example_sentence',
+                'example_translation',
+                'audio',
+                'level',
+                'image_url',
+                'order',
+            ]);
+
+        return response()->json([
+            'success' => true,
+            'data' => $flashcards,
+        ]);
+    }
+
+
+    // ==== ADMIN CMS ====
     // Lấy danh sách tất cả flashcards
     public function index(Request $request)
     {
