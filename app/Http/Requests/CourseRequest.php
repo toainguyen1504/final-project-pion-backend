@@ -20,6 +20,7 @@ class CourseRequest extends FormRequest
             'slug'           => 'nullable|string|unique:courses,slug,' . $id,
             'language'       => 'nullable|string|max:50',
             'thumbnail'      => 'nullable|string',
+            'thumbnail_media_id' => 'nullable|exists:medias,id',
             'description'    => 'nullable|string',
             'price'          => 'nullable|numeric|min:0',
             'discount_price' => 'nullable|numeric|min:0',
@@ -40,6 +41,7 @@ class CourseRequest extends FormRequest
     {
         return [
             'slug.unique'    => 'Tiêu đề này đã tạo slug trùng, hãy đổi tiêu đề để tiếp tục!',
+            'thumbnail_media_id.exists' => 'Ảnh thumbnail không tồn tại trong thư viện media.',
             'level.min'      => 'Level không hợp lệ, phải từ 0 đến 10.',
             'level.max'      => 'Level không hợp lệ, phải từ 0 đến 10.',
             'status.in'      => 'Trạng thái không hợp lệ, chỉ chấp nhận draft, pending, published, inactive hoặc archived.',

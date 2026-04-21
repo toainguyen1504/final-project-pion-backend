@@ -16,7 +16,8 @@ class Course extends Model
         'title',
         'slug',
         'language',
-        'thumbnail',
+        'thumbnail', // thumbnail tạm để để tránh vỡ FE
+        'thumbnail_media_id',
         'description',
         'price',
         'discount_price',
@@ -57,6 +58,11 @@ class Course extends Model
         return $this->belongsTo(Program::class);
     }
 
+    public function thumbnailMedia(): BelongsTo
+    {
+        return $this->belongsTo(Media::class, 'thumbnail_media_id');
+    }
+
     public function lessons(): HasMany
     {
         return $this->hasMany(Lesson::class);
@@ -71,5 +77,44 @@ class Course extends Model
     public function orderItems(): HasMany
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    public function getThumbnailUrlAttribute(): ?string
+    {
+        if ($this->relationLoaded('thumbnailMedia') && $this->thumbnailMedia) {
+            return asset($this->thumbnailMedia->getVariantPath('medium'));
+        }
+
+        if ($this->thumbnailMedia) {
+            return asset($this->thumbnailMedia->getVariantPath('medium'));
+        }
+
+        return $this->thumbnail ?: null;
+    }
+
+    public function getThumbnailThumbAttribute(): ?string
+    {
+        if ($this->relationLoaded('thumbnailMedia') && $this->thumbnailMedia) {
+            return asset($this->thumbnailMedia->getVariantPath('thumbnail'));
+        }
+
+        if ($this->thumbnailMedia) {
+            return asset($this->thumbnailMedia->getVariantPath('thumbnail'));
+        }
+
+        return $this->thumbnail ?: null;
+    }
+
+    public function getThumbnailOgAttribute(): ?string
+    {
+        if ($this->relationLoaded('thumbnailMedia') && $this->thumbnailMedia) {
+            return asset($this->thumbnailMedia->getVariantPath('og'));
+        }
+
+        if ($this->thumbnailMedia) {
+            return asset($this->thumbnailMedia->getVariantPath('og'));
+        }
+
+        return $this->thumbnail ?: null;
     }
 }

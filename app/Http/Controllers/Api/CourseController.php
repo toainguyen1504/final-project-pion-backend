@@ -10,7 +10,6 @@ use Illuminate\Support\Str;
 
 class CourseController extends Controller
 {
-
     /*
     |--------------------------------------------------------------------------
     | Helpers
@@ -21,7 +20,7 @@ class CourseController extends Controller
     {
         return response()->json([
             'success' => true,
-            'data' => $paginator->items(),
+            'data' => collect($paginator->items())->map(fn($course) => $this->transformCourse($course)),
             'meta' => [
                 'current_page' => $paginator->currentPage(),
                 'last_page' => $paginator->lastPage(),
@@ -35,7 +34,7 @@ class CourseController extends Controller
 
     protected function checkEnrollment(Request $request, Course $course)
     {
-        if (!$request->user()) {
+        if (!$request->user() || !$request->user()->learner) {
             return false;
         }
 
@@ -44,6 +43,65 @@ class CourseController extends Controller
         return $course->enrollments()
             ->where('learner_id', $learner->id)
             ->exists();
+    }
+
+    protected function normalizeBenefits($benefits): array|null
+    {
+        if (is_array($benefits)) {
+            return array_values(array_filter(array_map('trim', $benefits)));
+        }
+
+        if (is_string($benefits) && trim($benefits) !== '') {
+            return array_values(array_filter(array_map(
+                'trim',
+                preg_split("/\t+|\R/", $benefits)
+            )));
+        }
+
+        return null;
+    }
+
+    protected function transformCourse(Course $course): array
+    {
+        return [
+            'id' => $course->id,
+            'title' => $course->title,
+            'slug' => $course->slug,
+            'language' => $course->language,
+            'thumbnail' => $course->thumbnail,
+            'thumbnail_media_id' => $course->thumbnail_media_id,
+            'thumbnail_url' => $course->thumbnail_url,
+            'thumbnail_thumb' => $course->thumbnail_thumb,
+            'thumbnail_og' => $course->thumbnail_og,
+            'thumbnail_media' => $course->thumbnailMedia ? [
+                'id' => $course->thumbnailMedia->id,
+                'title' => $course->thumbnailMedia->title,
+                'path' => $course->thumbnailMedia->path,
+                'mime_type' => $course->thumbnailMedia->mime_type,
+                'type' => $course->thumbnailMedia->type,
+                'meta' => $course->thumbnailMedia->meta,
+                'url' => asset($course->thumbnailMedia->getVariantPath('medium')),
+            ] : null,
+            'description' => $course->description,
+            'price' => $course->price,
+            'discount_price' => $course->discount_price,
+            'level' => $course->level,
+            'status' => $course->status,
+            'duration' => $course->duration ?? 0,
+            'participants' => $course->participants,
+            'total_lessons' => $course->total_lessons ?? 0,
+            'benefits' => $course->benefits,
+            'is_free' => $course->is_free,
+            'program_id' => $course->program_id,
+            'category_id' => $course->category_id,
+            'user_id' => $course->user_id,
+            'program' => $course->program ?? null,
+            'category' => $course->category ?? null,
+            'lessons' => $course->lessons ?? null,
+            'enrolled' => $course->enrolled ?? false,
+            'created_at' => $course->created_at,
+            'updated_at' => $course->updated_at,
+        ];
     }
 
     /*
@@ -56,29 +114,28 @@ class CourseController extends Controller
     {
         $perPage = $request->get('per_page', 10);
 
-        $courses = Course::where('status', 'published')
+        $courses = Course::with(['thumbnailMedia'])
+            ->where('status', 'published')
             ->withCount(['lessons as total_lessons'])
             ->withSum(['lessons as duration'], 'duration')
             ->orderBy('updated_at', 'desc')
             ->paginate($perPage);
 
         $courses->getCollection()->transform(function ($course) use ($request) {
-
             $course->duration = $course->duration ?? 0;
             $course->enrolled = $this->checkEnrollment($request, $course);
-
             return $course;
         });
 
         return $this->paginationResponse($courses);
     }
 
-
     public function showClient(Request $request, $slug)
     {
         $course = Course::with([
             'program',
             'category',
+            'thumbnailMedia',
             'lessons:id,title,slug,order,course_id,duration'
         ])
             ->withCount(['lessons as total_lessons'])
@@ -99,10 +156,9 @@ class CourseController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $course
+            'data' => $this->transformCourse($course)
         ]);
     }
-
 
     public function enroll(Request $request, $courseId)
     {
@@ -113,7 +169,7 @@ class CourseController extends Controller
             ], 401);
         }
 
-        $course = Course::find($courseId);
+        $course = Course::with('thumbnailMedia')->find($courseId);
 
         if (!$course || $course->status !== 'published') {
             return response()->json([
@@ -122,7 +178,15 @@ class CourseController extends Controller
             ], 404);
         }
 
+        if (!$request->user()->learner) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tài khoản của bạn chưa có hồ sơ học viên.'
+            ], 422);
+        }
+
         $learner = $request->user()->learner;
+
         $exists = $course->enrollments()
             ->where('learner_id', $learner->id)
             ->exists();
@@ -134,33 +198,28 @@ class CourseController extends Controller
             ], 422);
         }
 
-        // $course->enrollments()->create([
-        //     'user_id' => $request->user()->id,
-        // ]);
-
-        $learner = $request->user()->learner;
-
         $course->enrollments()->create([
             'learner_id' => $learner->id,
         ]);
 
         $course->increment('participants');
+        $course->refresh();
 
         $course->enrolled = true;
 
         return response()->json([
             'success' => true,
             'message' => 'Đăng ký khóa học thành công!',
-            'data' => $course
+            'data' => $this->transformCourse($course)
         ]);
     }
-
 
     public function learningDetail(Request $request, $slug)
     {
         $course = Course::with([
             'program',
             'category',
+            'thumbnailMedia',
             'lessons' => fn($q) => $q->orderBy('order')
         ])
             ->withCount(['lessons as total_lessons'])
@@ -181,17 +240,15 @@ class CourseController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $course
+            'data' => $this->transformCourse($course)
         ]);
     }
-
 
     /*
     |--------------------------------------------------------------------------
     | ADMIN CMS API
     |--------------------------------------------------------------------------
     */
-
 
     public function index(Request $request)
     {
@@ -201,7 +258,10 @@ class CourseController extends Controller
         $search = $request->get('search');
         $programId = $request->get('program_id');
 
-        $query = Course::query();
+        // $query = Course::with(['thumbnailMedia', 'program', 'category']);
+        $query = Course::with(['thumbnailMedia', 'program', 'category'])
+            ->withCount(['lessons as total_lessons'])
+            ->withSum(['lessons as duration'], 'duration');
 
         if ($search) {
             $query->where('title', 'like', "%{$search}%");
@@ -218,7 +278,6 @@ class CourseController extends Controller
         return $this->paginationResponse($courses);
     }
 
-
     public function store(CourseRequest $request)
     {
         $validated = $request->validated();
@@ -232,31 +291,26 @@ class CourseController extends Controller
             ], 422);
         }
 
-        if ($request->filled('benefits')) {
+        $validated['benefits'] = $this->normalizeBenefits($request->input('benefits'));
+        $validated['slug'] = $slug;
 
-            $benefits = preg_split("/\t+|\R/", $request->input('benefits'));
-
-            $validated['benefits'] = array_values(
-                array_filter(array_map('trim', $benefits))
-            );
-        }
-
-        $course = Course::create([
-            ...$validated,
-            'slug' => $slug
-        ]);
+        $course = Course::create($validated);
+        $course->load(['thumbnailMedia', 'program', 'category']);
 
         return response()->json([
             'success' => true,
             'message' => 'Khóa học đã được tạo thành công!',
-            'data' => $course
+            'data' => $this->transformCourse($course)
         ], 201);
     }
 
-
     public function show($id)
     {
-        $course = Course::with(['program', 'category'])->find($id);
+        // $course = Course::with(['program', 'category', 'thumbnailMedia'])->find($id);
+        $course = Course::with(['program', 'category', 'thumbnailMedia', 'lessons'])
+            ->withCount(['lessons as total_lessons'])
+            ->withSum(['lessons as duration'], 'duration')
+            ->find($id);
 
         if (!$course) {
             return response()->json([
@@ -267,10 +321,9 @@ class CourseController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $course
+            'data' => $this->transformCourse($course)
         ]);
     }
-
 
     public function update(CourseRequest $request, $id)
     {
@@ -285,8 +338,7 @@ class CourseController extends Controller
 
         $validated = $request->validated();
 
-        $slug = $validated['slug']
-            ?? Str::slug($validated['title'] ?? $course->title);
+        $slug = $validated['slug'] ?? Str::slug($validated['title'] ?? $course->title);
 
         if (
             Course::where('slug', $slug)
@@ -299,27 +351,18 @@ class CourseController extends Controller
             ], 422);
         }
 
-        if ($request->filled('benefits')) {
+        $validated['benefits'] = $this->normalizeBenefits($request->input('benefits'));
+        $validated['slug'] = $slug;
 
-            $benefits = preg_split("/\t+|\R/", $request->input('benefits'));
-
-            $validated['benefits'] = array_values(
-                array_filter(array_map('trim', $benefits))
-            );
-        }
-
-        $course->update([
-            ...$validated,
-            'slug' => $slug
-        ]);
+        $course->update($validated);
+        $course->load(['thumbnailMedia', 'program', 'category']);
 
         return response()->json([
             'success' => true,
             'message' => 'Khóa học đã được cập nhật thành công!',
-            'data' => $course
+            'data' => $this->transformCourse($course)
         ]);
     }
-
 
     public function destroy($id)
     {
@@ -339,7 +382,6 @@ class CourseController extends Controller
             'message' => 'Khóa học đã được xóa thành công!'
         ]);
     }
-
 
     public function bulkDestroy(Request $request)
     {

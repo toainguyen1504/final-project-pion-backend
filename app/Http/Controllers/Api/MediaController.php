@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\PostContent;
 use App\Models\Media;
+use App\Models\Course;
 use App\Services\MediaProcessor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -172,31 +173,48 @@ class MediaController extends Controller
     public function destroy(Media $media)
     {
         try {
+            // Check media có đang dùng trong PostContent không
             $usedPaths = collect($media->meta['variants'] ?? [])
                 ->pluck('path')
                 ->filter()
                 ->map(fn($path) => Storage::url($path));
 
-            $isUsed = PostContent::where(function ($query) use ($usedPaths) {
+            $isUsedInPosts = PostContent::where(function ($query) use ($usedPaths) {
                 foreach ($usedPaths as $path) {
                     $query->orWhere('content_html', 'LIKE', '%' . $path . '%');
                 }
             })->exists();
 
-            if ($isUsed) {
+            if ($isUsedInPosts) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Media này đang được sử dụng trong bài viết và không thể xóa.'
                 ], 400);
             }
 
+            // Check media có đang dùng làm thumbnail course không
+            $isUsedInCourses = Course::where('thumbnail_media_id', $media->id)->exists();
+
+            if ($isUsedInCourses) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Media này đang được dùng làm ảnh thumbnail của khóa học và không thể xóa.'
+                ], 400);
+            }
+
+            // Xóa các file variants
             foreach ($media->meta['variants'] ?? [] as $variant) {
                 if (!empty($variant['path'])) {
                     Storage::disk('public')->delete($variant['path']);
                 }
             }
 
-            $media->delete();
+            // Nếu path gốc không nằm trong variants thì xóa thêm để an toàn
+            if (!empty($media->path) && Storage::disk('public')->exists($media->path)) {
+                Storage::disk('public')->delete($media->path);
+            }
+
+            $media->delete(); // ----> XÓA records (DB)
 
             return response()->json([
                 'success' => true,
