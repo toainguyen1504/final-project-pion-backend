@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\LessonProgressController;
 use App\Http\Controllers\Api\LessonNoteController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\MomoIpnController;
+use App\Http\Controllers\Api\EmailVerificationController;
 
 // -----------------------------
 // Common Public routes
@@ -87,6 +88,11 @@ Route::prefix('client')->middleware('auth:sanctum')->group(function () {
 
 Route::post('/client/payments/momo/ipn', MomoIpnController::class);
 Route::post('/client/register', [AuthController::class, 'register']);
+
+// Xác thực mail
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/client/email/resend', [EmailVerificationController::class, 'resend']);
+});
 
 // -----------------------------
 //  END - Public routes cho Client Site(Frontend)

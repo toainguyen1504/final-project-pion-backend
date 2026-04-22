@@ -95,8 +95,11 @@ class AuthController extends Controller
             'email' => $request->email,
             'password' => bcrypt($request->password),
             'role_id' => $memberRole->id,
-            'status' => \App\Models\User::STATUS_UNVERIFIED, // hoặc UNVERIFIED nếu muốn sau này verify
+            'status' => \App\Models\User::STATUS_UNVERIFIED,
         ]);
+
+        // Gửi mail xác thức
+        $user->sendEmailVerificationNotification();
 
         // Tạo token luôn để login ngay
         $token = $user->createToken('client-token')->plainTextToken;

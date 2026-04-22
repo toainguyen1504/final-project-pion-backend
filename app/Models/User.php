@@ -6,12 +6,13 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 // use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Services\UsernameService;
 use App\Models\Learner;
 use App\Models\Teacher;
 use App\Models\Staff;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     // use Notifiable;
     use HasApiTokens, Notifiable;

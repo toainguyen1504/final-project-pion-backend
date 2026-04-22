@@ -25,7 +25,7 @@ class PaymentController extends Controller
 
         if (! $learnerId) {
             return response()->json([
-                'message' => 'Không tìm thấy learner tương ứng với tài khoản hiện tại.',
+                'message' => 'Bạn chưa có hồ sơ học viên! Vui lòng liên hệ Admin để được hỗ trợ.',
             ], 422);
         }
 
@@ -154,7 +154,7 @@ class PaymentController extends Controller
 
         if (! $learnerId) {
             return response()->json([
-                'message' => 'Không tìm thấy learner tương ứng với tài khoản hiện tại.',
+                'message' => 'Bạn chưa có hồ sơ học viên! Vui lòng liên hệ Admin để được hỗ trợ.',
             ], 422);
         }
 
