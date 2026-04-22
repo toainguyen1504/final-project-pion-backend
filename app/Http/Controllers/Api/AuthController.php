@@ -71,6 +71,44 @@ class AuthController extends Controller
         ]);
     }
 
+
+    // Đăng ký tài khoản, default là member
+    public function register(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'nullable|email|unique:users,email',
+            'password' => 'required|string|min:6|confirmed',
+        ]);
+
+        // Lấy role member
+        $memberRole = \App\Models\Role::where('name', 'member')->first();
+
+        if (!$memberRole) {
+            return response()->json([
+                'message' => 'Role member chưa được cấu hình.'
+            ], 500);
+        }
+
+        $user = \App\Models\User::create([
+            'display_name' => $request->name,
+            'email' => $request->email,
+            'password' => bcrypt($request->password),
+            'role_id' => $memberRole->id,
+            'status' => \App\Models\User::STATUS_ACTIVE, // hoặc UNVERIFIED nếu muốn sau này verify
+        ]);
+
+        // Tạo token luôn để login ngay
+        $token = $user->createToken('client-token')->plainTextToken;
+
+        return response()->json([
+            'message' => 'Đăng ký thành công',
+            'token' => $token,
+            'user' => $user,
+            'role' => $memberRole->name,
+        ]);
+    }
+
     public function logout(Request $request)
     {
         $user = $request->user();

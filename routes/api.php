@@ -86,6 +86,7 @@ Route::prefix('client')->middleware('auth:sanctum')->group(function () {
 });
 
 Route::post('/client/payments/momo/ipn', MomoIpnController::class);
+Route::post('/client/register', [AuthController::class, 'register']);
 
 // -----------------------------
 //  END - Public routes cho Client Site(Frontend)
