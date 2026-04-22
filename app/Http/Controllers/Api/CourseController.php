@@ -216,6 +216,16 @@ class CourseController extends Controller
 
     public function learningDetail(Request $request, $slug)
     {
+        $user = $request->user();
+        $learner = $user->learner ?? null;
+
+        if (!$learner) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tài khoản của bạn chưa có hồ sơ học viên.'
+            ], 422);
+        }
+
         $course = Course::with([
             'program',
             'category',
@@ -235,8 +245,30 @@ class CourseController extends Controller
             ], 404);
         }
 
+        $enrollment = $course->enrollments()
+            ->where('learner_id', $learner->id)
+            ->first();
+
+        // Khóa miễn phí: phải đăng ký trước mới được vào học
+        if ($course->is_free) {
+            if (!$enrollment) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Bạn cần đăng ký khóa học miễn phí trước khi vào học.'
+                ], 403);
+            }
+        } else {
+            // Khóa trả phí: phải thanh toán thành công mới được vào học
+            if (!$enrollment || $enrollment->payment_status !== 'paid') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Bạn cần mua khóa học để truy cập nội dung học.'
+                ], 403);
+            }
+        }
+
         $course->duration = $course->duration ?? 0;
-        $course->enrolled = $this->checkEnrollment($request, $course);
+        $course->enrolled = true;
 
         return response()->json([
             'success' => true,
