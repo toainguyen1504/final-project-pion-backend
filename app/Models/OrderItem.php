@@ -12,15 +12,17 @@ class OrderItem extends Model
     protected $fillable = [
         'order_id',
         'course_id',
-        'price',
-        'quantity',
-        'subtotal',
+        'amount',
+        'tax',
+        'discount',
+        'paid_at',
     ];
 
     protected $casts = [
-        'price' => 'decimal:2',
-        'quantity' => 'integer',
-        'subtotal' => 'decimal:2',
+        'amount' => 'decimal:2',
+        'tax' => 'decimal:2',
+        'discount' => 'decimal:2',
+        'paid_at' => 'datetime',
     ];
 
     public function order(): BelongsTo

@@ -48,6 +48,7 @@ return [
     // ],
 
     'momo' => [
+        'enabled' => env('MOMO_ENABLED', false),
         'base_url' => env('MOMO_BASE_URL', 'https://test-payment.momo.vn'),
         'partner_code' => env('MOMO_PARTNER_CODE'),
         'access_key' => env('MOMO_ACCESS_KEY'),
