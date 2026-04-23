@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\LessonNoteController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\MomoIpnController;
 use App\Http\Controllers\Api\EmailVerificationController;
+use App\Http\Controllers\Api\ProfileController;
 
 // -----------------------------
 // Common Public routes
@@ -84,6 +85,9 @@ Route::prefix('client')->middleware('auth:sanctum')->group(function () {
     Route::post('/payments/momo/create', [PaymentController::class, 'createMomoPayment']);
     Route::get('/orders/{orderNumber}/status', [PaymentController::class, 'getOrderStatus']);
     Route::post('/payments/mock-success', [PaymentController::class, 'mockSuccess']);
+
+    // update profile
+    Route::put('/profile', [ProfileController::class, 'update']);
 });
 
 Route::post('/client/payments/momo/ipn', MomoIpnController::class);

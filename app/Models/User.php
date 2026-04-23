@@ -26,6 +26,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'display_name',
         'username',       // thêm vào để có thể gán
         'email',
+        'phone',
         'password',
         'role_id',
         'status',

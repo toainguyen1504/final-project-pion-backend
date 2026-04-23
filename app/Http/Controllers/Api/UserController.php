@@ -84,13 +84,14 @@ class UserController extends Controller
             'role_id'      => 'required|exists:roles,id',
             'status'       => 'nullable|integer|in:0,1,2',
             'email'        => 'nullable|email|unique:users', // không bắt buộc
+            'phone' => ['nullable', 'string', 'max:20', 'unique:users,phone'],  // không bắt buộc
             'password'     => 'nullable|string|min:6',       // không bắt buộc
         ]);
 
         try {
             // Nếu không nhập password -> tự sinh 6 ký tự
             if (!$request->filled('password')) {
-                $passwords = \App\Services\PasswordService::generate(6);
+                $passwords = \App\Services\PasswordService::generate(8);
                 $validated['password'] = $passwords['hashed'];
                 $plainPassword = $passwords['plain'];
             } else {
