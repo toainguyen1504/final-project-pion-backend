@@ -99,8 +99,10 @@ class UserController extends Controller
                     $plainPassword = $request->password;
                     $password = Hash::make($request->password);
                 } else {
-                    $plainPassword = \Illuminate\Support\Str::random(8);
-                    $password = Hash::make($plainPassword);
+                    $passwords = PasswordService::generate(8);
+
+                    $plainPassword = $passwords['plain'];
+                    $password = $passwords['hashed'];
                 }
 
                 $user = User::create([
@@ -341,7 +343,7 @@ class UserController extends Controller
 
         try {
             // Sinh password mới
-            $passwords = PasswordService::generate(10);
+            $passwords = PasswordService::generate(8);
             $user->update(['password' => $passwords['hashed']]);
 
             return response()->json([

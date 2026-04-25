@@ -88,6 +88,7 @@ Route::prefix('client')->middleware('auth:sanctum')->group(function () {
 
     // update profile
     Route::put('/profile', [ProfileController::class, 'update']);
+    Route::put('/change-password', [ProfileController::class, 'changePassword']);
 });
 
 Route::post('/client/payments/momo/ipn', MomoIpnController::class);
