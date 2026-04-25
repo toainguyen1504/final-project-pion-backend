@@ -45,6 +45,6 @@ class UsernameService
             return "{$slug}{$user->id}{$yy}";
         }
         
-        return "pion_{$slug}{$user->id}{$yy}";
+        return "{$slug}{$user->id}{$yy}";
     }
 }

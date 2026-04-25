@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Services\PasswordService;
 use App\Models\User;
 use App\Models\Role;
+use App\Models\Learner;
+use Illuminate\Support\Facades\DB;
+use App\Services\UsernameService;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -80,50 +83,81 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'display_name' => 'required|string|max:255',
-            'role_id'      => 'required|exists:roles,id',
-            'status'       => 'nullable|integer|in:0,1,2',
-            'email'        => 'nullable|email|unique:users', // không bắt buộc
-            'phone' => ['nullable', 'string', 'max:20', 'unique:users,phone'],  // không bắt buộc
-            'password'     => 'nullable|string|min:6',       // không bắt buộc
+            'display_name'  => 'required|string|max:255',
+            'email'         => 'nullable|email|unique:users,email',
+            'phone'         => 'nullable|string|max:20|unique:users,phone',
+            'password'      => 'nullable|string|min:6',
+            'role_id'       => 'required|exists:roles,id',
+            'status'        => 'nullable|integer|in:0,1,2',
+            'gender'        => 'nullable|string|in:male,female,other',
+            'profile_image' => 'nullable|string',
         ]);
 
         try {
-            // Nếu không nhập password -> tự sinh 6 ký tự
-            if (!$request->filled('password')) {
-                $passwords = \App\Services\PasswordService::generate(8);
-                $validated['password'] = $passwords['hashed'];
-                $plainPassword = $passwords['plain'];
-            } else {
-                $validated['password'] = Hash::make($request->password);
-                $plainPassword = $request->password;
-            }
+            return DB::transaction(function () use ($request, $validated) {
+                if ($request->filled('password')) {
+                    $plainPassword = $request->password;
+                    $password = Hash::make($request->password);
+                } else {
+                    $plainPassword = \Illuminate\Support\Str::random(8);
+                    $password = Hash::make($plainPassword);
+                }
 
-            // Nếu không truyền status thì mặc định là UNVERIFIED
-            $validated['status'] = $validated['status'] ?? User::STATUS_UNVERIFIED;
+                $user = User::create([
+                    'display_name'  => $validated['display_name'],
+                    'email'         => $validated['email'] ?? null,
+                    'phone'         => $validated['phone'] ?? null,
+                    'password'      => $password,
+                    'role_id'       => $validated['role_id'],
+                    'status'        => $validated['status'] ?? User::STATUS_UNVERIFIED,
+                    'gender'        => $validated['gender'] ?? 'other',
+                    'profile_image' => $validated['profile_image'] ?? null,
+                ]);
 
-            // Tạo user
-            $user = User::create($validated);
-            $user = $user->fresh(['role', 'learner', 'teacher', 'staff']);
+                $role = Role::find($validated['role_id']);
 
-            // Sinh username theo logic mới
-            $username = \App\Services\UsernameService::generate($user);
-            $user->update(['username' => $username]);
+                if ($role && strtolower($role->name) === 'learner') {
+                    $nameParts = preg_split('/\s+/', trim($validated['display_name']));
 
-            return response()->json([
-                'success'        => true,
-                'message'        => 'Tạo tài khoản thành công!',
-                'data'           => $user,
-                'plain_password' => $plainPassword // trả về cho admin biết
-            ], 201);
-        } catch (\Exception $e) {
+                    $lastName = array_pop($nameParts);
+                    $firstName = trim(implode(' ', $nameParts));
+
+                    if (!$firstName) {
+                        $firstName = $validated['display_name'];
+                    }
+
+                    if (!$lastName) {
+                        $lastName = '';
+                    }
+
+                    $user->learner()->create([
+                        'first_name' => $firstName,
+                        'last_name'  => $lastName,
+                        'is_active'  => true,
+                    ]);
+                }
+
+                $user->load(['role', 'learner', 'teacher', 'staff']);
+
+                $user->update([
+                    'username' => UsernameService::generate($user),
+                ]);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Tạo tài khoản thành công!',
+                    'data' => $user->fresh(['role', 'learner', 'teacher', 'staff']),
+                    'plain_password' => $plainPassword,
+                ], 201);
+            });
+        } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Tạo tài khoản thất bại.'
+                'message' => 'Tạo tài khoản thất bại.',
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
-
 
     public function show($id)
     {
