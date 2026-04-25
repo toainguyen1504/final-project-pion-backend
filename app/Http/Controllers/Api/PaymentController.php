@@ -196,18 +196,42 @@ class PaymentController extends Controller
                 ]);
             }
 
-            Enrollment::updateOrCreate(
-                [
-                    'learner_id' => $learnerId,
-                    'course_id' => $item->course_id,
-                ],
-                [
-                    'payment_status' => 'paid',
-                    'payment_source' => 'momo',
-                    'enrollment_date' => now(),
-                    'progress' => 0,
-                ]
-            );
+            if ($learnerId) {
+                $enrollment = Enrollment::where('learner_id', $learnerId)
+                    ->where('course_id', $item->course_id)
+                    ->lockForUpdate()
+                    ->first();
+
+                $shouldIncrementParticipants = false;
+
+                if (! $enrollment) {
+                    $enrollment = Enrollment::create([
+                        'learner_id' => $learnerId,
+                        'course_id' => $item->course_id,
+                        'payment_status' => 'paid',
+                        'payment_source' => 'momo',
+                        'enrollment_date' => now(),
+                        'progress' => 0,
+                    ]);
+
+                    $shouldIncrementParticipants = true;
+                } else {
+                    $wasPaid = $enrollment->payment_status === 'paid';
+
+                    $enrollment->update([
+                        'payment_status' => 'paid',
+                        'payment_source' => 'momo',
+                    ]);
+
+                    if (! $wasPaid) {
+                        $shouldIncrementParticipants = true;
+                    }
+                }
+
+                if ($shouldIncrementParticipants) {
+                    $item->course()->increment('participants');
+                }
+            }
 
             DB::commit();
 
