@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Course;
+use App\Models\LessonProgress;
 use Illuminate\Http\Request;
 use App\Http\Requests\CourseRequest;
 use Illuminate\Support\Str;
@@ -98,6 +99,7 @@ class CourseController extends Controller
             'program' => $course->program ?? null,
             'category' => $course->category ?? null,
             'lessons' => $course->lessons ?? null,
+            'continue_lesson_id' => $course->continue_lesson_id ?? null,
             'enrolled' => $course->enrolled ?? false,
             'created_at' => $course->created_at,
             'updated_at' => $course->updated_at,
@@ -269,6 +271,21 @@ class CourseController extends Controller
 
         $course->duration = $course->duration ?? 0;
         $course->enrolled = true;
+
+        // bài học gần đây nhất
+        $lessonIds = $course->lessons->pluck('id');
+
+        $continueProgress = LessonProgress::where('learner_id', $learner->id)
+            ->whereIn('lesson_id', $lessonIds)
+            ->orderBy('is_completed', 'asc') // ưu tiên bài chưa hoàn thành
+            ->orderByDesc('last_watched_at')
+            ->first();
+
+        $firstLesson = $course->lessons
+            ->sortBy('order')
+            ->first();
+
+        $course->continue_lesson_id = $continueProgress?->lesson_id ?? $firstLesson?->id;
 
         return response()->json([
             'success' => true,
