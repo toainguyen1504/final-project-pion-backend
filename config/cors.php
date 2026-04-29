@@ -6,7 +6,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['http://localhost:3000', 'https://pion.edu.vn'],
+    'allowed_origins' => ['http://localhost:3000', 'http://localhost:5173', 'https://pion.edu.vn', 'https://admin.pion.edu.vn'],
 
     // 'allowed_origins' => ['https://pion.edu.vn'], 
 

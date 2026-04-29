@@ -40,7 +40,21 @@ return [
         'chat_id' => env('TELEGRAM_CHAT_ID'),
     ],
 
+    'youtube' => [
+        'api_key' => env('YOUTUBE_API_KEY'),
+    ],
     // 'recaptcha' => [
     //     'secret' => env('GOOGLE_RECAPTCHA_SECRET'),
     // ],
+
+    'momo' => [
+        'enabled' => env('MOMO_ENABLED', false),
+        'base_url' => env('MOMO_BASE_URL', 'https://test-payment.momo.vn'),
+        'partner_code' => env('MOMO_PARTNER_CODE'),
+        'access_key' => env('MOMO_ACCESS_KEY'),
+        'secret_key' => env('MOMO_SECRET_KEY'),
+        'redirect_url' => env('MOMO_REDIRECT_URL'),
+        'ipn_url' => env('MOMO_IPN_URL'),
+        'request_type' => env('MOMO_REQUEST_TYPE', 'captureWallet'),
+    ],
 ];

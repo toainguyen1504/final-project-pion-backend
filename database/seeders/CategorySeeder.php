@@ -18,6 +18,13 @@ class CategorySeeder extends Seeder
                 'updated_at' => '2025-07-09 03:39:10',
             ],
             [
+                'id' => 2,
+                'name' => 'Du học Trung Quốc',
+                'slug' => 'du-hoc-trung-quoc',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
                 'id' => 3,
                 'name' => 'Học phí',
                 'slug' => 'hoc-phi',
@@ -72,13 +79,6 @@ class CategorySeeder extends Seeder
                 'slug' => 'ky-nang-song',
                 'created_at' => '2025-07-10 09:15:09',
                 'updated_at' => '2025-07-11 07:46:49',
-            ],
-            [
-                'id' => 11,
-                'name' => 'Sức khỏe',
-                'slug' => 'suc-khoe',
-                'created_at' => '2025-07-11 07:47:17',
-                'updated_at' => '2025-07-11 07:47:17',
             ],
         ]);
     }

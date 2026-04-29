@@ -13,8 +13,12 @@ return new class extends Migration
     {
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique(); 
-            $table->string('slug')->unique(); 
+            $table->string('name')->unique();
+            $table->string('slug')->unique();
+
+            $table->enum('type', ['post', 'course'])->default('post');
+            $table->boolean('is_featured')->default(false);
+            $table->foreignId('parent_id')->nullable()->constrained('categories')->nullOnDelete();
             $table->timestamps();
         });
     }

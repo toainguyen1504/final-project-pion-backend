@@ -14,11 +14,11 @@ return new class extends Migration
         Schema::create('posts', function (Blueprint $table) {
             $table->id();
 
-            $table->string('title');                  // Post title shown to users
+            $table->string('title')->unique();                   // Post title shown to users
             $table->text('sapo_text')->nullable(); // plain text intro to show meta desc in FE
             $table->string('slug')->unique();         // SEO-friendly URL - slug follow seo_title
             $table->unsignedBigInteger('user_id');    // Author
-            $table->unsignedBigInteger('category_id')->nullable();
+            $table->unsignedBigInteger('category_id')->nullable(); // OPTIMIZE : nên xóa vì đã có bảng trung gian category_post để liên kết nhiều-nhiều giữa posts và categories
             $table->unsignedBigInteger('template_id')->nullable();
 
             // SEO fields (Rank Math style)
@@ -26,6 +26,12 @@ return new class extends Migration
             $table->text('seo_description')->nullable();    // SEO meta description
             $table->string('seo_keywords')->nullable();     // Focus keywords (comma-separated)
             $table->json('seo_meta')->nullable();           // Extended SEO (Open Graph, Twitter Card...)
+
+            // NEW: Featured & view count 
+            $table->boolean('is_featured')->default(false); // hiển thị bài viết nổi bật 
+            $table->unsignedBigInteger('view_count')->default(0); // lượt xem bài viết
+
+            // NEED: cần các trường để hiển thị lượt xem bài viết,chức năng comment để tương tác bài viết
 
             // Status & visibility & scheduling
             $table->enum('status', ['draft', 'pending', 'published', 'archived'])->default('draft');
@@ -44,7 +50,6 @@ return new class extends Migration
             $table->foreign('featured_media_id')->references('id')->on('medias')->onDelete('set null');
         });
     }
-
 
     /**
      * Reverse the migrations.

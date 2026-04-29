@@ -3,6 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class PostRequest extends FormRequest
 {
@@ -14,23 +16,35 @@ class PostRequest extends FormRequest
     public function rules()
     {
         return [
-            'title'       => 'required|string|max:255',
-            'category_ids'  => 'required|array|min:1',
-            'category_ids.*' => 'exists:categories,id',
-            'content'     => 'required|string|min:50',
+            'title'           => 'required|string|max:255',
+            'category_ids'    => 'required|array|min:1',
+            'category_ids.*'  => 'exists:categories,id',
+            'content'         => 'required|string|min:50',
+            'slug' => 'nullable|string|min:3|max:255',
         ];
     }
 
     public function messages()
     {
         return [
-            'title.required'       => 'Vui lòng nhập tiêu đề bài viết.',
-            'title.max'            => 'Tiêu đề quá dài, tối đa 255 ký tự.',
-            'category_ids.required'  => 'Vui lòng chọn ít nhất một danh mục.',
-            'category_ids.array'     => 'Dữ liệu danh mục không hợp lệ.',
-            'category_ids.*.exists'  => 'Danh mục đã chọn không tồn tại.',
-            'content.required'     => 'Bạn chưa nhập nội dung bài viết.',
-            'content.min'          => 'Nội dung bài viết cần dài hơn để đảm bảo đầy đủ thông tin.',
+            'title.required'          => 'Please enter a post title.',
+            'title.max'               => 'The title may not be greater than 255 characters.',
+            'category_ids.required'   => 'Please select at least one category.',
+            'category_ids.array'      => 'Invalid category data format.',
+            'category_ids.*.exists'   => 'One or more selected categories do not exist.',
+            'content.required'        => 'Post content is required.',
+            'content.min'             => 'Content must be at least 50 characters long.',
+            'slug.min' => 'Slug must be at least 3 characters.',
+            'slug.max' => 'Slug may not exceed 255 characters.',
         ];
+    }
+
+    public function failedValidation(Validator $validator)
+    {
+        throw new HttpResponseException(response()->json([
+            'success' => false,
+            'message' => 'Validation failed.',
+            'errors' => $validator->errors()
+        ], 422));
     }
 }

@@ -15,6 +15,7 @@ class FormController extends Controller
         $this->sheets = $sheets;
     }
 
+    // Form for register talk show program
     public function submit(Request $request)
     {
         $request->validate([
@@ -34,6 +35,6 @@ class FormController extends Controller
             now()->toDateTimeString(),
         ]);
 
-        return response()->json(['success' => true, 'message' => 'Form submitted successfully']);
+        return response()->json(['success' => true, 'message' => 'Gửi biểu mẫu thành công.']);
     }
 }

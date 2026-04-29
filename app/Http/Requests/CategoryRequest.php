@@ -5,6 +5,8 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Validation\Rule;
+use App\Models\Category;
 
 class CategoryRequest extends FormRequest
 {
@@ -15,49 +17,52 @@ class CategoryRequest extends FormRequest
 
     public function rules()
     {
-        $id = $this->route('id');
+        $id = $this->route('id');  // Lấy ID từ route (cần cho việc ignore trong validation)
 
-        return [
-            'name' => 'required|string|max:50|unique:categories,name' . ($id ? ',' . $id : ''),
+        // Lấy category từ database
+        $category = Category::find($id);
+
+        // Nếu không tìm thấy category, trả lỗi
+        if (!$category) {
+            return [];
+        }
+
+        $rules = [
+            'name' => [
+                'required',
+                'string',
+                'max:50',
+                // Chỉ kiểm tra trùng tên nếu name có thay đổi
+                Rule::unique('categories', 'name')->ignore($id),
+            ],
+            'type' => ['required', 'string', 'max:50'],  // Loại của category (post, course, ...)
+            'is_featured' => ['boolean'],  // Nếu có
         ];
+
+        // Nếu tên không thay đổi, bỏ qua kiểm tra trùng tên
+        if ($this->input('name') === $category->name) {
+            unset($rules['name']);  // Bỏ qua validation unique nếu tên không thay đổi
+        }
+
+        return $rules;
     }
 
     public function messages()
     {
         return [
-            'name.required' => 'Vui lòng nhập tên danh mục.',
-            'name.string'   => 'Tên danh mục phải là chuỗi ký tự.',
-            'name.max'      => 'Tên danh mục không được vượt quá 50 ký tự.',
-            'name.unique'   => 'Tên danh mục này đã tồn tại.',
+            'name.required' => 'Category name is required.',
+            'name.string'   => 'Category name must be text.',
+            'name.max'      => 'Category name must be under 50 characters.',
+            'name.unique'   => 'Category name is already taken.',
         ];
     }
 
     public function failedValidation(Validator $validator)
     {
-        $modal = $this->routeIs('categories.update') ? 'modalEditCategory' : 'modalAddCategory';
-
-        // Check if the form is submitted from the create post page
-        if ($this->has('from_post_create')) {
-            $redirect = redirect()
-                ->route('admin.posts.create')
-                ->withErrors($validator, 'category')
-                ->withInput()
-                ->with('openModal', $modal);
-
-            throw new HttpResponseException($redirect);
-        }
-
-        // Default: redirect to the category management page
-        $redirect = redirect()
-            ->route('admin.categories.index')
-            ->withErrors($validator, 'category')
-            ->withInput()
-            ->with('openModal', $modal);
-
-        if ($modal === 'modalEditCategory') {
-            $redirect->with('editingId', $this->route('id'));
-        }
-
-        throw new HttpResponseException($redirect);
+        throw new HttpResponseException(response()->json([
+            'success' => false,
+            'message' => 'Validation failed.',
+            'errors' => $validator->errors()
+        ], 422));
     }
 }

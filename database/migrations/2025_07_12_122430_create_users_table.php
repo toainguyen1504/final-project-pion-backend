@@ -13,16 +13,26 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('email')->unique();
+            $table->string('display_name')->nullable(); // tên hiển thị công khai
+            $table->string('username')->unique()->nullable(); // tên đăng nhập (có thể dùng để đăng nhập)
+            $table->string('email')->unique()->nullable(); // email người dùng (có thể dùng null, người dùng sẽ cập nhật sau khi có account)
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->unsignedBigInteger('role_id');
-            $table->string('profile_image')->nullable();
+            $table->unsignedTinyInteger('status')->default(0)->comment('0=unverified,1=active,2=blocked');
+            $table->enum('membership_type', ['free', 'premium', 'vip'])->nullable();   // Membership type: chỉ áp dụng cho role member 
+            // Note for member role
+            // free: chỉ comment, tham gia cộng đồng.
+            // premium: có thêm quyền truy cập khóa học online.
+            // vip: quyền lợi cao hơn (tài liệu đặc biệt, ưu đãi).
+
+            $table->string('profile_image')->nullable(); // ảnh
+
             $table->timestamps();
             $table->rememberToken();
 
+            $table->unsignedBigInteger('role_id');
             $table->foreign('role_id')->references('id')->on('roles');
+            $table->softDeletes(); // hỗ trợ xóa mềm
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
